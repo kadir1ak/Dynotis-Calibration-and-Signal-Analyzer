@@ -1,0 +1,9 @@
+﻿<Application x:Class="Dynotis_Calibration_and_Signal_Analyzer.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Dynotis_Calibration_and_Signal_Analyzer"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+         
+    </Application.Resources>
+</Application>

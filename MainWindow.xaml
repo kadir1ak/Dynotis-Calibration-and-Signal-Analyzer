@@ -1,0 +1,698 @@
+﻿<Window x:Class="Dynotis_Calibration_and_Signal_Analyzer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Dynotis_Calibration_and_Signal_Analyzer"        
+        xmlns:oxy="http://oxyplot.org/wpf"   
+        mc:Ignorable="d"
+        Title="MainWindow" Height="1080" Width="1920" WindowState="Maximized" >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="45*"></ColumnDefinition>
+            <ColumnDefinition Width="55*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="85*"></RowDefinition>
+            <RowDefinition Height="10*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="80*"></RowDefinition>
+                <RowDefinition Height="160"></RowDefinition>
+                <RowDefinition Height="160"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40*"></ColumnDefinition>
+                <ColumnDefinition Width="50*"></ColumnDefinition>
+                <ColumnDefinition Width="50*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TabControl x:Name="Tablolar_TabControl" Grid.Row="0" Grid.ColumnSpan="5" Margin="5" SelectionChanged="Tablolar_TabControl_SelectionChanged">
+                <TabItem x:Name="TabItem_Itki" Header="İtki" FontSize="24">
+                    <!-- Sayfa 1 içeriği buraya gelecek -->
+                    <DataGrid x:Name="Itki_DataList" CellEditEnding="Itki_DataList_CellEditEnding" Sorting="Itki_DataList_Sorting" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Path=DoubleProperty, StringFormat={}{0:F2}}" >
+                        <DataGrid.Columns>
+
+                            <!-- No Column -->
+                            <DataGridTextColumn x:Name="ItkiDataGrid0Column" Header="No" Binding="{Binding No}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="#FFF3E597"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- İtki (ADC) Column -->
+                            <DataGridTextColumn x:Name="ItkiDataGrid1Column" Header="Okunan İtki (ADC)" Binding="{Binding ADC_Itki}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="Orange"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- İtki (gr) Column -->
+                            <DataGridTextColumn x:Name="ItkiDataGrid2Column" Header="Uygulanan İtki" Binding="{Binding Uygulanan_Itki}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="Orange"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Tork (ADC) Column -->
+                            <DataGridTextColumn x:Name="ItkiDataGrid3Column" Header="Okunan Tork (ADC)" Binding="{Binding ADC_Tork}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="DarkSeaGreen"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                <TabItem x:Name="TabItem_Tork" Header="Tork" FontSize="24">
+                    <!-- Sayfa 2 içeriği buraya gelecek -->
+                    <DataGrid x:Name="Tork_DataList" CellEditEnding="Tork_DataList_CellEditEnding" Sorting="Tork_DataList_Sorting" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Path=DoubleProperty, StringFormat={}{0:F2}}">
+                        <DataGrid.Columns>
+
+                            <!-- No Column -->
+                            <DataGridTextColumn x:Name="TorkDataGrid0Column" Header="No" Binding="{Binding No}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="#FFF3E597"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- İtki (ADC) Column -->
+                            <DataGridTextColumn x:Name="TorkDataGrid1Column" Header="Okunan İtki (ADC)" Binding="{Binding ADC_Itki}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="Orange"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Tork (ADC) Column -->
+                            <DataGridTextColumn x:Name="TorkDataGrid3Column" Header="Okunan Tork (ADC)" Binding="{Binding ADC_Tork}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="DarkSeaGreen"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Tork (Nmm) Column -->
+                            <DataGridTextColumn x:Name="TorkDataGrid4Column" Header="Uygulanan Tork (Nmm)" Binding="{Binding Uygulanan_Tork}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="DarkSeaGreen"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                <TabItem x:Name="TabItem_Cross" Header="Load Cell Test" FontSize="24">
+                    <!-- Sayfa 3 içeriği buraya gelecek -->
+                    <DataGrid x:Name="Cross_DataList" CellEditEnding="Cross_DataList_CellEditEnding" Sorting="Cross_DataList_Sorting" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Path=DoubleProperty, StringFormat={}{0:F2}}">
+                        <DataGrid.Columns>
+
+                            <!-- No Column -->
+                            <DataGridTextColumn x:Name="CrossDataGrid0Column" Header="No" Binding="{Binding No}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="#FFF3E597"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- İtki (ADC) Column -->
+                            <DataGridTextColumn x:Name="CrossDataGrid1Column" Header="Okunan İtki (ADC)" Binding="{Binding ADC_Itki}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="Orange"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- İtki (gr) Column -->
+                            <DataGridTextColumn x:Name="CrossDataGrid2Column" Header="Uygulanan İtki" Binding="{Binding Uygulanan_Itki}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="Orange"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- İtki (gr) Column -->
+                            <DataGridTextColumn x:Name="CrossDataGrid3Column" Header="Okunan İtki (gr)" Binding="{Binding Okunan_Itki}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="Orange"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- İtki Hata (%) Column -->
+                            <DataGridTextColumn x:Name="CrossDataGrid4Column" Header="Okunan İtki Hatası (%)" Binding="{Binding Okunan_Yüzde_Hata_Itki}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="Orange"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Tork (ADC) Column -->
+                            <DataGridTextColumn x:Name="CrossDataGrid5Column" Header="Okunan Tork (ADC)" Binding="{Binding ADC_Tork}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="DarkSeaGreen"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Tork (Nmm) Column -->
+                            <DataGridTextColumn x:Name="CrossDataGrid6Column" Header="Uygulanan Tork (Nmm)" Binding="{Binding Uygulanan_Tork}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="DarkSeaGreen"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Tork (Nmm) Column -->
+                            <DataGridTextColumn x:Name="CrossDataGrid7Column" Header="Okunan Tork (Nmm)" Binding="{Binding Okunan_Tork}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="DarkSeaGreen"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Tork Hata (%) Column -->
+                            <DataGridTextColumn x:Name="CrossDataGrid8Column" Header="Okunan Tork Hatası (%)" Binding="{Binding Okunan_Yüzde_Hata_Tork}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="DarkSeaGreen"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+
+                <TabItem x:Name="TabItem_Akım" Header="Akım" FontSize="24">
+                    <!-- Sayfa 4 içeriği buraya gelecek -->
+                    <DataGrid x:Name="Akım_DataList" CellEditEnding="Akım_DataList_CellEditEnding" Sorting="Akım_DataList_Sorting" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Path=DoubleProperty, StringFormat={}{0:F2}}" >
+                        <DataGrid.Columns>
+
+                            <!-- No Column -->
+                            <DataGridTextColumn Header="No" Binding="{Binding No}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="#FFF3E597"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Akım (mA) Column -->
+                            <DataGridTextColumn Header="Uygulanan Akım (mA)" Binding="{Binding Uygulanan_Akım}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="#FF89ACEF"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Akım (ADC) Column -->
+                            <DataGridTextColumn Header="Okunan Akım (ADC)" Binding="{Binding Raw_Akım}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="#FF587DC5"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                <TabItem x:Name="TabItem_Voltaj" Header="Voltaj" FontSize="24">
+                    <!-- Sayfa 5 içeriği buraya gelecek -->
+                    <DataGrid x:Name="Voltaj_DataList" CellEditEnding="Voltaj_DataList_CellEditEnding" Sorting="Voltaj_DataList_Sorting" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Path=DoubleProperty, StringFormat={}{0:F2}}" >
+                        <DataGrid.Columns>
+
+                            <!-- No Column -->
+                            <DataGridTextColumn Header="No" Binding="{Binding No}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="#FFF3E597"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Akım (mV) Column -->
+                            <DataGridTextColumn Header="Uygulanan Voltaj (mV)" Binding="{Binding Uygulanan_Voltaj}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="#FFE399EC"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Akım (ADC) Column -->
+                            <DataGridTextColumn Header="Okunan Voltaj (ADC)" Binding="{Binding Raw_Voltaj}" >
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="#FFC96CD4"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+            </TabControl>
+
+
+            <!-- İtki -->
+            <GroupBox x:Name="Itki_Border" Grid.Row="1" Grid.Column="0" BorderBrush="Orange" BorderThickness="2" Margin="5" >
+                <GroupBox.Header >
+                    <TextBlock Text="İtki" FontSize="20" FontWeight="Bold"/>
+                </GroupBox.Header>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 0 5">
+                    <Label x:Name="Uygulanan_Itki_Birim_Title" Content="Uygulanan İtki" FontSize="16"></Label>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
+                        <TextBox x:Name="Uygulanan_Itki_TextBox" Text="0" Width="80" Height="22" FontSize="16" PreviewTextInput="Uygulanan_Itki_TextBox_PreviewTextInput" TextChanged="Uygulanan_Itki_TextBox_TextChanged"></TextBox>
+                        <Label x:Name="Uygulanan_Itki_Birim_Label" Content="gr" FontSize="16"></Label>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Tork -->
+            <GroupBox x:Name="Tork_Border" Grid.Row="1" Grid.Column="2" BorderBrush="DarkSeaGreen" BorderThickness="2" Margin="5">
+                <GroupBox.Header >
+                    <TextBlock Text="Tork" FontSize="20" FontWeight="Bold"/>
+                </GroupBox.Header>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 5 5">
+                    <Label x:Name="Uygulanan_Tork_Birim_Title" Content="Uygulanan Tork (gr)" FontSize="16"></Label>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
+                        <TextBox x:Name="Uygulanan_Tork_TextBox" Text="0" Width="80" Height="22" FontSize="16" PreviewTextInput="Uygulanan_Tork_TextBox_PreviewTextInput" TextChanged="Uygulanan_Tork_TextBox_TextChanged"></TextBox>
+                        <Label x:Name="Uygulanan_Tork_Birim_Label" Content="gr" FontSize="16"></Label>
+                    </StackPanel>
+                    <StackPanel x:Name="Tork_Uygulanan_Mesafe_Giris_Kutusu">
+                        <Label x:Name="Label83" Content="Uygulanan Tork Mesafesi (mm)" FontSize="16"></Label>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
+                            <TextBox x:Name="Uygulanan_Tork_Mesafesi_TextBox" Text="0" Width="80" Height="22" FontSize="16" PreviewTextInput="Uygulanan_Tork_Mesafesi_TextBox_PreviewTextInput" TextChanged="Uygulanan_Tork_Mesafesi_TextBox_TextChanged"></TextBox>
+                            <Label x:Name="Uygulanan_Tork_Mesafesi_Label" Content="mm" FontSize="16"></Label>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Akım -->
+            <GroupBox x:Name="Akım_Border" Grid.Row="1" Grid.Column="0" BorderBrush="#FF587DC5" BorderThickness="2" Margin="5" >
+                <GroupBox.Header >
+                    <TextBlock Text="Akım" FontSize="20" FontWeight="Bold"/>
+                </GroupBox.Header>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 0 5">
+                    <Label x:Name="Label123" Content="Uygulanan Akım (mA)" FontSize="16"></Label>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
+                        <TextBox x:Name="Uygulanan_Akım_TextBox" Text="0" Width="80" Height="22" FontSize="16" PreviewTextInput="Uygulanan_Akım_TextBox_PreviewTextInput" TextChanged="Uygulanan_Akım_TextBox_TextChanged"></TextBox>
+                        <Label x:Name="Uygulanan_Akım_Label" Content="mA" FontSize="16"></Label>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Voltaj -->
+            <GroupBox x:Name="Voltaj_Border" Grid.Row="1" Grid.Column="0" BorderBrush="#FFC96CD4" BorderThickness="2" Margin="5" >
+                <GroupBox.Header >
+                    <TextBlock Text="Voltaj" FontSize="20" FontWeight="Bold"/>
+                </GroupBox.Header>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 0 5">
+                    <Label x:Name="Label133" Content="Uygulanan Voltaj (mV)" FontSize="16"></Label>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
+                        <TextBox x:Name="Uygulanan_Voltaj_TextBox" Text="0" Width="80" Height="22" FontSize="16" PreviewTextInput="Uygulanan_Voltaj_TextBox_PreviewTextInput" TextChanged="Uygulanan_Voltaj_TextBox_TextChanged"></TextBox>
+                        <Label x:Name="Uygulanan_Voltaj_Label" Content="mV" FontSize="16"></Label>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+
+            <!--Point Ekleme ve Silme Buttonları -->
+            <Grid Grid.Row="1" Grid.Column="1" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50*"></RowDefinition>
+                    <RowDefinition Height="50*"></RowDefinition>
+                    <RowDefinition Height="50*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Button x:Name="AddPointButton" Grid.Row="0" Content="Ekle" Click="AddPointButton_Click" Height="40" FontSize="24" Width="200" Background="#FF85D699"  VerticalAlignment="Center"></Button>
+                <Button x:Name="DeletePointButton" Grid.Row="1" Content="Sil" Click="DeletePointButton_Click" Height="40" FontSize="24" Width="200" Background="#FFF99191"  VerticalAlignment="Center"></Button>
+                <ProgressBar x:Name="AddProgressBar" Grid.Row="2" Value="0"  Height="40" Width="200" Foreground="#FF74DA8E" Background="SeaShell" VerticalAlignment="Bottom" BorderBrush="DimGray"/>
+                <TextBlock x:Name="ProgressBarText" Grid.Row="2" HorizontalAlignment="Center" FontSize="28" VerticalAlignment="Bottom" Text="{Binding ElementName=AddProgressBar, Path=Value, StringFormat={}{0:0}%}" Margin="0 0 0 2" />
+            </Grid>
+
+            <!-- Kalibrasyon ve Excel Buttonları -->
+            <Grid Grid.Row="2" Grid.Column="2" Margin="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50*"></RowDefinition>
+                    <RowDefinition Height="50*"></RowDefinition>
+                    <RowDefinition Height="50*"></RowDefinition>
+                    <RowDefinition Height="50*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Button x:Name="ClearButton" Grid.Row="0" Content="Temizle" Click="Clear_Click" Height="34" FontSize="24" Width="200" Background="#FFEED85C"></Button>
+                <Button x:Name="CalibrationButton" Grid.Row="1" Content="Kalibrasyon" Click="Calibration_Click" Height="34" FontSize="24" Width="200" Background="#FFADEE5C"></Button>
+                <Button x:Name="ExcelExport" Grid.Row="2" Content="Excel Dışarı Çıkar" Click="ExcelExport_Click" Height="34" FontSize="24" Width="200" Background="#FF5CB2EE"></Button>
+                <Button x:Name="ExcelImport" Grid.Row="3" Content="Excel İçeri Aktar" Click="ExcelImport_Click" Height="34" FontSize="24" Width="200" Background="#FF84D0CE"></Button>
+            </Grid>
+
+            <!-- Birimler -->
+            <GroupBox x:Name="Birim_Border" Grid.Row="2" Grid.Column="0"  BorderBrush="#FF3FC0C3" BorderThickness="2" Margin="0 5 0 5">
+                <GroupBox.Header >
+                    <TextBlock Text="Birimler" FontSize="16" FontWeight="Bold"/>
+                </GroupBox.Header>
+                <Grid Margin="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <!-- İtki ComboBox -->
+                    <TextBlock Grid.Column="0" Grid.Row="0" Text="İtki: " VerticalAlignment="Center" FontSize="16" Margin="0,0,10,0" />
+                    <ComboBox Grid.Column="1" Grid.Row="0" Height="24" FontSize="14" Name="ItkiComboBox" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBoxItem Content="Gram" />
+                        <ComboBoxItem Content="Newton" />
+                    </ComboBox>
+                    <!-- Tork ComboBox -->
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Tork: " VerticalAlignment="Center" FontSize="16" Margin="0,0,10,0" />
+                    <ComboBox Grid.Column="1" Grid.Row="1" Height="24" FontSize="14" Name="TorkComboBox" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBoxItem Content="Gram" />
+                        <ComboBoxItem Content="Newton" />
+                    </ComboBox>
+                    <!-- Akım ComboBox -->
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Akım: " VerticalAlignment="Center" Margin="0,0,10,0" FontSize="16" />
+                    <ComboBox Grid.Column="1" Grid.Row="2" Height="24" FontSize="14" Name="AkimComboBox" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBoxItem Content="mA" />
+                    </ComboBox>
+                    <!-- Voltaj ComboBox -->
+                    <TextBlock Grid.Column="0" Grid.Row="3" Text="Voltaj: " VerticalAlignment="Center" Margin="0,0,10,0" FontSize="16" />
+                    <ComboBox Grid.Column="1" Grid.Row="3" Height="24" FontSize="14" Name="VoltajComboBox" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBoxItem Content="mV" />
+                    </ComboBox>
+                </Grid>
+            </GroupBox>
+        </Grid>
+
+
+        <Grid Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10*"></ColumnDefinition>
+                <ColumnDefinition Width="25*"></ColumnDefinition>
+                <ColumnDefinition Width="25*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="250"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Grid.Column="0"  >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="2*"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <!-- Port ComboBox -->
+                <GroupBox Grid.Row="0" BorderBrush="IndianRed" BorderThickness="2" Margin="5">
+                    <GroupBox.Header >
+                        <TextBlock Text="Port Seç" FontSize="16" FontWeight="Bold"/>
+                    </GroupBox.Header>
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0">
+                        <ComboBox x:Name="portComboBox" FontSize="24" Grid.Row="0" Grid.Column="0" SelectionChanged="Port_SelectionChanged" HorizontalAlignment="Center"></ComboBox>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Grafik -->
+                <GroupBox Grid.Row="1" BorderBrush="#FF5CCDB6" BorderThickness="2" Margin="5">
+                    <GroupBox.Header >
+                        <TextBlock Text="Grafik Seç" FontSize="16" FontWeight="Bold"/>
+                    </GroupBox.Header>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <CheckBox x:Name="İtkiCh" Content="İtki" IsChecked="True" Visibility="Collapsed" Margin="20 0 0 0" FontSize="24" Padding="5 -12 0 0" Height="30"/>
+                        <CheckBox x:Name="TorkCh" Content="Tork" IsChecked="True" Visibility="Collapsed" Margin="20 0 0 0"  FontSize="24"  Padding="5 -12 0 0" Height="30"/>
+                        <CheckBox x:Name="AkımCh" Content="Akım" IsChecked="True" Visibility="Visible" Margin="20 0 0 0" FontSize="24" Padding="5 -12 0 0" Height="30"/>
+                        <CheckBox x:Name="VoltajCh" Content="Voltaj" IsChecked="True" Visibility="Visible" Margin="20 0 0 0"  FontSize="24"  Padding="5 -12 0 0" Height="30"/>
+                        <Button x:Name="PlotButton" Content="Durdur" Click="PlotButton_Click" Height="36" Width="100" FontSize="24" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFCEBBDE"></Button>
+                    </StackPanel>
+                </GroupBox>
+            </Grid>
+
+
+            <!-- İtki Data Paneli -->
+            <Border x:Name="Itki_Data_Border" Grid.Row="0" Grid.Column="1" BorderBrush="Orange" BorderThickness="2" Margin="5 5 5 5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40*"></ColumnDefinition>
+                        <ColumnDefinition Width="30*"></ColumnDefinition>
+                        <ColumnDefinition Width="25*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Rectangle Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5" />
+                    <Rectangle Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="0" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="1" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="2" Stroke="Black" StrokeThickness="0.5"/>
+
+                    <Label x:Name="label71" Grid.Row="0" Grid.Column="0" Content="İTKİ" FontSize="24" Foreground="DarkOrange" FontWeight="Bold" HorizontalAlignment="Center"></Label>
+                    <Label x:Name="label72" Grid.Row="1" Grid.Column="0" Content="Okunan Değer" FontSize="16"></Label>
+                    <Label x:Name="label73" Grid.Row="2" Grid.Column="0" Content="Gürültü Değeri" FontSize="16"></Label>
+                    <Label x:Name="label74" Grid.Row="3" Grid.Column="0" Content="Cross Hatası" FontSize="16"></Label>
+                    <Label x:Name="label75" Grid.Row="4" Grid.Column="0" Content="Hesaplanan Değer" FontWeight="Bold" FontSize="16"></Label>
+                    <Label x:Name="label76" Grid.Row="5" Grid.Column="0" Content="Sonuç" FontWeight="Bold" FontSize="16"></Label>
+
+                    <Label x:Name="label70" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="DarkOrange" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="Itki_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_ADC_Error_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Button x:Name="Itki_Sonuc_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Itki_Sonuc_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
+                    <Label x:Name="Uygulanan_Itki_Birim_Tablo" Grid.Row="0" Grid.Column="3" Content="Gram" FontSize="24" Foreground="DarkOrange" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="Itki_GRAM_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_GRAM_Noise_Label" Grid.Row="2" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_GRAM_Error_Label" Grid.Row="3" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_GRAM_Hesaplanan_Label" Grid.Row="4" Grid.Column="2" Content="0" FontSize="20" Foreground="DarkOrange" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_GRAM_Sonuc_Label" Grid.Row="5" Grid.Column="2" Content="0" FontSize="20" Foreground="#FFFF5D00" HorizontalAlignment="Right"></Label>
+                </Grid>
+            </Border>
+
+            <!-- Tork Data Paneli -->
+            <Border x:Name="Tork_Data_Border" Grid.Row="0" Grid.Column="2" BorderBrush="DarkSeaGreen" BorderThickness="2" Margin="5 5 5 5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40*"></ColumnDefinition>
+                        <ColumnDefinition Width="30*"></ColumnDefinition>
+                        <ColumnDefinition Width="25*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Rectangle Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="0" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="1" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="2" Stroke="Black" StrokeThickness="0.5"/>
+
+                    <Label x:Name="label60" Grid.Row="0" Grid.Column="0" Content="TORK" FontSize="24" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="label61" Grid.Row="1" Grid.Column="0" Content="Okunan Değer" FontSize="16"></Label>
+                    <Label x:Name="label62" Grid.Row="2" Grid.Column="0" Content="Gürültü Değeri" FontSize="16"></Label>
+                    <Label x:Name="label63" Grid.Row="3" Grid.Column="0" Content="Cross Hatası" FontSize="16"></Label>
+                    <Label x:Name="label64" Grid.Row="4" Grid.Column="0" Content="Hesaplanan Değer" FontWeight="Bold" FontSize="16"></Label>
+                    <Label x:Name="label77" Grid.Row="5" Grid.Column="0" Content="Sonuç" FontWeight="Bold" FontSize="16"></Label>
+
+                    <Label x:Name="label59" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="Tork_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_ADC_Error_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Button x:Name="Tork_Sonuc_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Tork_Sonuc_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
+                    <Label x:Name="Tork_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Uygulanan_Tork_Birim_Tablo" Grid.Row="0" Grid.Column="2" Content="Nmm" FontSize="24" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="Tork_Nmm_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_Nmm_Noise_Label" Grid.Row="2" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_Nmm_Error_Label" Grid.Row="3" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_Nmm_Hesaplanan_Label" Grid.Row="4" Grid.Column="2" Content="0" FontSize="20" Foreground="Green" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_Nmm_Sonuc_Label" Grid.Row="5" Grid.Column="2" Content="0" FontSize="20" Foreground="#FFFF5D00" HorizontalAlignment="Right"></Label>
+
+                </Grid>
+            </Border>
+
+            <!-- Akım Data Paneli -->
+            <Border x:Name="Akım_Data_Border" Grid.Row="0" Grid.Column="1" BorderBrush="#FF3D67B9" BorderThickness="2" Margin="5 5 5 5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40*"></ColumnDefinition>
+                        <ColumnDefinition Width="30*"></ColumnDefinition>
+                        <ColumnDefinition Width="20*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Rectangle Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5" />
+                    <Rectangle Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="0" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="1" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="2" Stroke="Black" StrokeThickness="0.5"/>
+
+                    <Label x:Name="label171" Grid.Row="0" Grid.Column="0" Content="AKIM" FontSize="24" Foreground="#FF587DC5" FontWeight="Bold" HorizontalAlignment="Center"></Label>
+                    <Label x:Name="label172" Grid.Row="1" Grid.Column="0" Content="Okunan Değer" FontSize="16"></Label>
+                    <Label x:Name="label173" Grid.Row="2" Grid.Column="0" Content="Gürültü Değeri" FontSize="16"></Label>
+                    <Label x:Name="label175" Grid.Row="3" Grid.Column="0" Content="Hesaplanan Değer" FontWeight="Bold" FontSize="16"></Label>
+
+                    <Label x:Name="label170" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="#FF587DC5" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="Akım_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Akım_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Akım_ADC_Hesaplanan_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="label125" Grid.Row="0" Grid.Column="3" Content="mAmper" FontSize="24" Foreground="#FF587DC5" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="Akım_mA_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Akım_mA_Noise_Label" Grid.Row="2" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Akım_mA_Hesaplanan_Label" Grid.Row="3" Grid.Column="2" Content="0" FontSize="20" Foreground="#FF587DC5" HorizontalAlignment="Right"></Label>
+                </Grid>
+            </Border>
+
+            <!-- Voltaj Data Paneli -->
+            <Border x:Name="Voltaj_Data_Border" Grid.Row="0" Grid.Column="2" BorderBrush="#FFBC4EC8" BorderThickness="2" Margin="5 5 5 5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                        <RowDefinition Height="40*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40*"></ColumnDefinition>
+                        <ColumnDefinition Width="30*"></ColumnDefinition>
+                        <ColumnDefinition Width="20*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Rectangle Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="5" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="0" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="1" Stroke="Black" StrokeThickness="0.5"/>
+                    <Rectangle Grid.Row="0" Grid.RowSpan="10" Grid.Column="2" Stroke="Black" StrokeThickness="0.5"/>
+
+                    <Label x:Name="label160" Grid.Row="0" Grid.Column="0" Content="VOTAJ" FontSize="24" Foreground="#FFC96CD4" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="label161" Grid.Row="1" Grid.Column="0" Content="Okunan Değer" FontSize="16"></Label>
+                    <Label x:Name="label162" Grid.Row="2" Grid.Column="0" Content="Gürültü Değeri" FontSize="16"></Label>
+                    <Label x:Name="label164" Grid.Row="3" Grid.Column="0" Content="Hesaplanan Değer" FontWeight="Bold" FontSize="16"></Label>
+
+                    <Label x:Name="label159" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="#FFC96CD4" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="Voltaj_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Voltaj_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Voltaj_ADC_Hesaplanan_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="label121" Grid.Row="0" Grid.Column="2" Content="mVolt" FontSize="24" Foreground="#FFC96CD4" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="Voltaj_mV_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Voltaj_mV_Noise_Label" Grid.Row="2" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Voltaj_mV_Hesaplanan_Label" Grid.Row="3" Grid.Column="2" Content="0" FontSize="20" Foreground="#FFC96CD4" HorizontalAlignment="Right"></Label>
+
+                </Grid>
+            </Border>
+
+            <!-- Grafik Paneli -->
+            <TabControl x:Name="Grafikler_TabControl" Grid.Row="1" Grid.ColumnSpan="5" Margin="5">
+                <TabItem x:Name="TabItem_oxy" Header="oxy" FontSize="24">
+                    <oxy:PlotView x:Name="Plot_Area" FontSize="16">
+                    </oxy:PlotView>
+                </TabItem>
+                <TabItem x:Name="TabItem_lcv" Header="lvc" FontSize="24">
+                </TabItem>
+            </TabControl>
+        </Grid>
+
+        <!-- Denlemler -->
+        <GroupBox x:Name="Denklemler_GroupBox" Header="Denklemler" FontSize="16" FontWeight="Bold" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="Black" BorderThickness="1" Margin="2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <TextBox x:Name="Itki_Denlem_Label" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="Orange" Grid.Column="0" Text="İtki (gr) = ax² + bx + c" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+                <TextBox x:Name="Tork_Denlem_Label" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="DarkSeaGreen" Grid.Column="1" Text="Tork (Nmm) = ax² + bx + c" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+                <TextBox x:Name="Akım_Denlem_Label" IsReadOnly="true" IsEnabled ="true" Visibility="Collapsed" BorderBrush="Orange" Grid.Column="0" Text="Akım (mA) = ax² + bx + c" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+                <TextBox x:Name="Voltaj_Denlem_Label" IsReadOnly="true" IsEnabled ="true" Visibility="Collapsed" BorderBrush="DarkSeaGreen" Grid.Column="1" Text="Voltaj (mV) = ax² + bx + c" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+
+                <TextBox x:Name="Tork_ADC_Error_Denlem_Label" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="DarkSeaGreen" Grid.Row="1" Grid.Column="1" Text="Tork Hatası (ADC) = ax² + bx + c" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+                <TextBox x:Name="Itki_ADC_Error_Denlem_Label" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="Orange"  Grid.Row="1" Grid.Column="0" Text="İtki Hatası (ADC) = ax² + bx + c" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Window>
