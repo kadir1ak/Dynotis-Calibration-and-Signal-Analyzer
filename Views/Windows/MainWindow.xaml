@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Dynotis_Calibration_and_Signal_Analyzer"        
         xmlns:oxy="http://oxyplot.org/wpf"   
         mc:Ignorable="d"
-        Title="MainWindow" Height="1080" Width="1920" WindowState="Maximized" >
+        Title="MainWindow" Height="1080" Width="1920" WindowState="Maximized">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="45*"></ColumnDefinition>
@@ -27,6 +27,7 @@
                 <ColumnDefinition Width="50*"></ColumnDefinition>
                 <ColumnDefinition Width="50*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
+            <!-- Tab Menüleri -->
             <TabControl x:Name="Tablolar_TabControl" Grid.Row="0" Grid.ColumnSpan="5" Margin="5" SelectionChanged="Tablolar_TabControl_SelectionChanged">
                 <TabItem x:Name="TabItem_Itki" Header="İtki" FontSize="24">
                     <!-- Sayfa 1 içeriği buraya gelecek -->
@@ -299,7 +300,6 @@
                 </TabItem>
             </TabControl>
 
-
             <!-- İtki -->
             <GroupBox x:Name="Itki_Border" Grid.Row="1" Grid.Column="0" BorderBrush="Orange" BorderThickness="2" Margin="5" >
                 <GroupBox.Header >
@@ -378,7 +378,7 @@
             </Grid>
 
             <!-- Kalibrasyon ve Excel Buttonları -->
-            <Grid Grid.Row="2" Grid.Column="2" Margin="2">
+            <Grid Grid.Row="2" Grid.Column="1" Margin="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50*"></RowDefinition>
                     <RowDefinition Height="50*"></RowDefinition>

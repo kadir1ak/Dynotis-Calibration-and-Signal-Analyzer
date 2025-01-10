@@ -24,6 +24,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         public Dynotis()
         {
             Interface = new InterfaceData();
+            Interface.PropertyChanged += Interface_PropertyChanged;
             thrust = new Thrust();
             torque = new Torque();
             current = new Current();
@@ -286,6 +287,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 LegendPosition = LegendPosition.LeftTop,
                 LegendTextColor = OxyColors.Black
             });
+
+            UpdatePlotVisibility(Interface.Mode);
         }
 
         private void AddSeries(string title, OxyColor color)
@@ -295,6 +298,39 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 Title = title,
                 Color = color
             });
+        }
+        private void UpdatePlotVisibility(Mode mode)
+        {
+            if (PlotModel == null || PlotModel.Series.Count == 0) return;
+
+            foreach (var series in PlotModel.Series.OfType<LineSeries>())
+            {
+                series.IsVisible = false; // Varsayılan olarak tüm serileri gizle
+            }
+
+            switch (mode)
+            {
+                case Mode.Thrust:
+                    PlotModel.Series[0].IsVisible = true; // Sadece Thrust serisini görünür yap
+                    break;
+                case Mode.Torque:
+                    PlotModel.Series[1].IsVisible = true; // Sadece Torque serisini görünür yap
+                    break;
+                case Mode.LoadCellTest:
+                    PlotModel.Series[0].IsVisible = true; // Thrust serisini görünür yap
+                    PlotModel.Series[1].IsVisible = true; // Torque serisini görünür yap
+                    break;
+                case Mode.Current:
+                    PlotModel.Series[2].IsVisible = true; // Sadece Current serisini görünür yap
+                    break;
+                case Mode.Voltage:
+                    PlotModel.Series[3].IsVisible = true; // Sadece Voltage serisini görünür yap
+                    break;
+                default:
+                    break;
+            }
+
+            PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
         }
         #endregion
 
@@ -367,6 +403,13 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 _updateInterfaceDataLoopCancellationTokenSource.Cancel();
                 _updateInterfaceDataLoopCancellationTokenSource.Dispose();
                 _updateInterfaceDataLoopCancellationTokenSource = null;
+            }
+        }
+        private void Interface_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Interface.Mode))
+            {
+                UpdatePlotVisibility(Interface.Mode);
             }
         }
         #endregion

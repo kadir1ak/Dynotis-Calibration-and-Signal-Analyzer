@@ -255,8 +255,61 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
                     default:
                         break;
                 }
+                UpdateGroupBoxVisibility(dynotis.Interface.Mode);
             }
         }
+        private void UpdateGroupBoxVisibility(Mode mode)
+        {
+            // Tüm GroupBox'ları gizle
+            Itki_Border.Visibility = Visibility.Collapsed;
+            Tork_Border.Visibility = Visibility.Collapsed;
+            Akım_Border.Visibility = Visibility.Collapsed;
+            Voltaj_Border.Visibility = Visibility.Collapsed;
+
+            Itki_Data_Border.Visibility = Visibility.Collapsed;
+            Tork_Data_Border.Visibility = Visibility.Collapsed;
+            Akım_Data_Border.Visibility = Visibility.Collapsed;
+            Voltaj_Data_Border.Visibility = Visibility.Collapsed;
+
+            // Seçili mode'a göre GroupBox'ı göster
+            switch (mode)
+            {
+                case Mode.Thrust:
+                    Itki_Border.Visibility = Visibility.Visible;
+                    Itki_Data_Border.Visibility = Visibility.Visible;
+                    Tork_Data_Border.Visibility = Visibility.Visible;
+                    break;
+
+                case Mode.Torque:
+                    Tork_Border.Visibility = Visibility.Visible;
+                    Itki_Data_Border.Visibility = Visibility.Visible;
+                    Tork_Data_Border.Visibility = Visibility.Visible;
+                    break;
+
+                case Mode.LoadCellTest:
+                    Itki_Border.Visibility = Visibility.Visible;
+                    Tork_Border.Visibility = Visibility.Visible;
+                    Itki_Data_Border.Visibility = Visibility.Visible;
+                    Tork_Data_Border.Visibility = Visibility.Visible;
+                    break;
+
+                case Mode.Current:
+                    Akım_Border.Visibility = Visibility.Visible;
+                    Akım_Data_Border.Visibility = Visibility.Visible;
+                    Voltaj_Data_Border.Visibility = Visibility.Visible;
+                    break;
+
+                case Mode.Voltage:
+                    Voltaj_Border.Visibility = Visibility.Visible;
+                    Akım_Data_Border.Visibility = Visibility.Visible;
+                    Voltaj_Data_Border.Visibility = Visibility.Visible;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
