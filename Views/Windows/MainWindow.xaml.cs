@@ -18,6 +18,7 @@ using Dynotis_Calibration_and_Signal_Analyzer.Models.Device;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Serial;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Interface;
+using System.Text.RegularExpressions;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer
 {
@@ -65,114 +66,24 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
             Closed += (s, e) => serialPortsManager.Dispose();
             #endregion
         }
-        private void Itki_DataList_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-
-        }
-
-        private void Itki_DataList_Sorting(object sender, DataGridSortingEventArgs e)
-        {
-
-        }
-
-        private void Tork_DataList_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-
-        }
-
-        private void Tork_DataList_Sorting(object sender, DataGridSortingEventArgs e)
-        {
-
-        }
-
-        private void Cross_DataList_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-
-        }
-
-        private void Cross_DataList_Sorting(object sender, DataGridSortingEventArgs e)
-        {
-
-        }
-
-        private void Akım_DataList_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-
-        }
-
-        private void Akım_DataList_Sorting(object sender, DataGridSortingEventArgs e)
-        {
-
-        }
-
-        private void Voltaj_DataList_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-
-        }
-
-        private void Voltaj_DataList_Sorting(object sender, DataGridSortingEventArgs e)
-        {
-
-        }
-
-        private void Uygulanan_Itki_TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-
-        }
-
-        private void Uygulanan_Itki_TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-        private void Uygulanan_Tork_TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-
-        }
-
-        private void Uygulanan_Tork_TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-        private void Uygulanan_Tork_Mesafesi_TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-
-        }
-
-        private void Uygulanan_Tork_Mesafesi_TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-        private void Uygulanan_Akım_TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-
-        }
-
-        private void Uygulanan_Akım_TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-        private void Uygulanan_Voltaj_TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-
-        }
-
-        private void Uygulanan_Voltaj_TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void Calibration_Click(object sender, RoutedEventArgs e)
+        private async void Calibration_Click(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                if (dynotis != null)
+                {
+                    await dynotis.PerformCalibrationAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void ExcelExport_Click(object sender, RoutedEventArgs e)
@@ -185,8 +96,19 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
 
         }
 
-        private void AddPointButton_Click(object sender, RoutedEventArgs e)
+        private async void AddPointButton_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                if (dynotis != null)
+                {
+                    await dynotis.AddPointAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
 
         }
 
@@ -214,22 +136,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
                 }
             }
         }
-
-        private void PlotButton_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Itki_Sonuc_Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Tork_Sonuc_Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void Tablolar_TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is TabControl tabControl && tabControl.SelectedItem is TabItem selectedTab)
@@ -324,6 +230,45 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
             field = value;
             OnPropertyChanged(propertyName);
             return true;
+        }
+        private void NumericTextBoxDouble_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9.,]+"); // Allow only numbers, dots, and commas
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void NumericTextBoxInt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+"); // Allow only numbers
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void NumericTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            if (textBox.Text.Length > 9)
+            {
+                textBox.Text = textBox.Text.Substring(0, 9);
+                textBox.CaretIndex = textBox.Text.Length; // Move caret to end
+            }
+        }
+
+        private void NumericTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Space)
+            {
+                e.Handled = true; // Prevent space key input
+            }
+        }
+
+        private void Tork_Dara_Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Itki_Dara_Button_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

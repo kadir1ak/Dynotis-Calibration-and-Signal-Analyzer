@@ -7,6 +7,21 @@
         xmlns:oxy="http://oxyplot.org/wpf"   
         mc:Ignorable="d"
         Title="MainWindow" Height="1080" Width="1920" WindowState="Maximized">
+
+    <Window.Resources>
+        <!-- Style for TextBox accepting double values -->
+        <Style x:Key="NumericTextBoxDoubleStyle" TargetType="TextBox">
+            <EventSetter Event="PreviewTextInput" Handler="NumericTextBoxDouble_PreviewTextInput"/>
+            <EventSetter Event="TextChanged" Handler="NumericTextBox_TextChanged"/>
+            <EventSetter Event="PreviewKeyDown" Handler="NumericTextBox_PreviewKeyDown"/>
+        </Style>
+        <!-- Style for TextBox accepting int values -->
+        <Style x:Key="NumericTextBoxIntStyle" TargetType="TextBox">
+            <EventSetter Event="PreviewTextInput" Handler="NumericTextBoxInt_PreviewTextInput"/>
+            <EventSetter Event="TextChanged" Handler="NumericTextBox_TextChanged"/>
+            <EventSetter Event="PreviewKeyDown" Handler="NumericTextBox_PreviewKeyDown"/>
+        </Style>
+    </Window.Resources>    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="45*"></ColumnDefinition>
@@ -31,11 +46,11 @@
             <TabControl x:Name="Tablolar_TabControl" Grid.Row="0" Grid.ColumnSpan="5" Margin="5" SelectionChanged="Tablolar_TabControl_SelectionChanged">
                 <TabItem x:Name="TabItem_Itki" Header="İtki" FontSize="24">
                     <!-- Sayfa 1 içeriği buraya gelecek -->
-                    <DataGrid x:Name="Itki_DataList" CellEditEnding="Itki_DataList_CellEditEnding" Sorting="Itki_DataList_Sorting" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Path=DoubleProperty, StringFormat={}{0:F2}}" >
+                    <DataGrid x:Name="Itki_DataList" ItemsSource="{Binding Path=dynotis.Interface.ThrustData}"  AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <DataGrid.Columns>
 
                             <!-- No Column -->
-                            <DataGridTextColumn x:Name="ItkiDataGrid0Column" Header="No" Binding="{Binding No}">
+                            <DataGridTextColumn Header="No" Binding="{Binding No}" Width="50">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="#FFF3E597"/>
@@ -45,7 +60,7 @@
                             </DataGridTextColumn>
 
                             <!-- İtki (ADC) Column -->
-                            <DataGridTextColumn x:Name="ItkiDataGrid1Column" Header="Okunan İtki (ADC)" Binding="{Binding ADC_Itki}" >
+                            <DataGridTextColumn Header="Okunan İtki (ADC)" Binding="{Binding ADC_Thrust}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="Orange"/>
@@ -55,7 +70,7 @@
                             </DataGridTextColumn>
 
                             <!-- İtki (gr) Column -->
-                            <DataGridTextColumn x:Name="ItkiDataGrid2Column" Header="Uygulanan İtki" Binding="{Binding Uygulanan_Itki}" >
+                            <DataGridTextColumn Header="Uygulanan İtki (gr)" Binding="{Binding Applied_Thrust}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="Orange"/>
@@ -65,7 +80,7 @@
                             </DataGridTextColumn>
 
                             <!-- Tork (ADC) Column -->
-                            <DataGridTextColumn x:Name="ItkiDataGrid3Column" Header="Okunan Tork (ADC)" Binding="{Binding ADC_Tork}" >
+                            <DataGridTextColumn Header="Okunan Tork (ADC)" Binding="{Binding ADC_Torque}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="DarkSeaGreen"/>
@@ -79,11 +94,11 @@
                 </TabItem>
                 <TabItem x:Name="TabItem_Tork" Header="Tork" FontSize="24">
                     <!-- Sayfa 2 içeriği buraya gelecek -->
-                    <DataGrid x:Name="Tork_DataList" CellEditEnding="Tork_DataList_CellEditEnding" Sorting="Tork_DataList_Sorting" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Path=DoubleProperty, StringFormat={}{0:F2}}">
+                    <DataGrid x:Name="Tork_DataList" ItemsSource="{Binding Path=dynotis.Interface.TorqueData}" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <DataGrid.Columns>
 
                             <!-- No Column -->
-                            <DataGridTextColumn x:Name="TorkDataGrid0Column" Header="No" Binding="{Binding No}">
+                            <DataGridTextColumn Header="No" Binding="{Binding No}" Width="50">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="#FFF3E597"/>
@@ -91,19 +106,9 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-
-                            <!-- İtki (ADC) Column -->
-                            <DataGridTextColumn x:Name="TorkDataGrid1Column" Header="Okunan İtki (ADC)" Binding="{Binding ADC_Itki}" >
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="Orange"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
+                            
                             <!-- Tork (ADC) Column -->
-                            <DataGridTextColumn x:Name="TorkDataGrid3Column" Header="Okunan Tork (ADC)" Binding="{Binding ADC_Tork}" >
+                            <DataGridTextColumn Header="Okunan Tork (ADC)" Binding="{Binding ADC_Torque}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="DarkSeaGreen"/>
@@ -113,7 +118,7 @@
                             </DataGridTextColumn>
 
                             <!-- Tork (Nmm) Column -->
-                            <DataGridTextColumn x:Name="TorkDataGrid4Column" Header="Uygulanan Tork (Nmm)" Binding="{Binding Uygulanan_Tork}" >
+                            <DataGridTextColumn Header="Uygulanan Tork (Nmm)" Binding="{Binding Applied_Torque}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="DarkSeaGreen"/>
@@ -121,139 +126,158 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-
+                            
+                            <!-- İtki (ADC) Column -->
+                            <DataGridTextColumn Header="Okunan İtki (ADC)" Binding="{Binding ADC_Thrust}" Width="225">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="Orange"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
                 <TabItem x:Name="TabItem_Cross" Header="Load Cell Test" FontSize="24">
-                    <!-- Sayfa 3 içeriği buraya gelecek -->
-                    <DataGrid x:Name="Cross_DataList" CellEditEnding="Cross_DataList_CellEditEnding" Sorting="Cross_DataList_Sorting" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Path=DoubleProperty, StringFormat={}{0:F2}}">
-                        <DataGrid.Columns>
+                    <Grid>
+                        <!-- Grid tanımlaması -->
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <!-- İlk DataGrid için -->
+                            <RowDefinition Height="*" />
+                            <!-- İkinci DataGrid için -->
+                        </Grid.RowDefinitions>
 
-                            <!-- No Column -->
-                            <DataGridTextColumn x:Name="CrossDataGrid0Column" Header="No" Binding="{Binding No}">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="#FFF3E597"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
+                        <!-- Thrust DataGrid -->
+                        <DataGrid Grid.Row="0" x:Name="Thrust_DataList" 
+                                  ItemsSource="{Binding Path=dynotis.Interface.LoadCellData}" 
+                                  AutoGenerateColumns="False" FontSize="20" 
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="No" Binding="{Binding No}" Width="50">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="#FFF3E597"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Uygulanan İtki (gr)" Binding="{Binding Applied_Thrust}" Width="225">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="Orange"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Hesaplanan İtki (gr)" Binding="{Binding Calculated_Thrust}" Width="225">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="Orange"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Hata (%)" Binding="{Binding Error_Thrust}" Width="125">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="Orange"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="FS Hata (%)" Binding="{Binding FSError_Thrust}" Width="125">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="Orange"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
 
-                            <!-- İtki (ADC) Column -->
-                            <DataGridTextColumn x:Name="CrossDataGrid1Column" Header="Okunan İtki (ADC)" Binding="{Binding ADC_Itki}" >
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="Orange"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
-                            <!-- İtki (gr) Column -->
-                            <DataGridTextColumn x:Name="CrossDataGrid2Column" Header="Uygulanan İtki" Binding="{Binding Uygulanan_Itki}" >
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="Orange"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
-                            <!-- İtki (gr) Column -->
-                            <DataGridTextColumn x:Name="CrossDataGrid3Column" Header="Okunan İtki (gr)" Binding="{Binding Okunan_Itki}" >
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="Orange"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
-                            <!-- İtki Hata (%) Column -->
-                            <DataGridTextColumn x:Name="CrossDataGrid4Column" Header="Okunan İtki Hatası (%)" Binding="{Binding Okunan_Yüzde_Hata_Itki}" >
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="Orange"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
-                            <!-- Tork (ADC) Column -->
-                            <DataGridTextColumn x:Name="CrossDataGrid5Column" Header="Okunan Tork (ADC)" Binding="{Binding ADC_Tork}" >
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="DarkSeaGreen"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
-                            <!-- Tork (Nmm) Column -->
-                            <DataGridTextColumn x:Name="CrossDataGrid6Column" Header="Uygulanan Tork (Nmm)" Binding="{Binding Uygulanan_Tork}" >
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="DarkSeaGreen"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
-                            <!-- Tork (Nmm) Column -->
-                            <DataGridTextColumn x:Name="CrossDataGrid7Column" Header="Okunan Tork (Nmm)" Binding="{Binding Okunan_Tork}" >
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="DarkSeaGreen"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
-                            <!-- Tork Hata (%) Column -->
-                            <DataGridTextColumn x:Name="CrossDataGrid8Column" Header="Okunan Tork Hatası (%)" Binding="{Binding Okunan_Yüzde_Hata_Tork}" >
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="DarkSeaGreen"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
-                        </DataGrid.Columns>
-                    </DataGrid>
+                        <!-- Torque DataGrid -->
+                        <DataGrid Grid.Row="1" x:Name="Torque_DataList" 
+                                  ItemsSource="{Binding Path=dynotis.Interface.LoadCellData}" 
+                                  AutoGenerateColumns="False" FontSize="20" 
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="No" Binding="{Binding No}" Width="50">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="#FFF3E597"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Uygulanan Tork (Nmm)" Binding="{Binding Applied_Torque}" Width="225">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="DarkSeaGreen"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Hesaplanan Tork (Nmm)" Binding="{Binding Calculated_Torque}" Width="225">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="DarkSeaGreen"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Hata (%)" Binding="{Binding Error_Torque}" Width="125">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="DarkSeaGreen"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="FS Hata (%)" Binding="{Binding FSError_Torque}" Width="125">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="DarkSeaGreen"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
                 </TabItem>
-
                 <TabItem x:Name="TabItem_Akım" Header="Akım" FontSize="24">
                     <!-- Sayfa 4 içeriği buraya gelecek -->
-                    <DataGrid x:Name="Akım_DataList" CellEditEnding="Akım_DataList_CellEditEnding" Sorting="Akım_DataList_Sorting" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Path=DoubleProperty, StringFormat={}{0:F2}}" >
+                    <DataGrid x:Name="Akım_DataList" ItemsSource="{Binding Path=dynotis.Interface.CurrentData}" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <DataGrid.Columns>
 
                             <!-- No Column -->
-                            <DataGridTextColumn Header="No" Binding="{Binding No}">
+                            <DataGridTextColumn Header="No" Binding="{Binding No}" Width="50">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="#FFF3E597"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
-                            <!-- Akım (mA) Column -->
-                            <DataGridTextColumn Header="Uygulanan Akım (mA)" Binding="{Binding Uygulanan_Akım}" >
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="#FF89ACEF"/>
                                         <Setter Property="Foreground" Value="Black"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
 
                             <!-- Akım (ADC) Column -->
-                            <DataGridTextColumn Header="Okunan Akım (ADC)" Binding="{Binding Raw_Akım}" >
+                            <DataGridTextColumn Header="Okunan Akım (ADC)" Binding="{Binding ADC_Current}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="#FF587DC5"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <!-- Akım (mA) Column -->
+                            <DataGridTextColumn Header="Uygulanan Akım (mA)" Binding="{Binding Applied_Current}" Width="225">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="#FF89ACEF"/>
                                         <Setter Property="Foreground" Value="Black"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
@@ -263,11 +287,11 @@
                 </TabItem>
                 <TabItem x:Name="TabItem_Voltaj" Header="Voltaj" FontSize="24">
                     <!-- Sayfa 5 içeriği buraya gelecek -->
-                    <DataGrid x:Name="Voltaj_DataList" CellEditEnding="Voltaj_DataList_CellEditEnding" Sorting="Voltaj_DataList_Sorting" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Path=DoubleProperty, StringFormat={}{0:F2}}" >
+                    <DataGrid x:Name="Voltaj_DataList" ItemsSource="{Binding Path=dynotis.Interface.VoltageData}" AutoGenerateColumns="False" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <DataGrid.Columns>
 
                             <!-- No Column -->
-                            <DataGridTextColumn Header="No" Binding="{Binding No}">
+                            <DataGridTextColumn Header="No" Binding="{Binding No}" Width="50">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="#FFF3E597"/>
@@ -275,22 +299,22 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-
-                            <!-- Akım (mV) Column -->
-                            <DataGridTextColumn Header="Uygulanan Voltaj (mV)" Binding="{Binding Uygulanan_Voltaj}" >
+                            
+                            <!-- Akım (ADC) Column -->
+                            <DataGridTextColumn Header="Okunan Voltaj (ADC)" Binding="{Binding ADC_Voltage}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="#FFE399EC"/>
+                                        <Setter Property="Background" Value="#FFC96CD4"/>
                                         <Setter Property="Foreground" Value="Black"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-
-                            <!-- Akım (ADC) Column -->
-                            <DataGridTextColumn Header="Okunan Voltaj (ADC)" Binding="{Binding Raw_Voltaj}" >
+                            
+                            <!-- Akım (mV) Column -->
+                            <DataGridTextColumn Header="Uygulanan Voltaj (mV)" Binding="{Binding Applied_Voltage}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Background" Value="#FFC96CD4"/>
+                                        <Setter Property="Background" Value="#FFE399EC"/>
                                         <Setter Property="Foreground" Value="Black"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
@@ -308,7 +332,7 @@
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 0 5">
                     <Label x:Name="Uygulanan_Itki_Birim_Title" Content="Uygulanan İtki" FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
-                        <TextBox x:Name="Uygulanan_Itki_TextBox" Text="0" Width="80" Height="22" FontSize="16" PreviewTextInput="Uygulanan_Itki_TextBox_PreviewTextInput" TextChanged="Uygulanan_Itki_TextBox_TextChanged"></TextBox>
+                        <TextBox x:Name="Uygulanan_Itki_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.thrust.Calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                         <Label x:Name="Uygulanan_Itki_Birim_Label" Content="gr" FontSize="16"></Label>
                     </StackPanel>
                 </StackPanel>
@@ -322,13 +346,13 @@
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 5 5">
                     <Label x:Name="Uygulanan_Tork_Birim_Title" Content="Uygulanan Tork (gr)" FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
-                        <TextBox x:Name="Uygulanan_Tork_TextBox" Text="0" Width="80" Height="22" FontSize="16" PreviewTextInput="Uygulanan_Tork_TextBox_PreviewTextInput" TextChanged="Uygulanan_Tork_TextBox_TextChanged"></TextBox>
+                        <TextBox x:Name="Uygulanan_Tork_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.Calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                         <Label x:Name="Uygulanan_Tork_Birim_Label" Content="gr" FontSize="16"></Label>
                     </StackPanel>
                     <StackPanel x:Name="Tork_Uygulanan_Mesafe_Giris_Kutusu">
                         <Label x:Name="Label83" Content="Uygulanan Tork Mesafesi (mm)" FontSize="16"></Label>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
-                            <TextBox x:Name="Uygulanan_Tork_Mesafesi_TextBox" Text="0" Width="80" Height="22" FontSize="16" PreviewTextInput="Uygulanan_Tork_Mesafesi_TextBox_PreviewTextInput" TextChanged="Uygulanan_Tork_Mesafesi_TextBox_TextChanged"></TextBox>
+                            <TextBox x:Name="Uygulanan_Tork_Mesafesi_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.Calibration.AppliedDistance, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                             <Label x:Name="Uygulanan_Tork_Mesafesi_Label" Content="mm" FontSize="16"></Label>
                         </StackPanel>
                     </StackPanel>
@@ -343,7 +367,7 @@
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 0 5">
                     <Label x:Name="Label123" Content="Uygulanan Akım (mA)" FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
-                        <TextBox x:Name="Uygulanan_Akım_TextBox" Text="0" Width="80" Height="22" FontSize="16" PreviewTextInput="Uygulanan_Akım_TextBox_PreviewTextInput" TextChanged="Uygulanan_Akım_TextBox_TextChanged"></TextBox>
+                        <TextBox x:Name="Uygulanan_Akım_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.current.Calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                         <Label x:Name="Uygulanan_Akım_Label" Content="mA" FontSize="16"></Label>
                     </StackPanel>
                 </StackPanel>
@@ -357,7 +381,7 @@
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 0 5">
                     <Label x:Name="Label133" Content="Uygulanan Voltaj (mV)" FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
-                        <TextBox x:Name="Uygulanan_Voltaj_TextBox" Text="0" Width="80" Height="22" FontSize="16" PreviewTextInput="Uygulanan_Voltaj_TextBox_PreviewTextInput" TextChanged="Uygulanan_Voltaj_TextBox_TextChanged"></TextBox>
+                        <TextBox x:Name="Uygulanan_Voltaj_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.voltage.Calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                         <Label x:Name="Uygulanan_Voltaj_Label" Content="mV" FontSize="16"></Label>
                     </StackPanel>
                 </StackPanel>
@@ -462,7 +486,7 @@
                 </GroupBox>
 
                 <!-- Grafik -->
-                <GroupBox Grid.Row="1" BorderBrush="#FF5CCDB6" BorderThickness="2" Margin="5">
+                <!--<GroupBox Grid.Row="1" BorderBrush="#FF5CCDB6" BorderThickness="2" Margin="5">
                     <GroupBox.Header >
                         <TextBlock Text="Grafik Seç" FontSize="16" FontWeight="Bold"/>
                     </GroupBox.Header>
@@ -473,7 +497,7 @@
                         <CheckBox x:Name="VoltajCh" Content="Voltaj" IsChecked="True" Visibility="Visible" Margin="20 0 0 0"  FontSize="24"  Padding="5 -12 0 0" Height="30"/>
                         <Button x:Name="PlotButton" Content="Durdur" Click="PlotButton_Click" Height="36" Width="100" FontSize="24" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFCEBBDE"></Button>
                     </StackPanel>
-                </GroupBox>
+                </GroupBox>-->
             </Grid>
 
 
@@ -513,10 +537,10 @@
 
                     <Label x:Name="label70" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="DarkOrange" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Itki_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.Raw.ADC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="Itki_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.Raw.Noise, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_ADC_Error_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Button x:Name="Itki_Sonuc_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Itki_Sonuc_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
+                    <Button x:Name="Itki_Dara_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Itki_Dara_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
                     <Label x:Name="Uygulanan_Itki_Birim_Tablo" Grid.Row="0" Grid.Column="3" Content="Gram" FontSize="24" Foreground="DarkOrange" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Itki_GRAM_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_GRAM_Noise_Label" Grid.Row="2" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
@@ -562,9 +586,9 @@
 
                     <Label x:Name="label59" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Tork_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.Raw.ADC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="Tork_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.Raw.Noise, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Tork_ADC_Error_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Button x:Name="Tork_Sonuc_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Tork_Sonuc_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
+                    <Button x:Name="Tork_Dara_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Tork_Dara_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
                     <Label x:Name="Tork_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Uygulanan_Tork_Birim_Tablo" Grid.Row="0" Grid.Column="2" Content="Nmm" FontSize="24" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Tork_Nmm_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
@@ -607,10 +631,10 @@
                     <Label x:Name="label172" Grid.Row="1" Grid.Column="0" Content="Okunan Değer" FontSize="16"></Label>
                     <Label x:Name="label173" Grid.Row="2" Grid.Column="0" Content="Gürültü Değeri" FontSize="16"></Label>
                     <Label x:Name="label175" Grid.Row="3" Grid.Column="0" Content="Hesaplanan Değer" FontWeight="Bold" FontSize="16"></Label>
-
+                    
                     <Label x:Name="label170" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="#FF587DC5" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Akım_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Current.Raw.ADC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="Akım_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Akım_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Current.Raw.Noise, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Akım_ADC_Hesaplanan_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="label125" Grid.Row="0" Grid.Column="3" Content="mAmper" FontSize="24" Foreground="#FF587DC5" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Akım_mA_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
@@ -653,7 +677,7 @@
 
                     <Label x:Name="label159" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="#FFC96CD4" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Voltaj_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.Raw.ADC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="Voltaj_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Voltaj_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.Raw.Noise, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Voltaj_ADC_Hesaplanan_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="label121" Grid.Row="0" Grid.Column="2" Content="mVolt" FontSize="24" Foreground="#FFC96CD4" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Voltaj_mV_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>

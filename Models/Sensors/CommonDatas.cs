@@ -60,76 +60,81 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
     // Ham ölçümler
     public class RawMeasurements : BindableBase
     {
-        private List<int> _rawBuffer = new();
-        private List<int> _errorRawBuffer = new();
-        private int _adc;
-        private int _errorADC;
-        private int _noise;
-        private int _errorNoise;
-        private int _count;
+        private List<double> _rawBuffer = new();
+        private List<double> _errorRawBuffer = new();
+        private double _adc;
+        private double _errorADC;
+        private double _noise;
+        private double _errorNoise;
 
-        public List<int> RawBuffer
+        public List<double> RawBuffer
         {
             get => _rawBuffer;
             set => SetProperty(ref _rawBuffer, value);
         }
-        public List<int> ErrorRawBuffer
+        public List<double> ErrorRawBuffer
         {
             get => _errorRawBuffer;
             set => SetProperty(ref _errorRawBuffer, value);
         }
 
-        public int ADC
+        public double ADC
         {
             get => _adc;
             set => SetProperty(ref _adc, value);
         }
-        public int ErrorADC
+        public double ErrorADC
         {
             get => _errorADC;
             set => SetProperty(ref _errorADC, value);
         }
-        public int Noise
+        public double Noise
         {
             get => _noise;
             set => SetProperty(ref _noise, value);
         }
-        public int ErrorNoise
+        public double ErrorNoise
         {
             get => _errorNoise;
             set => SetProperty(ref _errorNoise, value);
-        }
-        public int Count
-        {
-            get => _count;
-            set => SetProperty(ref _count, value);
         }
     }
 
     // Kalibrasyon ölçümleri
     public class CalibrationMeasurements : BindableBase
     {
-        private List<int> _pointRawBuffer = new();
-        private List<int> _errorPointRawBuffer = new();
+        private List<double> _pointRawBuffer = new List<double>();
+        private List<double> _pointAppliedBuffer = new List<double>();
+        private List<double> _pointErrorBuffer = new List<double>();
         private double _applied = 0;
-        private Coefficients _coefficients;
-        private Coefficients _errorCoefficients;
-        private int _count;
+        private double _appliedDistance = 0;
+        private Coefficients _coefficients = new Coefficients();
+        private Coefficients _errorCoefficients = new Coefficients();
 
-        public List<int> PointRawBuffer
+        public List<double> PointRawBuffer
         {
             get => _pointRawBuffer;
             set => SetProperty(ref _pointRawBuffer, value);
         }
-        public List<int> ErrorPointRawBuffer
+        public List<double> PointAppliedBuffer
         {
-            get => _errorPointRawBuffer;
-            set => SetProperty(ref _errorPointRawBuffer, value);
+            get => _pointAppliedBuffer;
+            set => SetProperty(ref _pointAppliedBuffer, value);
+        }
+        public List<double> PointErrorBuffer
+        {
+            get => _pointErrorBuffer;
+            set => SetProperty(ref _pointErrorBuffer, value);
         }
         public double Applied
         {
             get => _applied;
             set => SetProperty(ref _applied, value);
+        }    
+        public double AppliedDistance
+        {
+            get => _appliedDistance;
+            set => SetProperty(ref _appliedDistance, value);
         }
         public Coefficients Coefficient
         {
@@ -141,11 +146,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
             get => _errorCoefficients;
             set => SetProperty(ref _errorCoefficients, value);
         }
-        public int Count
-        {
-            get => _count;
-            set => SetProperty(ref _count, value);
-        }
+
+
+
     }
 
     // Katsayılar
@@ -154,9 +157,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
         private double _a;
         private double _b;
         private double _c;
+        private double _d;
         private double _errorA;
         private double _errorB;
         private double _errorC;
+        private double _errorD;
 
         public double A
         {
@@ -175,7 +180,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
             get => _c;
             set => SetProperty(ref _c, value);
         }
-
+        public double D
+        {
+            get => _d;
+            set => SetProperty(ref _d, value);
+        }
         public double ErrorA
         {
             get => _errorA;
@@ -192,6 +201,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
         {
             get => _errorC;
             set => SetProperty(ref _errorC, value);
+        }
+        public double ErrorD
+        {
+            get => _errorD;
+            set => SetProperty(ref _errorD, value);
         }
     }
 }
