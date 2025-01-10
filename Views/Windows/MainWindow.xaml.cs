@@ -1,4 +1,10 @@
-﻿using System.Text;
+﻿using Dynotis_Calibration_and_Signal_Analyzer.Models.Device;
+using Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors;
+using Dynotis_Calibration_and_Signal_Analyzer.Models.Serial;
+using System.ComponentModel;
+using System.IO.Ports;
+using System.Runtime.CompilerServices;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -8,18 +14,80 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        #region Definitions
+        private readonly SerialPortsManager serialPortsManager;
+
+        private Dynotis _dynotis;
+        public Dynotis dynotis
+        {
+            get => _dynotis;
+            set
+            {
+                if (_dynotis != value)
+                {
+                    _dynotis = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        #endregion
+        private DispatcherTimer DebugTimer;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            #region Cihaz Oluşturma
+            // Dynotis cihazını oluştur
+            dynotis = new Dynotis();
+            DataContext = this;
+            #endregion
+
+
+            DebugTimer = new DispatcherTimer();
+            DebugTimer.Interval = TimeSpan.FromSeconds(1);
+            DebugTimer.Tick += DebugTimer_Tick;
+            DebugTimer.Start();
+
+
+            #region Serial Port Yönetimi
+            // Serial port yöneticisi oluşturuldu
+            serialPortsManager = new SerialPortsManager();
+
+            // ComboBox'ı SerialPorts koleksiyonuna bağla
+            portComboBox.ItemsSource = serialPortsManager.SerialPorts;
+
+            // Kaynak temizleme işlemleri
+            Closed += (s, e) => serialPortsManager.Dispose();
+            #endregion
         }
+        private void DebugTimer_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (dynotis?.data?.PortRead != null)
+                {
+                    Terminal.Clear();
+                    Terminal.AppendText($"Data: {dynotis.data.PortRead.Data}{Environment.NewLine}");
+                    Terminal.AppendText($"Time: {dynotis.data.PortRead.Time}{Environment.NewLine}");
+                }
+                else
+                {
+                    MessageBox.Show("dynotis veya PortRead null!", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception) { }
+        }
+
 
         private void Itki_DataList_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
@@ -151,9 +219,24 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
 
         }
 
-        private void Port_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void Port_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (portComboBox.SelectedItem is string selectedPort)
+            {
+                try
+                {
+                    // Seçilen portu bağla
+                    await dynotis.SerialPortConnect(selectedPort);
 
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to connect to port {selectedPort}: {ex.Message}",
+                                    "Connection Error",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Error);
+                }
+            }
         }
 
         private void PlotButton_Click(object sender, RoutedEventArgs e)
@@ -174,6 +257,21 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
         private void Tablolar_TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
     }
 }
