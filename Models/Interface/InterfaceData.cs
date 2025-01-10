@@ -23,7 +23,19 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
             get => _portReadTime;
             set => SetProperty(ref _portReadTime, value);
         }
-
+        private Mode _mode;
+        public Mode Mode
+        {
+            get => _mode;
+            set
+            {
+                if (_mode != value)
+                {
+                    _mode = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
         public Thrust Thrust { get; set; }
         public Torque Torque { get; set; }
         public Current Current { get; set; }
@@ -37,4 +49,13 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
             Voltage = new Voltage();
         }
     }
+    public enum Mode
+    {
+        Thrust,
+        Torque,
+        LoadCellTest,
+        Current,
+        Voltage
+    }
+
 }

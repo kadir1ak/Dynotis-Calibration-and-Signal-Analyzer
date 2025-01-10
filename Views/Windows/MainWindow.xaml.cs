@@ -1,22 +1,23 @@
-﻿using Dynotis_Calibration_and_Signal_Analyzer.Models.Device;
-using Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors;
-using Dynotis_Calibration_and_Signal_Analyzer.Models.Serial;
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 using OxyPlot;
 using OxyPlot.Series;
 using System.ComponentModel;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Dynotis_Calibration_and_Signal_Analyzer.Models.Device;
+using Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors;
+using Dynotis_Calibration_and_Signal_Analyzer.Models.Serial;
+using Dynotis_Calibration_and_Signal_Analyzer.Models.Interface;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer
 {
@@ -231,7 +232,30 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
 
         private void Tablolar_TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            if (sender is TabControl tabControl && tabControl.SelectedItem is TabItem selectedTab)
+            {
+                // Seçili tab'a göre mod ayarla
+                switch (selectedTab.Name)
+                {
+                    case "TabItem_Itki":
+                        dynotis.Interface.Mode = Mode.Thrust;
+                        break;
+                    case "TabItem_Tork":
+                        dynotis.Interface.Mode = Mode.Torque;
+                        break;
+                    case "TabItem_Cross":
+                        dynotis.Interface.Mode = Mode.LoadCellTest;
+                        break;
+                    case "TabItem_Akım":
+                        dynotis.Interface.Mode = Mode.Current;
+                        break;
+                    case "TabItem_Voltaj":
+                        dynotis.Interface.Mode = Mode.Voltage;
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -250,3 +274,4 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
         }
     }
 }
+
