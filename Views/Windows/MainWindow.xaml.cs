@@ -40,7 +40,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
             }
         }
         #endregion
-        private DispatcherTimer DebugTimer;
 
         public MainWindow()
         {
@@ -51,13 +50,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
             dynotis = new Dynotis();
             DataContext = this;
             #endregion
-
-
-            DebugTimer = new DispatcherTimer();
-            DebugTimer.Interval = TimeSpan.FromSeconds(1);
-            DebugTimer.Tick += DebugTimer_Tick;
-            DebugTimer.Start();
-
 
             #region Serial Port Yönetimi
             // Serial port yöneticisi oluşturuldu
@@ -70,25 +62,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
             Closed += (s, e) => serialPortsManager.Dispose();
             #endregion
         }
-        private void DebugTimer_Tick(object sender, EventArgs e)
-        {
-            try
-            {
-                if (dynotis?.data?.PortRead != null)
-                {
-                    Terminal.Clear();
-                    Terminal.AppendText($"Data: {dynotis.data.PortRead.Data}{Environment.NewLine}");
-                    Terminal.AppendText($"Time: {dynotis.data.PortRead.Time}{Environment.NewLine}");
-                }
-                else
-                {
-                    MessageBox.Show("dynotis veya PortRead null!", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            catch (Exception) { }
-        }
-
-
         private void Itki_DataList_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
 

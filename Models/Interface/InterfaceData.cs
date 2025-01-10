@@ -11,16 +11,30 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
 {
     public class InterfaceData : BindableBase
     {
-        private DynotisData _data;
-        public DynotisData data
+        private string _portReadData;
+        public string PortReadData
         {
-            get => _data;
-            set => SetProperty(ref _data, value);
+            get => _portReadData;
+            set => SetProperty(ref _portReadData, value);
         }
+        private double _portReadTime;
+        public double PortReadTime
+        {
+            get => _portReadTime;
+            set => SetProperty(ref _portReadTime, value);
+        }
+
+        public Thrust Thrust { get; set; }
+        public Torque Torque { get; set; }
+        public Current Current { get; set; }
+        public Voltage Voltage { get; set; }
 
         public InterfaceData()
         {
-            data = new DynotisData();
+            Thrust = new Thrust();
+            Torque = new Torque();
+            Current = new Current();
+            Voltage = new Voltage();
         }
     }
 }

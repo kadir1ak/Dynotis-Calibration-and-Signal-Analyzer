@@ -13,7 +13,6 @@ using Dynotis_Calibration_and_Signal_Analyzer.Models.Interface;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Serial;
 using Dynotis_Calibration_and_Signal_Analyzer.Services;
-using static Dynotis_Calibration_and_Signal_Analyzer.Models.Device.DynotisData;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 {
@@ -22,7 +21,10 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         public Dynotis()
         {
             Interface = new InterfaceData();
-            data = new DynotisData();
+            thrust = new Thrust();
+            torque = new Torque();
+            current = new Current();
+            voltage = new Voltage();
             serialPort = new SerialPort();          
         }
 
@@ -39,18 +41,73 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 }
             }
         }
-        private DynotisData _data;
-        public DynotisData data
+        private Voltage _voltage;
+        public Voltage voltage
         {
-            get => _data;
+            get => _voltage;
             set
             {
-                if (_data != value)
+                if (_voltage != value)
                 {
-                    _data = value;
+                    _voltage = value;
                     OnPropertyChanged();
                 }
             }
+        }
+
+        private Thrust _thrust;
+        public Thrust thrust
+        {
+            get => _thrust;
+            set
+            {
+                if (_thrust != value)
+                {
+                    _thrust = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Torque _torque;
+        public Torque torque
+        {
+            get => _torque;
+            set
+            {
+                if (_torque != value)
+                {
+                    _torque = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private Current _current;
+        public Current current
+        {
+            get => _current;
+            set
+            {
+                if (_current != value)
+                {
+                    _current = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string _portReadData;
+        public string portReadData
+        {
+            get => _portReadData;
+            set => SetProperty(ref _portReadData, value);
+        }
+        private double _portReadTime;
+        public double portReadTime
+        {
+            get => _portReadTime;
+            set => SetProperty(ref _portReadTime, value);
         }
 
         private SerialPort _serialPort;
@@ -95,8 +152,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 serialPort.DataReceived += SerialPort_DataReceived;
                 // Seri portu aç
                 serialPort.Open();
-                // Seri port başarıyla açıldıysa güncelleme döngüsünü başlat
-                StartUpdateDataLoop();
+                // Seri port başarıyla açıldıysa ara yüz verilerini güncelleme döngüsünü başlat
+                StartUpdateInterfaceDataLoop();
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -127,57 +184,57 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    data.PortRead.Data = indata;
-                    data.PortRead.Time = time;
+                    portReadData = indata;
+                    portReadTime = time;
 
-                    data.Thrust.Raw.ADC = itki;
-                    data.Torque.Raw.ADC = tork;
-                    data.Current.Raw.ADC = akım;
-                    data.Voltage.Raw.ADC = voltaj;
+                    thrust.Raw.ADC = itki;
+                    torque.Raw.ADC = tork;
+                    current.Raw.ADC = akım;
+                    voltage.Raw.ADC = voltaj;
                 });
             }
         }
 
         private CancellationTokenSource _updateLoopCancellationTokenSource;
 
-        private int UpdateTimeMillisecond = 10; // 100 Hz (10ms)
+        private int UpdateTimeMillisecond = 100; // 10 Hz (100ms)
 
         private readonly object _dataLock = new();
-        private async Task UpdateDataLoop(CancellationToken token)
+        private async Task UpdateInterfaceDataLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
                 await Task.Delay(UpdateTimeMillisecond, token);
 
-                DynotisData latestData;
+                string latestData;
                 lock (_dataLock)
                 {
-                    latestData = data;
+                    latestData = portReadData;
                 }
 
                 if (latestData != null)
                 {
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        Interface.data.PortRead.Data = data.PortRead.Data;
-                        Interface.data.PortRead.Time = data.PortRead.Time;
+                        Interface.PortReadData = portReadData;
+                        Interface.PortReadTime = portReadTime;
 
-                        Interface.data.Thrust.Raw.ADC = data.Thrust.Raw.ADC;
-                        Interface.data.Torque.Raw.ADC = data.Torque.Raw.ADC;
-                        Interface.data.Current.Raw.ADC = data.Current.Raw.ADC;
-                        Interface.data.Voltage.Raw.ADC = data.Voltage.Raw.ADC;
+                        Interface.Thrust.Raw.ADC = thrust.Raw.ADC;
+                        Interface.Torque.Raw.ADC = torque.Raw.ADC;
+                        Interface.Current.Raw.ADC = current.Raw.ADC;
+                        Interface.Voltage.Raw.ADC = voltage.Raw.ADC;
                     });
                 }
             }
         }
-        public void StartUpdateDataLoop()
+        public void StartUpdateInterfaceDataLoop()
         {
-            StopUpdateDataLoop(); // Eski döngüyü durdur
+            StopUpdateInterfaceDataLoop(); // Eski döngüyü durdur
             _updateLoopCancellationTokenSource = new CancellationTokenSource();
             var token = _updateLoopCancellationTokenSource.Token;
-            _ = UpdateDataLoop(token);
+            _ = UpdateInterfaceDataLoop(token);
         }
-        public void StopUpdateDataLoop()
+        public void StopUpdateInterfaceDataLoop()
         {
             if (_updateLoopCancellationTokenSource != null && !_updateLoopCancellationTokenSource.IsCancellationRequested)
             {
