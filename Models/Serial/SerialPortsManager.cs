@@ -12,18 +12,15 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Serial
     {
         private ManagementEventWatcher _serialPortsRemovedWatcher;
         private ManagementEventWatcher _serialPortsAddedWatcher;
-
         public ObservableCollection<string> SerialPorts { get; }
         public event Action<string> SerialPortAdded;
         public event Action<string> SerialPortRemoved;
-
         public SerialPortsManager()
         {
             SerialPorts = new ObservableCollection<string>();
             InitializeEventWatchers();
             ScanSerialPorts();
         }
-
         private void InitializeEventWatchers()
         {
             try
@@ -45,7 +42,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Serial
                 MessageBox.Show($"Error initializing event watchers: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         private ManagementEventWatcher CreateEventWatcher(string query, EventArrivedEventHandler eventHandler)
         {
             var watcher = new ManagementEventWatcher(new ManagementScope("root\\CIMV2"), new WqlEventQuery(query));
@@ -53,17 +49,14 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Serial
             watcher.Start();
             return watcher;
         }
-
         private void OnSerialPortRemoved(object sender, EventArrivedEventArgs e)
         {
             Application.Current.Dispatcher.Invoke(ScanSerialPorts);
         }
-
         private void OnSerialPortAdded(object sender, EventArrivedEventArgs e)
         {
             Application.Current.Dispatcher.Invoke(ScanSerialPorts);
         }
-
         public void ScanSerialPorts()
         {
             try
@@ -94,13 +87,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Serial
         {
             return SerialPorts.ToList();
         }
-
         public void Dispose()
         {
             DisposeWatcher(_serialPortsRemovedWatcher);
             DisposeWatcher(_serialPortsAddedWatcher);
         }
-
         private void DisposeWatcher(ManagementEventWatcher watcher)
         {
             try

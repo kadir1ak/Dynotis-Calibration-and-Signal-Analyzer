@@ -31,66 +31,175 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             serialPort = new SerialPort();
             InitializePlotModel();
         }
-        private void InitializePlotModel()
+
+        #region Serial Port
+
+        private string _sampleCount;
+        public string SampleCount
         {
-            PlotModel = new PlotModel { Title = "Sensor Data Visualization" };
-
-            PlotModel.Legends.Add(new OxyPlot.Legends.Legend()
-            {
-                LegendTitle = "Legend",
-                LegendPosition = LegendPosition.LeftTop,
-                LegendTextColor = OxyColors.Black
-            });
-
-            PlotModel.Series.Add(new LineSeries
-            {
-                Title = "Thrust",
-                Color = OxyColors.Orange
-            });
-            PlotModel.Series.Add(new LineSeries
-            {
-                Title = "Torque",
-                Color = OxyColors.DarkSeaGreen
-            });
-            PlotModel.Series.Add(new LineSeries
-            {
-                Title = "Current",
-                Color = OxyColor.Parse("#FF3D67B9")
-            });
-            PlotModel.Series.Add(new LineSeries
-            {
-                Title = "Voltage",
-                Color = OxyColors.Purple
-            });
+            get => _sampleCount;
+            set => SetProperty(ref _sampleCount, value);
         }
 
-        private PlotModel _plotModel;
-        public PlotModel PlotModel
+        private double sampleCount = 0;
+
+        private DateTime lastUpdate = DateTime.Now;
+
+        private string _portReadData;
+        public string portReadData
         {
-            get => _plotModel;
+            get => _portReadData;
+            set => SetProperty(ref _portReadData, value);
+        }
+        private double _portReadTime = 0;
+        public double portReadTime
+        {
+            get => _portReadTime;
+            set => SetProperty(ref _portReadTime, value);
+        }
+
+        private SerialPort _serialPort;
+        public SerialPort serialPort
+        {
+            get => _serialPort;
             set
             {
-                if (_plotModel != value)
+                if (_serialPort != value)
                 {
-                    _plotModel = value;
+                    _serialPort = value;
                     OnPropertyChanged();
                 }
             }
         }
-        private InterfaceData _interface;
-        public InterfaceData Interface
+        public async Task SerialPortConnect(string portName)
         {
-            get => _interface;
-            set
+            try
             {
-                if (_interface != value)
+                // Mevcut seri port açıksa kapat
+                if (serialPort?.IsOpen == true)
                 {
-                    _interface = value;
-                    OnPropertyChanged();
+                    serialPort.DataReceived -= SerialPort_DataReceived;
+                    serialPort.Close();
                 }
+
+                // Yeni SerialPort nesnesi oluştur ve ayarlarını yap
+                serialPort = new SerialPort
+                {
+                    PortName = portName,
+                    BaudRate = 921600,         // Baud hızı
+                    DataBits = 8,              // Veri bitleri
+                    Parity = Parity.None,      // Parite
+                    StopBits = StopBits.One,   // Stop bit
+                    Handshake = Handshake.None, // Donanım kontrolü yok
+                    ReadTimeout = 1000,        // Okuma zaman aşımı (ms)
+                    WriteTimeout = 1000        // Yazma zaman aşımı (ms)
+                };
+
+                // Veri alımı için olay işleyicisini bağla
+                serialPort.DataReceived += SerialPort_DataReceived;
+                // Seri portu aç
+                serialPort.Open();
+                // Seri port başarıyla açıldıysa ara yüz verilerini güncelleme döngüsünü başlat
+                StartUpdateInterfaceDataLoop();
+                // Grafik güncelleme döngüsünü başlat
+                StartUpdatePlotDataLoop();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                MessageBox.Show($"Access denied to the port: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show($"Port error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error connecting to port: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+
+            try
+            {
+                if (serialPort == null || !serialPort.IsOpen) return;
+
+                string indata = serialPort.ReadExisting();
+                if (string.IsNullOrEmpty(indata)) return;
+
+                string[] dataParts = indata.Split(',');
+                if (dataParts.Length == 5 &&
+                    double.TryParse(dataParts[0], out double time) &&
+                    int.TryParse(dataParts[1], out int itki) &&
+                    int.TryParse(dataParts[2], out int tork) &&
+                    int.TryParse(dataParts[3], out int akım) &&
+                    int.TryParse(dataParts[4], out int voltaj))
+                {
+
+                    if (Application.Current?.Dispatcher.CheckAccess() == true)
+                    {
+                        // UI iş parçacığında isek doğrudan çalıştır
+                        UpdateSensorData(indata, itki, tork, akım, voltaj);
+                        CalculateSampleRate();
+                    }
+                    else
+                    {
+                        // UI iş parçacığında değilsek Dispatcher kullan
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            UpdateSensorData(indata, itki, tork, akım, voltaj);
+                            CalculateSampleRate();
+                        }));
+                    }
+                }
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show($"I/O Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                StopSerialPort();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unexpected Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private void UpdateSensorData(string indata, int itki, int tork, int akım, int voltaj)
+        {
+            portReadData = indata;
+            portReadTime += 0.001;
+
+            thrust.Raw.ADC = itki;
+            torque.Raw.ADC = tork;
+            current.Raw.ADC = akım;
+            voltage.Raw.ADC = voltaj;
+        }
+
+        private void CalculateSampleRate()
+        {
+            sampleCount++;
+            var now = DateTime.Now;
+            var elapsed = now - lastUpdate;
+
+            if (elapsed.TotalSeconds >= 1) // Her saniyede bir hesapla
+            {
+                SampleCount = $"Saniyedeki veri örnekleme hızı: {sampleCount} Hz";
+                sampleCount = 0;
+                lastUpdate = now;
             }
         }
 
+        public void StopSerialPort()
+        {
+            if (serialPort?.IsOpen == true)
+            {
+                serialPort.Close();
+                serialPort.DataReceived -= SerialPort_DataReceived;
+            }
+        }
+
+        #endregion
+
+        #region Sensors
         private Voltage _voltage;
         public Voltage voltage
         {
@@ -146,104 +255,62 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 }
             }
         }
+        #endregion 
 
-        private string _portReadData;
-        public string portReadData
-        {
-            get => _portReadData;
-            set => SetProperty(ref _portReadData, value);
-        }
-        private double _portReadTime = 0;
-        public double portReadTime
-        {
-            get => _portReadTime;
-            set => SetProperty(ref _portReadTime, value);
-        }
+        #region Plot
 
-        private SerialPort _serialPort;
-        public SerialPort serialPort
+        private PlotModel _plotModel;
+        public PlotModel PlotModel
         {
-            get => _serialPort;
+            get => _plotModel;
             set
             {
-                if (_serialPort != value)
+                if (_plotModel != value)
                 {
-                    _serialPort = value;
+                    _plotModel = value;
                     OnPropertyChanged();
                 }
             }
         }
-
-        public async Task SerialPortConnect(string portName)
+        private void InitializePlotModel()
         {
-            try
-            {
-                // Mevcut seri port açıksa kapat
-                if (serialPort?.IsOpen == true)
-                {
-                    serialPort.DataReceived -= SerialPort_DataReceived;
-                    serialPort.Close();
-                }
+            PlotModel = new PlotModel { Title = "Sensor Data Visualization" };
+            AddSeries("Thrust", OxyColors.Orange);
+            AddSeries("Torque", OxyColors.DarkSeaGreen);
+            AddSeries("Current", OxyColor.Parse("#FF3D67B9"));
+            AddSeries("Voltage", OxyColors.Purple);
 
-                // Yeni SerialPort nesnesi oluştur ve ayarlarını yap
-                serialPort = new SerialPort
-                {
-                    PortName = portName,
-                    BaudRate = 921600,         // Baud hızı
-                    DataBits = 8,              // Veri bitleri
-                    Parity = Parity.None,      // Parite
-                    StopBits = StopBits.One,   // Stop bit
-                    Handshake = Handshake.None, // Donanım kontrolü yok
-                    ReadTimeout = 1000,        // Okuma zaman aşımı (ms)
-                    WriteTimeout = 1000        // Yazma zaman aşımı (ms)
-                };
-
-                // Veri alımı için olay işleyicisini bağla
-                serialPort.DataReceived += SerialPort_DataReceived;
-                // Seri portu aç
-                serialPort.Open();
-                // Seri port başarıyla açıldıysa ara yüz verilerini güncelleme döngüsünü başlat
-                StartUpdateInterfaceDataLoop();
-                // Grafik güncelleme döngüsünü başlat
-                StartUpdatePlotDataLoop();
-            }
-            catch (UnauthorizedAccessException ex)
+            PlotModel.Legends.Add(new OxyPlot.Legends.Legend
             {
-                MessageBox.Show($"Access denied to the port: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            catch (IOException ex)
-            {
-                MessageBox.Show($"Port error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error connecting to port: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+                LegendTitle = "Legend",
+                LegendPosition = LegendPosition.LeftTop,
+                LegendTextColor = OxyColors.Black
+            });
         }
-        private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+
+        private void AddSeries(string title, OxyColor color)
         {
-            string indata = serialPort.ReadExisting();
-
-            if (string.IsNullOrEmpty(indata)) return;
-
-            string[] dataParts = indata.Split(',');
-            if (dataParts.Length == 5 &&
-                double.TryParse(dataParts[0], out double time) &&
-                int.TryParse(dataParts[1], out int itki) &&
-                int.TryParse(dataParts[2], out int tork) &&
-                int.TryParse(dataParts[3], out int akım) &&
-                int.TryParse(dataParts[4], out int voltaj))
+            PlotModel.Series.Add(new LineSeries
             {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    portReadData = indata;
-                    portReadTime += 0.001;
+                Title = title,
+                Color = color
+            });
+        }
+        #endregion
 
-                    thrust.Raw.ADC = itki;
-                    torque.Raw.ADC = tork;
-                    current.Raw.ADC = akım;
-                    voltage.Raw.ADC = voltaj;
-                });
+        #region Update Interface Data
+
+        private InterfaceData _interface;
+        public InterfaceData Interface
+        {
+            get => _interface;
+            set
+            {
+                if (_interface != value)
+                {
+                    _interface = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -254,29 +321,36 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         private readonly object _InterfaceDataLock = new();
         private async Task UpdateInterfaceDataLoop(CancellationToken token)
         {
-            while (!token.IsCancellationRequested)
+            try
             {
-                await Task.Delay(UpdateTimeMillisecond, token);
-
-                string latestData;
-                lock (_InterfaceDataLock)
+                while (!token.IsCancellationRequested)
                 {
-                    latestData = portReadData;
-                }
+                    await Task.Delay(UpdateTimeMillisecond, token);
 
-                if (latestData != null)
-                {
-                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    string latestData;
+                    lock (_InterfaceDataLock)
                     {
-                        Interface.PortReadData = portReadData;
-                        Interface.PortReadTime = portReadTime;
+                        latestData = portReadData;
+                    }
 
-                        Interface.Thrust.Raw.ADC = thrust.Raw.ADC;
-                        Interface.Torque.Raw.ADC = torque.Raw.ADC;
-                        Interface.Current.Raw.ADC = current.Raw.ADC;
-                        Interface.Voltage.Raw.ADC = voltage.Raw.ADC;
-                    });
+                    if (latestData != null)
+                    {
+                        await Application.Current.Dispatcher.InvokeAsync(() =>
+                        {
+                            Interface.PortReadData = portReadData;
+                            Interface.PortReadTime = portReadTime;
+
+                            Interface.Thrust.Raw.ADC = thrust.Raw.ADC;
+                            Interface.Torque.Raw.ADC = torque.Raw.ADC;
+                            Interface.Current.Raw.ADC = current.Raw.ADC;
+                            Interface.Voltage.Raw.ADC = voltage.Raw.ADC;
+                        });
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Interface update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         public void StartUpdateInterfaceDataLoop()
@@ -295,7 +369,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 _updateInterfaceDataLoopCancellationTokenSource = null;
             }
         }
+        #endregion
 
+        #region Update Plot Data
         private CancellationTokenSource _updatePlotDataLoopCancellationTokenSource;
 
         private int PlotUpdateTimeMillisecond = 10; // 100 Hz (10ms)
@@ -368,6 +444,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 _updatePlotDataLoopCancellationTokenSource = null;
             }
         }
+        #endregion
 
     }
 }

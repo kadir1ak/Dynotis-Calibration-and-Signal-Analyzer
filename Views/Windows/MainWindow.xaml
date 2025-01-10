@@ -674,6 +674,7 @@
             </TabControl>
 
             <Grid Grid.Row="1" Grid.ColumnSpan="5" Margin="5" HorizontalAlignment="Right" VerticalAlignment="Top" Height="30">
+                <Label Content="{Binding dynotis.SampleCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Left" Margin="0 0 500 0"></Label>
                 <Label Content="{Binding dynotis.Interface.PortReadData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
             </Grid>
         </Grid>
