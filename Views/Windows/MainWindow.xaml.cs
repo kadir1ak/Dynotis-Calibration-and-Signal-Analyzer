@@ -1,6 +1,8 @@
 ﻿using Dynotis_Calibration_and_Signal_Analyzer.Models.Device;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Serial;
+using OxyPlot;
+using OxyPlot.Series;
 using System.ComponentModel;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;

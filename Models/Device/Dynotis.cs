@@ -8,11 +8,14 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using OxyPlot;
+using OxyPlot.Series;
 using System.Windows.Threading;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Interface;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Serial;
 using Dynotis_Calibration_and_Signal_Analyzer.Services;
+using OxyPlot.Legends;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 {
@@ -25,9 +28,55 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             torque = new Torque();
             current = new Current();
             voltage = new Voltage();
-            serialPort = new SerialPort();          
+            serialPort = new SerialPort();
+            InitializePlotModel();
+        }
+        private void InitializePlotModel()
+        {
+            PlotModel = new PlotModel { Title = "Sensor Data Visualization" };
+
+            PlotModel.Legends.Add(new OxyPlot.Legends.Legend()
+            {
+                LegendTitle = "Legend",
+                LegendPosition = LegendPosition.LeftTop,
+                LegendTextColor = OxyColors.Black
+            });
+
+            PlotModel.Series.Add(new LineSeries
+            {
+                Title = "Thrust",
+                Color = OxyColors.Orange
+            });
+            PlotModel.Series.Add(new LineSeries
+            {
+                Title = "Torque",
+                Color = OxyColors.DarkSeaGreen
+            });
+            PlotModel.Series.Add(new LineSeries
+            {
+                Title = "Current",
+                Color = OxyColor.Parse("#FF3D67B9")
+            });
+            PlotModel.Series.Add(new LineSeries
+            {
+                Title = "Voltage",
+                Color = OxyColors.Purple
+            });
         }
 
+        private PlotModel _plotModel;
+        public PlotModel PlotModel
+        {
+            get => _plotModel;
+            set
+            {
+                if (_plotModel != value)
+                {
+                    _plotModel = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
         private InterfaceData _interface;
         public InterfaceData Interface
         {
@@ -41,6 +90,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 }
             }
         }
+
         private Voltage _voltage;
         public Voltage voltage
         {
@@ -103,7 +153,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             get => _portReadData;
             set => SetProperty(ref _portReadData, value);
         }
-        private double _portReadTime;
+        private double _portReadTime = 0;
         public double portReadTime
         {
             get => _portReadTime;
@@ -154,6 +204,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 serialPort.Open();
                 // Seri port başarıyla açıldıysa ara yüz verilerini güncelleme döngüsünü başlat
                 StartUpdateInterfaceDataLoop();
+                // Grafik güncelleme döngüsünü başlat
+                StartUpdatePlotDataLoop();
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -185,7 +237,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     portReadData = indata;
-                    portReadTime = time;
+                    portReadTime += 0.001;
 
                     thrust.Raw.ADC = itki;
                     torque.Raw.ADC = tork;
@@ -195,11 +247,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             }
         }
 
-        private CancellationTokenSource _updateLoopCancellationTokenSource;
+        private CancellationTokenSource _updateInterfaceDataLoopCancellationTokenSource;
 
         private int UpdateTimeMillisecond = 100; // 10 Hz (100ms)
 
-        private readonly object _dataLock = new();
+        private readonly object _InterfaceDataLock = new();
         private async Task UpdateInterfaceDataLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -207,7 +259,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 await Task.Delay(UpdateTimeMillisecond, token);
 
                 string latestData;
-                lock (_dataLock)
+                lock (_InterfaceDataLock)
                 {
                     latestData = portReadData;
                 }
@@ -230,18 +282,92 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         public void StartUpdateInterfaceDataLoop()
         {
             StopUpdateInterfaceDataLoop(); // Eski döngüyü durdur
-            _updateLoopCancellationTokenSource = new CancellationTokenSource();
-            var token = _updateLoopCancellationTokenSource.Token;
+            _updateInterfaceDataLoopCancellationTokenSource = new CancellationTokenSource();
+            var token = _updateInterfaceDataLoopCancellationTokenSource.Token;
             _ = UpdateInterfaceDataLoop(token);
         }
         public void StopUpdateInterfaceDataLoop()
         {
-            if (_updateLoopCancellationTokenSource != null && !_updateLoopCancellationTokenSource.IsCancellationRequested)
+            if (_updateInterfaceDataLoopCancellationTokenSource != null && !_updateInterfaceDataLoopCancellationTokenSource.IsCancellationRequested)
             {
-                _updateLoopCancellationTokenSource.Cancel();
-                _updateLoopCancellationTokenSource.Dispose();
-                _updateLoopCancellationTokenSource = null;
+                _updateInterfaceDataLoopCancellationTokenSource.Cancel();
+                _updateInterfaceDataLoopCancellationTokenSource.Dispose();
+                _updateInterfaceDataLoopCancellationTokenSource = null;
             }
         }
+
+        private CancellationTokenSource _updatePlotDataLoopCancellationTokenSource;
+
+        private int PlotUpdateTimeMillisecond = 10; // 100 Hz (10ms)
+
+        private readonly object _PlotDataLock = new();
+        private async Task UpdatePlotDataLoop(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                await Task.Delay(PlotUpdateTimeMillisecond, token);
+
+                // Son verileri al
+                double latestTime, thrustValue, torqueValue, currentValue, voltageValue;
+
+                lock (_PlotDataLock)
+                {
+                    latestTime = portReadTime;
+                    thrustValue = thrust.Raw.ADC;
+                    torqueValue = torque.Raw.ADC;
+                    currentValue = current.Raw.ADC;
+                    voltageValue = voltage.Raw.ADC;
+                }
+
+                // Grafiği güncelle
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    if (PlotModel.Series[0] is LineSeries thrustSeries)
+                    {
+                        thrustSeries.Points.Add(new DataPoint(latestTime, thrustValue));
+                        if (thrustSeries.Points.Count > 100) thrustSeries.Points.RemoveAt(0); // Maksimum 100 nokta tut
+                    }
+
+                    if (PlotModel.Series[1] is LineSeries torqueSeries)
+                    {
+                        torqueSeries.Points.Add(new DataPoint(latestTime, torqueValue));
+                        if (torqueSeries.Points.Count > 100) torqueSeries.Points.RemoveAt(0);
+                    }
+
+                    if (PlotModel.Series[2] is LineSeries currentSeries)
+                    {
+                        currentSeries.Points.Add(new DataPoint(latestTime, currentValue));
+                        if (currentSeries.Points.Count > 100) currentSeries.Points.RemoveAt(0);
+                    }
+
+                    if (PlotModel.Series[3] is LineSeries voltageSeries)
+                    {
+                        voltageSeries.Points.Add(new DataPoint(latestTime, voltageValue));
+                        if (voltageSeries.Points.Count > 100) voltageSeries.Points.RemoveAt(0);
+                    }
+
+                    PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
+                });
+            }
+        }
+
+        public void StartUpdatePlotDataLoop()
+        {
+            StopUpdatePlotDataLoop(); // Eski döngüyü durdur
+            _updatePlotDataLoopCancellationTokenSource = new CancellationTokenSource();
+            var token = _updatePlotDataLoopCancellationTokenSource.Token;
+            _ = UpdatePlotDataLoop(token);
+        }
+
+        public void StopUpdatePlotDataLoop()
+        {
+            if (_updatePlotDataLoopCancellationTokenSource != null && !_updatePlotDataLoopCancellationTokenSource.IsCancellationRequested)
+            {
+                _updatePlotDataLoopCancellationTokenSource.Cancel();
+                _updatePlotDataLoopCancellationTokenSource.Dispose();
+                _updatePlotDataLoopCancellationTokenSource = null;
+            }
+        }
+
     }
 }

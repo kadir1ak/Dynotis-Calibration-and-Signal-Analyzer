@@ -666,7 +666,7 @@
             <!-- Grafik Paneli -->
             <TabControl x:Name="Grafikler_TabControl" Grid.Row="1" Grid.ColumnSpan="5" Margin="5">
                 <TabItem x:Name="TabItem_oxy" Header="oxy" FontSize="24">
-                    <oxy:PlotView x:Name="Plot_Area" FontSize="16">
+                    <oxy:PlotView x:Name="Plot_Area" FontSize="16" Model="{Binding dynotis.PlotModel}">
                     </oxy:PlotView>
                 </TabItem>
                 <TabItem x:Name="TabItem_lcv" Header="lvc" FontSize="24">
