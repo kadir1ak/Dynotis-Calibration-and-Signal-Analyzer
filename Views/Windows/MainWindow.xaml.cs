@@ -20,7 +20,7 @@ using Dynotis_Calibration_and_Signal_Analyzer.Models.Serial;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Interface;
 using System.Text.RegularExpressions;
 
-namespace Dynotis_Calibration_and_Signal_Analyzer
+namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -30,8 +30,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
         #region Definitions
         private readonly SerialPortsManager serialPortsManager;
 
-        private Dynotis _dynotis;
-        public Dynotis dynotis
+        private Dynotis? _dynotis;
+        public Dynotis? dynotis
         {
             get => _dynotis;
             set
@@ -125,7 +125,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
                 {
                     // Seçilen portu bağla
                     await dynotis.SerialPortConnect(selectedPort);
-
                 }
                 catch (Exception ex)
                 {
@@ -141,30 +140,33 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
             if (sender is TabControl tabControl && tabControl.SelectedItem is TabItem selectedTab)
             {
                 // Seçili tab'a göre mod ayarla
-                switch (selectedTab.Name)
+                if (dynotis?.Interface?.Mode != null)
                 {
-                    case "TabItem_Itki":
-                        dynotis.Interface.Mode = Mode.Thrust;
-                        break;
-                    case "TabItem_Tork":
-                        dynotis.Interface.Mode = Mode.Torque;
-                        break;
-                    case "TabItem_Cross":
-                        dynotis.Interface.Mode = Mode.LoadCellTest;
-                        break;
-                    case "TabItem_Akım":
-                        dynotis.Interface.Mode = Mode.Current;
-                        break;
-                    case "TabItem_Voltaj":
-                        dynotis.Interface.Mode = Mode.Voltage;
-                        break;
-                    default:
-                        break;
-                }
-                UpdateGroupBoxVisibility(dynotis.Interface.Mode);
+                    switch (selectedTab.Name)
+                    {
+                        case "TabItem_Itki":
+                            dynotis.Interface.Mode = Mode.Thrust;
+                            break;
+                        case "TabItem_Tork":
+                            dynotis.Interface.Mode = Mode.Torque;
+                            break;
+                        case "TabItem_Cross":
+                            dynotis.Interface.Mode = Mode.LoadCellTest;
+                            break;
+                        case "TabItem_Akım":
+                            dynotis.Interface.Mode = Mode.Current;
+                            break;
+                        case "TabItem_Voltaj":
+                            dynotis.Interface.Mode = Mode.Voltage;
+                            break;
+                        default:
+                            break;
+                    }
+                    UpdateVisibility(dynotis.Interface.Mode);
+                }               
             }
         }
-        private void UpdateGroupBoxVisibility(Mode mode)
+        private void UpdateVisibility(Mode mode)
         {
             // Tüm GroupBox'ları gizle
             Itki_Border.Visibility = Visibility.Collapsed;
@@ -177,6 +179,14 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
             Akım_Data_Border.Visibility = Visibility.Collapsed;
             Voltaj_Data_Border.Visibility = Visibility.Collapsed;
 
+            Thrust_Equation.Visibility = Visibility.Collapsed;
+            Torque_Equation.Visibility = Visibility.Collapsed;
+            Current_Equation.Visibility = Visibility.Collapsed;
+            Voltage_Equation.Visibility = Visibility.Collapsed;
+
+            Thrust_ErrorEquation.Visibility = Visibility.Collapsed;
+            Torque_ErrorEquation.Visibility = Visibility.Collapsed;
+
             // Seçili mode'a göre GroupBox'ı göster
             switch (mode)
             {
@@ -184,12 +194,20 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
                     Itki_Border.Visibility = Visibility.Visible;
                     Itki_Data_Border.Visibility = Visibility.Visible;
                     Tork_Data_Border.Visibility = Visibility.Visible;
+                    Thrust_Equation.Visibility = Visibility.Visible;
+                    Torque_Equation.Visibility = Visibility.Visible;
+                    Thrust_ErrorEquation.Visibility = Visibility.Visible;
+                    Torque_ErrorEquation.Visibility = Visibility.Visible;
                     break;
 
                 case Mode.Torque:
                     Tork_Border.Visibility = Visibility.Visible;
                     Itki_Data_Border.Visibility = Visibility.Visible;
                     Tork_Data_Border.Visibility = Visibility.Visible;
+                    Thrust_Equation.Visibility = Visibility.Visible;
+                    Torque_Equation.Visibility = Visibility.Visible;
+                    Thrust_ErrorEquation.Visibility = Visibility.Visible;
+                    Torque_ErrorEquation.Visibility = Visibility.Visible;
                     break;
 
                 case Mode.LoadCellTest:
@@ -197,18 +215,26 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
                     Tork_Border.Visibility = Visibility.Visible;
                     Itki_Data_Border.Visibility = Visibility.Visible;
                     Tork_Data_Border.Visibility = Visibility.Visible;
+                    Thrust_Equation.Visibility = Visibility.Visible;
+                    Torque_Equation.Visibility = Visibility.Visible;
+                    Thrust_ErrorEquation.Visibility = Visibility.Visible;
+                    Torque_ErrorEquation.Visibility = Visibility.Visible;
                     break;
 
                 case Mode.Current:
                     Akım_Border.Visibility = Visibility.Visible;
                     Akım_Data_Border.Visibility = Visibility.Visible;
                     Voltaj_Data_Border.Visibility = Visibility.Visible;
+                    Current_Equation.Visibility = Visibility.Visible;
+                    Voltage_Equation.Visibility = Visibility.Visible;
                     break;
 
                 case Mode.Voltage:
                     Voltaj_Border.Visibility = Visibility.Visible;
-                    Akım_Data_Border.Visibility = Visibility.Visible;
                     Voltaj_Data_Border.Visibility = Visibility.Visible;
+                    Akım_Data_Border.Visibility = Visibility.Visible;
+                    Current_Equation.Visibility = Visibility.Visible;
+                    Voltage_Equation.Visibility = Visibility.Visible;
                     break;
 
                 default:
@@ -217,7 +243,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer
         }
 
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

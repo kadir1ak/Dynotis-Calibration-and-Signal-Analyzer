@@ -109,7 +109,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
         private double _applied = 0;
         private double _appliedDistance = 0;
         private Coefficients _coefficients = new Coefficients();
-        private Coefficients _errorCoefficients = new Coefficients();
 
         public List<double> PointRawBuffer
         {
@@ -141,19 +140,13 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
             get => _coefficients;
             set => SetProperty(ref _coefficients, value);
         }
-        public Coefficients ErrorCoefficients
-        {
-            get => _errorCoefficients;
-            set => SetProperty(ref _errorCoefficients, value);
-        }
-
-
-
     }
 
     // Katsayılar
     public class Coefficients : BindableBase
     {
+        private string _equation;
+        private string _errorEquation;
         private double _a;
         private double _b;
         private double _c;
@@ -163,6 +156,16 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
         private double _errorC;
         private double _errorD;
 
+        public string Equation
+        {
+            get => _equation;
+            set => SetProperty(ref _equation, value);
+        }
+        public string ErrorEquation
+        {
+            get => _errorEquation;
+            set => SetProperty(ref _errorEquation, value);
+        }
         public double A
         {
             get => _a;

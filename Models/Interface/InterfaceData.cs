@@ -24,6 +24,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
             get => _portReadTime;
             set => SetProperty(ref _portReadTime, value);
         }
+        private double _progress = 0;
+        public double Progress
+        {
+            get => _progress;
+            set => SetProperty(ref _progress, value);
+        }
         private Mode _mode;
         public Mode Mode
         {
