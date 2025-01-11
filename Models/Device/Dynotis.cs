@@ -27,11 +27,15 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         {
             Interface = new InterfaceData();
             Interface.PropertyChanged += Interface_PropertyChanged;
+
             thrust = new Thrust();
             torque = new Torque();
+            loadCellTest = new LoadCellTest();
             current = new Current();
             voltage = new Voltage();
+
             serialPort = new SerialPort();
+
             InitializePlotModel();
             InitializeInterface();
         }
@@ -176,20 +180,20 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             portReadData = indata;
             portReadTime += 0.001;
 
-            thrust.Raw.ADC = itki;
-            torque.Raw.ADC = tork;
-            current.Raw.ADC = akım;
-            voltage.Raw.ADC = voltaj;
+            thrust.raw.Value = itki;
+            torque.raw.Value = tork;
+            current.raw.Value = akım;
+            voltage.raw.Value = voltaj;
 
-            UpdateRawBuffer(thrust.Raw.RawBuffer, itki);
-            UpdateRawBuffer(torque.Raw.RawBuffer, tork);
-            UpdateRawBuffer(current.Raw.RawBuffer, akım);
-            UpdateRawBuffer(voltage.Raw.RawBuffer, voltaj);
+            UpdateRawBuffer(thrust.raw.Buffer, itki);
+            UpdateRawBuffer(torque.raw.Buffer, tork);
+            UpdateRawBuffer(current.raw.Buffer, akım);
+            UpdateRawBuffer(voltage.raw.Buffer, voltaj);
 
-            thrust.Raw.Noise = CalculateNoise(thrust.Raw.RawBuffer);
-            torque.Raw.Noise = CalculateNoise(torque.Raw.RawBuffer);
-            current.Raw.Noise = CalculateNoise(current.Raw.RawBuffer);
-            voltage.Raw.Noise = CalculateNoise(voltage.Raw.RawBuffer);
+            thrust.raw.NoiseValue = CalculateNoise(thrust.raw.Buffer);
+            torque.raw.NoiseValue = CalculateNoise(torque.raw.Buffer);
+            current.raw.NoiseValue = CalculateNoise(current.raw.Buffer);
+            voltage.raw.NoiseValue = CalculateNoise(voltage.raw.Buffer);
         }
 
         private void CalculateSampleRate()
@@ -259,7 +263,19 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 }
             }
         }
-
+        private LoadCellTest _loadCellTest;
+        public LoadCellTest loadCellTest
+        {
+            get => _loadCellTest;
+            set
+            {
+                if (_loadCellTest != value)
+                {
+                    _loadCellTest = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
         private Current _current;
         public Current current
         {
@@ -333,44 +349,45 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
         private async Task AddThrustPointAsync()
         {
-            double appliedValue = thrust.Calibration.Applied;
-            await CollectDataForSensor(thrust.Calibration, thrust.Raw, torque.Raw, appliedValue);
+            double appliedValue = thrust.calibration.Applied;
+            await CollectDataForThrust(thrust.calibration, thrust.raw, torque.raw, appliedValue);
             Interface.UpdateThrustData(thrust);
         }
 
         private async Task AddTorquePointAsync()
         {
-            double appliedValue = torque.Calibration.Applied;
-            await CollectDataForSensor(torque.Calibration, torque.Raw, thrust.Raw, appliedValue);
+            double appliedValue = torque.calibration.Applied;
+            await CollectDataForTorque(torque.calibration, torque.raw, thrust.raw, appliedValue);
             Interface.UpdateTorqueData(torque);
         }
 
         private async Task AddCurrentPointAsync()
         {
-            double appliedValue = current.Calibration.Applied;
-            await CollectDataForSensor(current.Calibration, current.Raw, null, appliedValue);
+            double appliedValue = current.calibration.Applied;
+            await CollectDataForCurrent(current.calibration, current.raw, appliedValue);
             Interface.UpdateCurrentData(current);
         }
 
         private async Task AddVoltagePointAsync()
         {
-            double appliedValue = voltage.Calibration.Applied;
-            await CollectDataForSensor(voltage.Calibration, voltage.Raw, null, appliedValue);
+            double appliedValue = voltage.calibration.Applied;
+            await CollectDataForVoltage(voltage.calibration, voltage.raw, appliedValue);
             Interface.UpdateVoltageData(voltage);
         }
 
         private async Task AddLoadCellTestPointAsync()
         {
-            await CollectLoadCellData(thrust, torque);
-            Interface.UpdateLoadCellData(thrust, torque);
+            await CollectLoadCellTestData(loadCellTest, thrust, torque);
+            Interface.UpdateLoadCellTestData(loadCellTest, thrust, torque);
         }
-        private async Task CollectDataForSensor(CalibrationMeasurements calibration, RawMeasurements raw, RawMeasurements? crossRaw, double appliedValue)
+
+        private async Task CollectDataForThrust(Thrust.Calibration calibration, Thrust.Raw raw, Torque.Raw errorRaw, double appliedValue)
         {
             try
             {
                 calibration.Applied = appliedValue; // Uygulanan değeri ata
-                List<double> adcValues = new List<double>();
-                List<double> crossADCValues = new List<double>();
+                List<double> Values = new List<double>();
+                List<double> ErrorValues = new List<double>();
 
                 int duration = 5000; // 5 saniye (5000 ms)
                 int interval = 50; // 50 ms aralıklarla veri topla
@@ -382,11 +399,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 while (elapsed < duration)
                 {
                     await Task.Delay(interval); // Bekle
-                    adcValues.Add(raw.ADC); // Mevcut ADC değerini topla
-                    if (crossRaw != null)
-                    {
-                        crossADCValues.Add(crossRaw.ADC); // Çapraz etkiyi topla (itki-tork bağımlılığı)
-                    }
+                    Values.Add(raw.Value); // Mevcut ADC değerini topla
+                    ErrorValues.Add(errorRaw.Value); // Çapraz etkiyi topla (itki-tork bağımlılığı)
 
                     elapsed += interval;
 
@@ -395,19 +409,15 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 }
 
                 // Ortalama ADC değerlerini hesapla
-                double averageADC = adcValues.Any() ? adcValues.Average() : 0.0;
-                double averageCrossADC = crossADCValues.Any() ? crossADCValues.Average() : 0.0;
+                double AverageValue = Values.Any() ? Values.Average() : 0.0;
+                double AverageErrorValue = ErrorValues.Any() ? ErrorValues.Average() : 0.0;
 
-                // Çapraz etkiyi hesapla ve kalibrasyon eğrisine ekle
-                if (adcValues.Any())
+                // Değerleri kalibrasyon eğrisine ekle
+                if (Values.Any())
                 {
-                    calibration.PointRawBuffer.Add(averageADC);
-                    calibration.PointAppliedBuffer.Add(appliedValue);
-                    if (crossRaw != null)
-                    {
-                        double crossEffect = averageCrossADC;
-                        calibration.PointErrorBuffer.Add(crossEffect); // Çapraz hatayı kaydet
-                    }
+                    calibration.PointRawBuffer.Add(AverageValue);
+                    calibration.PointAppliedBuffer.Add(calibration.Applied);
+                    calibration.PointErrorBuffer.Add(AverageErrorValue);
                 }
                 else
                 {
@@ -420,18 +430,164 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             catch (Exception ex)
             {
                 MessageBox.Show($"Load Cell Test sırasında bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
-            }         
+            }
         }
-
-        private async Task CollectLoadCellData(Thrust thrust, Torque torque)
+        private async Task CollectDataForTorque(Torque.Calibration calibration, Torque.Raw raw, Thrust.Raw errorRaw, double appliedValue)
         {
             try
             {
-                List<double> thrustADCValues = new List<double>();
-                List<double> torqueADCValues = new List<double>();
+                calibration.Applied = appliedValue; // Uygulanan değeri ata
+                List<double> Values = new List<double>();
+                List<double> ErrorValues = new List<double>();
 
-                double appliedThrust = thrust.Calibration.Applied;
-                double appliedTorque = torque.Calibration.Applied;
+                int duration = 5000; // 5 saniye (5000 ms)
+                int interval = 50; // 50 ms aralıklarla veri topla
+                int elapsed = 0;
+
+                // Progress ayarları
+                Interface.Progress = 0; // İlerlemeyi başlat
+
+                while (elapsed < duration)
+                {
+                    await Task.Delay(interval); // Bekle
+                    Values.Add(raw.Value); // Mevcut ADC değerini topla
+                    ErrorValues.Add(errorRaw.Value); // Çapraz etkiyi topla (itki-tork bağımlılığı)
+
+                    elapsed += interval;
+
+                    // Progress güncellemesi
+                    Interface.Progress = (elapsed / (double)duration) * 100.0; // Yüzde olarak ilerleme
+                }
+
+                // Ortalama ADC değerlerini hesapla
+                double AverageValue = Values.Any() ? Values.Average() : 0.0;
+                double AverageErrorValue = ErrorValues.Any() ? ErrorValues.Average() : 0.0;
+
+                // Değerleri kalibrasyon eğrisine ekle
+                if (Values.Any())
+                {
+                    calibration.PointRawBuffer.Add(AverageValue);
+                    calibration.PointAppliedBuffer.Add(calibration.Applied);
+                    calibration.PointErrorBuffer.Add(AverageErrorValue);
+                }
+                else
+                {
+                    MessageBox.Show("ADC verisi toplanamadı.", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                // İşlem tamamlandığında progress %0 yap
+                Interface.Progress = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Load Cell Test sırasında bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }      
+        private async Task CollectDataForCurrent(Current.Calibration calibration, Current.Raw raw, double appliedValue)
+        {
+            try
+            {
+                calibration.Applied = appliedValue; // Uygulanan değeri ata
+                List<double> Values = new List<double>();
+                List<double> ErrorValues = new List<double>();
+
+                int duration = 5000; // 5 saniye (5000 ms)
+                int interval = 50; // 50 ms aralıklarla veri topla
+                int elapsed = 0;
+
+                // Progress ayarları
+                Interface.Progress = 0; // İlerlemeyi başlat
+
+                while (elapsed < duration)
+                {
+                    await Task.Delay(interval); // Bekle
+                    Values.Add(raw.Value); // Mevcut ADC değerini topla
+                    elapsed += interval;
+
+                    // Progress güncellemesi
+                    Interface.Progress = (elapsed / (double)duration) * 100.0; // Yüzde olarak ilerleme
+                }
+
+                // Ortalama ADC değerlerini hesapla
+                double AverageValue = Values.Any() ? Values.Average() : 0.0;
+                double AverageErrorValue = ErrorValues.Any() ? ErrorValues.Average() : 0.0;
+
+                // Değerleri kalibrasyon eğrisine ekle
+                if (Values.Any())
+                {
+                    calibration.PointRawBuffer.Add(AverageValue);
+                    calibration.PointAppliedBuffer.Add(calibration.Applied);
+                }
+                else
+                {
+                    MessageBox.Show("ADC verisi toplanamadı.", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                // İşlem tamamlandığında progress %0 yap
+                Interface.Progress = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Load Cell Test sırasında bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private async Task CollectDataForVoltage(Voltage.Calibration calibration, Voltage.Raw raw, double appliedValue)
+        {
+            try
+            {
+                calibration.Applied = appliedValue; // Uygulanan değeri ata
+                List<double> Values = new List<double>();
+                List<double> ErrorValues = new List<double>();
+
+                int duration = 5000; // 5 saniye (5000 ms)
+                int interval = 50; // 50 ms aralıklarla veri topla
+                int elapsed = 0;
+
+                // Progress ayarları
+                Interface.Progress = 0; // İlerlemeyi başlat
+
+                while (elapsed < duration)
+                {
+                    await Task.Delay(interval); // Bekle
+                    Values.Add(raw.Value); // Mevcut ADC değerini topla
+                    elapsed += interval;
+
+                    // Progress güncellemesi
+                    Interface.Progress = (elapsed / (double)duration) * 100.0; // Yüzde olarak ilerleme
+                }
+
+                // Ortalama ADC değerlerini hesapla
+                double AverageValue = Values.Any() ? Values.Average() : 0.0;
+                double AverageErrorValue = ErrorValues.Any() ? ErrorValues.Average() : 0.0;
+
+                // Değerleri kalibrasyon eğrisine ekle
+                if (Values.Any())
+                {
+                    calibration.PointRawBuffer.Add(AverageValue);
+                    calibration.PointAppliedBuffer.Add(calibration.Applied);
+                }
+                else
+                {
+                    MessageBox.Show("ADC verisi toplanamadı.", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                // İşlem tamamlandığında progress %0 yap
+                Interface.Progress = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Load Cell Test sırasında bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private async Task CollectLoadCellTestData(LoadCellTest loadCellTest, Thrust thrust, Torque torque)
+        {
+            try
+            {
+                List<double> calculatedThrustValues = new List<double>();
+                List<double> calculatedTorqueValues = new List<double>();
+
+                double AppliedThrust = thrust.calibration.Applied;
+                double AppliedTorque = torque.calibration.Applied;
 
                 int duration = 5000; // 5 saniye (5000 ms)
                 int interval = 50; // 50 ms aralıklarla veri topla
@@ -443,8 +599,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 while (elapsed < duration)
                 {
                     await Task.Delay(interval);
-                    thrustADCValues.Add(thrust.Raw.ADC);
-                    torqueADCValues.Add(torque.Raw.ADC);
+                    calculatedThrustValues.Add(thrust.calculated.Value);
+                    calculatedTorqueValues.Add(torque.calculated.Value);
                     elapsed += interval;
 
                     // Progress güncellemesi
@@ -452,15 +608,26 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 }
 
                 // Ortalama değerler
-                double averageThrustADC = thrustADCValues.Any() ? thrustADCValues.Average() : 0.0;
-                double averageTorqueADC = torqueADCValues.Any() ? torqueADCValues.Average() : 0.0;
+                double CalculatedThrustValue = calculatedThrustValues.Any() ? calculatedThrustValues.Average() : 0.0;
+                double CalculatedTorqueValue = calculatedTorqueValues.Any() ? calculatedTorqueValues.Average() : 0.0;
+
+                // Thrust için yüzde hata hesaplamaları
+                double ThrustErrorValue = ((CalculatedThrustValue - AppliedThrust) / AppliedThrust) * 100;
+                double ThrustFSErrorValue = ((CalculatedThrustValue - AppliedThrust) / AppliedThrust) * 100;
+
+                // Torque için yüzde hata hesaplamaları
+                double TorqueErrorValue = ((CalculatedTorqueValue - AppliedTorque) / AppliedTorque) * 100;
+                double TorqueFSErrorValue = ((CalculatedTorqueValue - AppliedTorque) / AppliedTorque) * 100;
 
                 // Load Cell Data'ya ekle
-                thrust.Calibration.PointRawBuffer.Add(averageThrustADC);
-                thrust.Calibration.PointAppliedBuffer.Add(appliedThrust);
-
-                torque.Calibration.PointRawBuffer.Add(averageTorqueADC);
-                torque.Calibration.PointAppliedBuffer.Add(appliedTorque);
+                loadCellTest.Thrust.Buffer.Add(CalculatedThrustValue);
+                loadCellTest.Thrust.AppliedBuffer.Add(AppliedThrust);
+                loadCellTest.Thrust.ErrorBuffer.Add(ThrustErrorValue);
+                loadCellTest.Thrust.FSErrorBuffer.Add(ThrustFSErrorValue);
+                loadCellTest.Torque.Buffer.Add(CalculatedTorqueValue);
+                loadCellTest.Torque.AppliedBuffer.Add(AppliedTorque);     
+                loadCellTest.Thrust.ErrorBuffer.Add(TorqueErrorValue);
+                loadCellTest.Thrust.FSErrorBuffer.Add(TorqueFSErrorValue);
 
                 // İşlem tamamlandığında progress %0 yap
                 Interface.Progress = 0;
@@ -468,6 +635,126 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             catch (Exception ex)
             {
                 MessageBox.Show($"Load Cell Test sırasında bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region Delete Point
+        public async Task DeletePointAsync()
+        {
+            try
+            {
+                switch (Interface.Mode)
+                {
+                    case Mode.Thrust:
+                        DeleteThrustPoint();
+                        break;
+
+                    case Mode.Torque:
+                        DeleteTorquePoint();
+                        break;
+
+                    case Mode.Current:
+                        DeleteCurrentPoint();
+                        break;
+
+                    case Mode.Voltage:
+                        DeleteVoltagePoint();
+                        break;
+
+                    case Mode.LoadCellTest:
+                 
+                        break;
+
+                    default:
+                        MessageBox.Show("Geçerli bir mod seçiniz.", "Hata", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private void DeleteThrustPoint()
+        {
+            DeletePointFromThrustCalibration(thrust.calibration);
+            Interface.UpdateThrustData(thrust);
+        }
+
+        private void DeleteTorquePoint()
+        {
+            DeletePointFromTorqueCalibration(torque.calibration);
+            Interface.UpdateTorqueData(torque);
+        }
+
+        private void DeleteCurrentPoint()
+        {
+            DeletePointFromCurrentCalibration(current.calibration);
+            Interface.UpdateCurrentData(current);
+        }
+
+        private void DeleteVoltagePoint()
+        {
+            DeletePointFromVoltageCalibration(voltage.calibration);
+            Interface.UpdateVoltageData(voltage);
+        }
+        private void DeletePointFromThrustCalibration(Thrust.Calibration calibration)
+        {
+            if (calibration.PointRawBuffer.Count > 0)
+            {
+                calibration.PointRawBuffer.RemoveAt(calibration.PointRawBuffer.Count - 1);
+            }
+
+            if (calibration.PointAppliedBuffer.Count > 0)
+            {
+                calibration.PointAppliedBuffer.RemoveAt(calibration.PointAppliedBuffer.Count - 1);
+            }
+
+            if (calibration.PointErrorBuffer != null && calibration.PointErrorBuffer.Count > 0)
+            {
+                calibration.PointErrorBuffer.RemoveAt(calibration.PointErrorBuffer.Count - 1);
+            }
+        }
+        private void DeletePointFromTorqueCalibration(Torque.Calibration calibration)
+        {
+            if (calibration.PointRawBuffer.Count > 0)
+            {
+                calibration.PointRawBuffer.RemoveAt(calibration.PointRawBuffer.Count - 1);
+            }
+
+            if (calibration.PointAppliedBuffer.Count > 0)
+            {
+                calibration.PointAppliedBuffer.RemoveAt(calibration.PointAppliedBuffer.Count - 1);
+            }
+
+            if (calibration.PointErrorBuffer != null && calibration.PointErrorBuffer.Count > 0)
+            {
+                calibration.PointErrorBuffer.RemoveAt(calibration.PointErrorBuffer.Count - 1);
+            }
+        }
+        private void DeletePointFromCurrentCalibration(Current.Calibration calibration)
+        {
+            if (calibration.PointRawBuffer.Count > 0)
+            {
+                calibration.PointRawBuffer.RemoveAt(calibration.PointRawBuffer.Count - 1);
+            }
+
+            if (calibration.PointAppliedBuffer.Count > 0)
+            {
+                calibration.PointAppliedBuffer.RemoveAt(calibration.PointAppliedBuffer.Count - 1);
+            }
+        }
+        private void DeletePointFromVoltageCalibration(Voltage.Calibration calibration)
+        {
+            if (calibration.PointRawBuffer.Count > 0)
+            {
+                calibration.PointRawBuffer.RemoveAt(calibration.PointRawBuffer.Count - 1);
+            }
+
+            if (calibration.PointAppliedBuffer.Count > 0)
+            {
+                calibration.PointAppliedBuffer.RemoveAt(calibration.PointAppliedBuffer.Count - 1);
             }
         }
         #endregion
@@ -480,16 +767,16 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 switch (Interface.Mode)
                 {
                     case Mode.Thrust:
-                        await CalibrateSensorAsync(thrust.Calibration, "Thrust", 3);
+                        await CalibrateThrustAsync(thrust.calibration, "Thrust", 3);
                         break;
                     case Mode.Torque:
-                        await CalibrateSensorAsync(torque.Calibration, "Torque", 3);
+                        await CalibrateTorqueAsync(torque.calibration, "Torque", 3);
                         break;
                     case Mode.Current:
-                        await CalibrateSensorAsync(current.Calibration, "Current", 2);
+                        await CalibrateCurrentAsync(current.calibration, "Current", 2);
                         break;
                     case Mode.Voltage:
-                        await CalibrateSensorAsync(voltage.Calibration, "Voltage", 2);
+                        await CalibrateVoltageAsync(voltage.calibration, "Voltage", 2);
                         break;
                     default:
                         MessageBox.Show("Please select a valid mode (Thrust, Torque, Current, or Voltage).",
@@ -502,8 +789,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Error during calibration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-        private async Task CalibrateSensorAsync(CalibrationMeasurements calibration, string modeName, int degree)
+        private async Task CalibrateThrustAsync(Thrust.Calibration calibration, string modeName, int degree)
         {
             if (calibration == null)
                 throw new ArgumentNullException(nameof(calibration), "Calibration data is null.");
@@ -545,7 +831,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 string equation = GeneratePolynomialEquation(coefficients, "x");
                 string errorEquation = GeneratePolynomialEquation(errorCoefficients, "e");
 
-                calibration.Coefficient.Equation = equation; 
+                calibration.Coefficient.Equation = equation;
                 calibration.Coefficient.ErrorEquation = errorEquation;
 
                 // Kullanıcıya sonuçları göster
@@ -559,6 +845,150 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Error during {modeName} calibration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        private async Task CalibrateTorqueAsync(Torque.Calibration calibration, string modeName, int degree)
+        {
+            if (calibration == null)
+                throw new ArgumentNullException(nameof(calibration), "Calibration data is null.");
+
+            if (calibration.PointRawBuffer == null || calibration.PointAppliedBuffer == null)
+                throw new InvalidOperationException("Calibration buffers are not initialized.");
+
+            if (calibration.PointRawBuffer.Count < degree + 1 || calibration.PointAppliedBuffer.Count < degree + 1)
+            {
+                MessageBox.Show($"Insufficient calibration points for {modeName}. At least {degree + 1} points are required.",
+                                "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // Polinom katsayılarını hesapla
+                var coefficients = Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointAppliedBuffer.ToArray(), degree);
+
+                // Hata katsayılarını hesapla (opsiyonel)
+                var errorCoefficients = calibration.PointErrorBuffer?.Count > 0
+                    ? Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointErrorBuffer.ToArray(), degree)
+                    : new double[degree + 1];
+
+                // Katsayıları kalibrasyona ekle
+                calibration.Coefficient = new Coefficients
+                {
+                    A = coefficients.Length > 3 ? coefficients[3] : 0,
+                    B = coefficients.Length > 2 ? coefficients[2] : 0,
+                    C = coefficients.Length > 1 ? coefficients[1] : 0,
+                    D = coefficients.Length > 0 ? coefficients[0] : 0,
+                    ErrorA = errorCoefficients.Length > 3 ? errorCoefficients[3] : 0,
+                    ErrorB = errorCoefficients.Length > 2 ? errorCoefficients[2] : 0,
+                    ErrorC = errorCoefficients.Length > 1 ? errorCoefficients[1] : 0,
+                    ErrorD = errorCoefficients.Length > 0 ? errorCoefficients[0] : 0
+                };
+
+                // Denklemleri oluştur
+                string equation = GeneratePolynomialEquation(coefficients, "x");
+                string errorEquation = GeneratePolynomialEquation(errorCoefficients, "e");
+
+                calibration.Coefficient.Equation = equation;
+                calibration.Coefficient.ErrorEquation = errorEquation;
+
+                // Kullanıcıya sonuçları göster
+                MessageBox.Show($"{modeName} calibration completed successfully.\n\n" +
+                                $"Equation:\n{equation}\n\n" +
+                                $"Error Equation:\n{errorEquation}",
+                                "Calibration Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during {modeName} calibration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private async Task CalibrateCurrentAsync(Current.Calibration calibration, string modeName, int degree)
+        {
+            if (calibration == null)
+                throw new ArgumentNullException(nameof(calibration), "Calibration data is null.");
+
+            if (calibration.PointRawBuffer == null || calibration.PointAppliedBuffer == null)
+                throw new InvalidOperationException("Calibration buffers are not initialized.");
+
+            if (calibration.PointRawBuffer.Count < degree + 1 || calibration.PointAppliedBuffer.Count < degree + 1)
+            {
+                MessageBox.Show($"Insufficient calibration points for {modeName}. At least {degree + 1} points are required.",
+                                "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // Polinom katsayılarını hesapla
+                var coefficients = Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointAppliedBuffer.ToArray(), degree);
+
+                // Katsayıları kalibrasyona ekle
+                calibration.Coefficient = new Coefficients
+                {
+                    A = coefficients.Length > 3 ? coefficients[3] : 0,
+                    B = coefficients.Length > 2 ? coefficients[2] : 0,
+                    C = coefficients.Length > 1 ? coefficients[1] : 0,
+                    D = coefficients.Length > 0 ? coefficients[0] : 0
+                };
+
+                // Denklemleri oluştur
+                string equation = GeneratePolynomialEquation(coefficients, "x");
+
+                calibration.Coefficient.Equation = equation;
+
+                // Kullanıcıya sonuçları göster
+                MessageBox.Show($"{modeName} calibration completed successfully.\n\n" +
+                                $"Equation:\n{equation}\n\n",
+                                "Calibration Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during {modeName} calibration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private async Task CalibrateVoltageAsync(Voltage.Calibration calibration, string modeName, int degree)
+        {
+            if (calibration == null)
+                throw new ArgumentNullException(nameof(calibration), "Calibration data is null.");
+
+            if (calibration.PointRawBuffer == null || calibration.PointAppliedBuffer == null)
+                throw new InvalidOperationException("Calibration buffers are not initialized.");
+
+            if (calibration.PointRawBuffer.Count < degree + 1 || calibration.PointAppliedBuffer.Count < degree + 1)
+            {
+                MessageBox.Show($"Insufficient calibration points for {modeName}. At least {degree + 1} points are required.",
+                                "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // Polinom katsayılarını hesapla
+                var coefficients = Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointAppliedBuffer.ToArray(), degree);
+
+                // Katsayıları kalibrasyona ekle
+                calibration.Coefficient = new Coefficients
+                {
+                    A = coefficients.Length > 3 ? coefficients[3] : 0,
+                    B = coefficients.Length > 2 ? coefficients[2] : 0,
+                    C = coefficients.Length > 1 ? coefficients[1] : 0,
+                    D = coefficients.Length > 0 ? coefficients[0] : 0
+                };
+
+                // Denklemleri oluştur
+                string equation = GeneratePolynomialEquation(coefficients, "x");
+
+                calibration.Coefficient.Equation = equation;
+
+                // Kullanıcıya sonuçları göster
+                MessageBox.Show($"{modeName} calibration completed successfully.\n\n" +
+                                $"Equation:\n{equation}\n\n",
+                                "Calibration Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during {modeName} calibration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }      
         private string GeneratePolynomialEquation(double[] coefficients, string variable)
         {
             var terms = coefficients
@@ -688,22 +1118,22 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             Interface.PortReadData = $"Port Message: {portReadData}";
                             Interface.PortReadTime = portReadTime;
 
-                            Interface.Thrust.Raw.ADC = thrust.Raw.ADC;
-                            Interface.Torque.Raw.ADC = torque.Raw.ADC;
-                            Interface.Current.Raw.ADC = current.Raw.ADC;
-                            Interface.Voltage.Raw.ADC = voltage.Raw.ADC;
+                            Interface.Thrust.raw.Value = thrust.raw.Value;
+                            Interface.Torque.raw.Value = torque.raw.Value;
+                            Interface.Current.raw.Value = current.raw.Value;
+                            Interface.Voltage.raw.Value = voltage.raw.Value;
 
-                            Interface.Thrust.Raw.Noise = thrust.Raw.Noise;
-                            Interface.Torque.Raw.Noise = torque.Raw.Noise;
-                            Interface.Current.Raw.Noise = current.Raw.Noise;
-                            Interface.Voltage.Raw.Noise = voltage.Raw.Noise;
+                            Interface.Thrust.raw.NoiseValue = thrust.raw.NoiseValue;
+                            Interface.Torque.raw.NoiseValue = torque.raw.NoiseValue;
+                            Interface.Current.raw.NoiseValue = current.raw.NoiseValue;
+                            Interface.Voltage.raw.NoiseValue = voltage.raw.NoiseValue;
 
-                            Interface.Thrust.Calibration.Coefficient.Equation = "İtki (gF) = " + thrust.Calibration.Coefficient.Equation;
-                            Interface.Torque.Calibration.Coefficient.Equation = "Tork (Nmm) = " + torque.Calibration.Coefficient.Equation;
-                            Interface.Current.Calibration.Coefficient.Equation = "Akım (mA) = " + current.Calibration.Coefficient.Equation;
-                            Interface.Voltage.Calibration.Coefficient.Equation = "Voltaj (mV) = " + voltage.Calibration.Coefficient.Equation;
-                            Interface.Thrust.Calibration.Coefficient.ErrorEquation = "İtki Hatası (ADC) = " + thrust.Calibration.Coefficient.ErrorEquation;
-                            Interface.Torque.Calibration.Coefficient.ErrorEquation = "Tork Hatası (ADC) = " + torque.Calibration.Coefficient.ErrorEquation;
+                            Interface.Thrust.calibration.Coefficient.Equation = "İtki (gF) = " + thrust.calibration.Coefficient.Equation;
+                            Interface.Torque.calibration.Coefficient.Equation = "Tork (Nmm) = " + torque.calibration.Coefficient.Equation;
+                            Interface.Current.calibration.Coefficient.Equation = "Akım (mA) = " + current.calibration.Coefficient.Equation;
+                            Interface.Voltage.calibration.Coefficient.Equation = "Voltaj (mV) = " + voltage.calibration.Coefficient.Equation;
+                            Interface.Thrust.calibration.Coefficient.ErrorEquation = "İtki Hatası (ADC) = " + thrust.calibration.Coefficient.ErrorEquation;
+                            Interface.Torque.calibration.Coefficient.ErrorEquation = "Tork Hatası (ADC) = " + torque.calibration.Coefficient.ErrorEquation;
                         });
                     }
                 }
@@ -738,19 +1168,24 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         public void InitializeInterface()
         {
-            thrust.Calibration.Coefficient.Equation = "a₁x³ + a₂x² + a₃x + c";
-            torque.Calibration.Coefficient.Equation = "b₁x³ + b₂x² + b₃x + d";
-            current.Calibration.Coefficient.Equation = "c₁x³ + c₂x² + c₃x + d";
-            voltage.Calibration.Coefficient.Equation = "d₁x³ + d₂x² + d₃x + e";
-            thrust.Calibration.Coefficient.ErrorEquation = "a₁x³ + a₂x² + a₃x + c";
-            torque.Calibration.Coefficient.ErrorEquation = "b₁x³ + b₂x² + b₃x + d";
+            Interface.Thrust.calibration.AddingOn = thrust.calibration.AddingOn = true;
+            Interface.Torque.calibration.AddingOn = torque.calibration.AddingOn = true;
+            Interface.Current.calibration.AddingOn = current.calibration.AddingOn = false;
+            Interface.Voltage.calibration.AddingOn = voltage.calibration.AddingOn = false;
 
-            Interface.Thrust.Calibration.Coefficient.Equation = "İtki (gF) = " + thrust.Calibration.Coefficient.Equation;
-            Interface.Torque.Calibration.Coefficient.Equation = "Tork (Nmm) = " + torque.Calibration.Coefficient.Equation;
-            Interface.Current.Calibration.Coefficient.Equation = "Akım (mA) = " + current.Calibration.Coefficient.Equation;
-            Interface.Voltage.Calibration.Coefficient.Equation = "Voltaj (mV) = " + voltage.Calibration.Coefficient.Equation;
-            Interface.Thrust.Calibration.Coefficient.ErrorEquation = "İtki Hatası (ADC) = " + thrust.Calibration.Coefficient.ErrorEquation;
-            Interface.Torque.Calibration.Coefficient.ErrorEquation = "Tork Hatası (ADC) = " + torque.Calibration.Coefficient.ErrorEquation;
+            thrust.calibration.Coefficient.Equation = "a₁x³ + a₂x² + a₃x + c";
+            torque.calibration.Coefficient.Equation = "b₁x³ + b₂x² + b₃x + d";
+            current.calibration.Coefficient.Equation = "c₁x³ + c₂x² + c₃x + d";
+            voltage.calibration.Coefficient.Equation = "d₁x³ + d₂x² + d₃x + e";
+            thrust.calibration.Coefficient.ErrorEquation = "a₁x³ + a₂x² + a₃x + c";
+            torque.calibration.Coefficient.ErrorEquation = "b₁x³ + b₂x² + b₃x + d";
+
+            Interface.Thrust.calibration.Coefficient.Equation = "İtki (gF) = " + thrust.calibration.Coefficient.Equation;
+            Interface.Torque.calibration.Coefficient.Equation = "Tork (Nmm) = " + torque.calibration.Coefficient.Equation;
+            Interface.Current.calibration.Coefficient.Equation = "Akım (mA) = " + current.calibration.Coefficient.Equation;
+            Interface.Voltage.calibration.Coefficient.Equation = "Voltaj (mV) = " + voltage.calibration.Coefficient.Equation;
+            Interface.Thrust.calibration.Coefficient.ErrorEquation = "İtki Hatası (ADC) = " + thrust.calibration.Coefficient.ErrorEquation;
+            Interface.Torque.calibration.Coefficient.ErrorEquation = "Tork Hatası (ADC) = " + torque.calibration.Coefficient.ErrorEquation;
 
         }
         #endregion
@@ -773,10 +1208,10 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 lock (_PlotDataLock)
                 {
                     latestTime = portReadTime;
-                    thrustValue = thrust.Raw.ADC;
-                    torqueValue = torque.Raw.ADC;
-                    currentValue = current.Raw.ADC;
-                    voltageValue = voltage.Raw.ADC;
+                    thrustValue = thrust.raw.Value;
+                    torqueValue = torque.raw.Value;
+                    currentValue = current.raw.Value;
+                    voltageValue = voltage.raw.Value;
                 }
 
                 // Grafiği güncelle

@@ -33,9 +33,9 @@
         </Grid.RowDefinitions>
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="80*"></RowDefinition>
-                <RowDefinition Height="160"></RowDefinition>
-                <RowDefinition Height="160"></RowDefinition>
+                <RowDefinition Height="100*"></RowDefinition>
+                <RowDefinition Height="200"></RowDefinition>
+                <RowDefinition Height="200"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40*"></ColumnDefinition>
@@ -151,7 +151,7 @@
 
                         <!-- Thrust DataGrid -->
                         <DataGrid Grid.Row="0" x:Name="Thrust_DataList" 
-                                  ItemsSource="{Binding Path=dynotis.Interface.LoadCellData}" 
+                                  ItemsSource="{Binding Path=dynotis.Interface.LoadCellTestData}" 
                                   AutoGenerateColumns="False" FontSize="20" 
                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <DataGrid.Columns>
@@ -200,7 +200,7 @@
 
                         <!-- Torque DataGrid -->
                         <DataGrid Grid.Row="1" x:Name="Torque_DataList" 
-                                  ItemsSource="{Binding Path=dynotis.Interface.LoadCellData}" 
+                                  ItemsSource="{Binding Path=dynotis.Interface.LoadCellTestData}" 
                                   AutoGenerateColumns="False" FontSize="20" 
                                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <DataGrid.Columns>
@@ -329,12 +329,13 @@
                 <GroupBox.Header >
                     <TextBlock Text="İtki" FontSize="20" FontWeight="Bold"/>
                 </GroupBox.Header>
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 0 5">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="5 0 0 5">
                     <Label x:Name="Uygulanan_Itki_Birim_Title" Content="Uygulanan İtki" FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
-                        <TextBox x:Name="Uygulanan_Itki_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.thrust.Calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
+                        <TextBox x:Name="Uygulanan_Itki_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.thrust.calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                         <Label x:Name="Uygulanan_Itki_Birim_Label" Content="gr" FontSize="16"></Label>
                     </StackPanel>
+                    <CheckBox Content="Değeri ekleyerek ilerle" IsChecked="{Binding dynotis.Interface.Thrust.calibration.AddingOn, Mode=TwoWay}" FontSize="16" Margin="5 10 5 5"></CheckBox>
                 </StackPanel>
             </GroupBox>
 
@@ -343,19 +344,20 @@
                 <GroupBox.Header >
                     <TextBlock Text="Tork" FontSize="20" FontWeight="Bold"/>
                 </GroupBox.Header>
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 5 5">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="5 0 5 5">
                     <Label x:Name="Uygulanan_Tork_Birim_Title" Content="Uygulanan Tork (gr)" FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
-                        <TextBox x:Name="Uygulanan_Tork_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.Calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
+                        <TextBox x:Name="Uygulanan_Tork_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                         <Label x:Name="Uygulanan_Tork_Birim_Label" Content="gr" FontSize="16"></Label>
                     </StackPanel>
                     <StackPanel x:Name="Tork_Uygulanan_Mesafe_Giris_Kutusu">
                         <Label x:Name="Label83" Content="Uygulanan Tork Mesafesi (mm)" FontSize="16"></Label>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
                             <TextBox x:Name="Uygulanan_Tork_Mesafesi_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.Calibration.AppliedDistance, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
-                            <Label x:Name="Uygulanan_Tork_Mesafesi_Label" Content="mm" FontSize="16"></Label>
+                            <Label x:Name="Uygulanan_Tork_Mesafesi_Label" Content="mm" FontSize="16"></Label>                            
                         </StackPanel>
                     </StackPanel>
+                    <CheckBox Content="Değeri ekleyerek ilerle" IsChecked="{Binding dynotis.Interface.Torque.calibration.AddingOn, Mode=TwoWay}" FontSize="16" Margin="5 10 5 5"></CheckBox>
                 </StackPanel>
             </GroupBox>
 
@@ -364,10 +366,10 @@
                 <GroupBox.Header >
                     <TextBlock Text="Akım" FontSize="20" FontWeight="Bold"/>
                 </GroupBox.Header>
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 0 5">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="5 0 0 5">
                     <Label x:Name="Label123" Content="Uygulanan Akım (mA)" FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
-                        <TextBox x:Name="Uygulanan_Akım_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.current.Calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
+                        <TextBox x:Name="Uygulanan_Akım_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.current.calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                         <Label x:Name="Uygulanan_Akım_Label" Content="mA" FontSize="16"></Label>
                     </StackPanel>
                 </StackPanel>
@@ -378,10 +380,10 @@
                 <GroupBox.Header >
                     <TextBlock Text="Voltaj" FontSize="20" FontWeight="Bold"/>
                 </GroupBox.Header>
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="5 0 0 5">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="5 0 0 5">
                     <Label x:Name="Label133" Content="Uygulanan Voltaj (mV)" FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
-                        <TextBox x:Name="Uygulanan_Voltaj_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.voltage.Calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
+                        <TextBox x:Name="Uygulanan_Voltaj_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.voltage.calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                         <Label x:Name="Uygulanan_Voltaj_Label" Content="mV" FontSize="16"></Label>
                     </StackPanel>
                 </StackPanel>
@@ -462,24 +464,24 @@
 
                         <!-- İtki ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="0" Text="İtki: " VerticalAlignment="Center" FontSize="16" Margin="0,0,10,0" />
-                        <ComboBox Grid.Column="1" Grid.Row="0" Height="24" FontSize="14" Name="ItkiComboBox" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="0" Height="24" FontSize="14" x:Name="ItkiComboBox" SelectionChanged="ThrustUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="Gram" />
                             <ComboBoxItem Content="Newton" />
                         </ComboBox>
                         <!-- Tork ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="1" Text="Tork: " VerticalAlignment="Center" FontSize="16" Margin="0,0,10,0" />
-                        <ComboBox Grid.Column="1" Grid.Row="1" Height="24" FontSize="14" Name="TorkComboBox" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="1" Height="24" FontSize="14" x:Name="TorkComboBox" SelectionChanged="TorqueUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="Gram*Milimetre" />
                             <ComboBoxItem Content="Newton" />
                         </ComboBox>
                         <!-- Akım ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="2" Text="Akım: " VerticalAlignment="Center" Margin="0,0,10,0" FontSize="16" />
-                        <ComboBox Grid.Column="1" Grid.Row="2" Height="24" FontSize="14" Name="AkimComboBox" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="2" Height="24" FontSize="14" x:Name="AkimComboBox" SelectionChanged="CurrentUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="mAmper" />
                         </ComboBox>
                         <!-- Voltaj ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="3" Text="Voltaj: " VerticalAlignment="Center" Margin="0,0,10,0" FontSize="16" />
-                        <ComboBox Grid.Column="1" Grid.Row="3" Height="24" FontSize="14" Name="VoltajComboBox" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="3" Height="24" FontSize="14" x:Name="VoltajComboBox" SelectionChanged="VoltageUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="mVolt" />
                         </ComboBox>
                     </Grid>
@@ -522,8 +524,8 @@
                     <Label x:Name="label76" Grid.Row="5" Grid.Column="0" Content="Sonuç" FontWeight="Bold" FontSize="16"></Label>
 
                     <Label x:Name="label70" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="DarkOrange" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
-                    <Label x:Name="Itki_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.Raw.ADC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="Itki_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.Raw.Noise, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.raw.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_ADC_Error_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Button x:Name="Itki_Dara_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Itki_Dara_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
@@ -571,8 +573,8 @@
                     <Label x:Name="label77" Grid.Row="5" Grid.Column="0" Content="Sonuç" FontWeight="Bold" FontSize="16"></Label>
 
                     <Label x:Name="label59" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
-                    <Label x:Name="Tork_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.Raw.ADC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="Tork_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.Raw.Noise, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.raw.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Tork_ADC_Error_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Button x:Name="Tork_Dara_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Tork_Dara_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
                     <Label x:Name="Tork_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
@@ -619,8 +621,8 @@
                     <Label x:Name="label175" Grid.Row="3" Grid.Column="0" Content="Hesaplanan Değer" FontWeight="Bold" FontSize="16"></Label>
                     
                     <Label x:Name="label170" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="#FF587DC5" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
-                    <Label x:Name="Akım_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Current.Raw.ADC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="Akım_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Current.Raw.Noise, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Akım_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Current.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Akım_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Current.raw.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Akım_ADC_Hesaplanan_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="label125" Grid.Row="0" Grid.Column="3" Content="mAmper" FontSize="24" Foreground="#FF587DC5" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Akım_mA_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
@@ -662,8 +664,8 @@
                     <Label x:Name="label164" Grid.Row="3" Grid.Column="0" Content="Hesaplanan Değer" FontWeight="Bold" FontSize="16"></Label>
 
                     <Label x:Name="label159" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="#FFC96CD4" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
-                    <Label x:Name="Voltaj_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.Raw.ADC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="Voltaj_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.Raw.Noise, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Voltaj_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Voltaj_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.raw.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Voltaj_ADC_Hesaplanan_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="label121" Grid.Row="0" Grid.Column="2" Content="mVolt" FontSize="24" Foreground="#FFC96CD4" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Voltaj_mV_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
@@ -686,12 +688,10 @@
             <Grid Grid.Row="1" Grid.ColumnSpan="5" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Margin="250 0 0 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <!--<Label  Grid.Column="0" Content="{Binding dynotis.Interface.Mode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Left" Margin="0 0 50 0"></Label>-->
                 <Label  Grid.Column="0" Content="{Binding dynotis.SampleCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Left" Margin="0 0 0 0"></Label>
-                <Label  Grid.Column="2" Content="{Binding dynotis.Interface.PortReadData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Left" Margin="0 0 0 0"></Label>
+                <Label  Grid.Column="1" Content="{Binding dynotis.Interface.PortReadData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Left" Margin="0 0 0 0"></Label>
             </Grid>
         </Grid>
 
@@ -706,13 +706,13 @@
                     <RowDefinition Height="*"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
-                <TextBox x:Name="Thrust_Equation" Text="{Binding dynotis.Interface.Thrust.Calibration.Coefficient.Equation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="Orange" Grid.Column="0" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
-                <TextBox x:Name="Torque_Equation" Text="{Binding dynotis.Interface.Torque.Calibration.Coefficient.Equation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="DarkSeaGreen" Grid.Column="1" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
-                <TextBox x:Name="Current_Equation" Text="{Binding dynotis.Interface.Current.Calibration.Coefficient.Equation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Collapsed" BorderBrush="Orange" Grid.Column="0" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
-                <TextBox x:Name="Voltage_Equation" Text="{Binding dynotis.Interface.Voltage.Calibration.Coefficient.Equation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Collapsed" BorderBrush="DarkSeaGreen" Grid.Column="1" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+                <TextBox x:Name="Thrust_Equation" Text="{Binding dynotis.Interface.Thrust.calibration.Coefficient.Equation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="Orange" Grid.Column="0" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+                <TextBox x:Name="Torque_Equation" Text="{Binding dynotis.Interface.Torque.calibration.Coefficient.Equation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="DarkSeaGreen" Grid.Column="1" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+                <TextBox x:Name="Current_Equation" Text="{Binding dynotis.Interface.Current.calibration.Coefficient.Equation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Collapsed" BorderBrush="Orange" Grid.Column="0" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+                <TextBox x:Name="Voltage_Equation" Text="{Binding dynotis.Interface.Voltage.calibration.Coefficient.Equation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Collapsed" BorderBrush="DarkSeaGreen" Grid.Column="1" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
 
-                <TextBox x:Name="Thrust_ErrorEquation" Text="{Binding dynotis.Interface.Thrust.Calibration.Coefficient.ErrorEquation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="Orange" Grid.Row="1" Grid.Column="0" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
-                <TextBox x:Name="Torque_ErrorEquation" Text="{Binding dynotis.Interface.Torque.Calibration.Coefficient.ErrorEquation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="DarkSeaGreen"  Grid.Row="1" Grid.Column="1" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+                <TextBox x:Name="Thrust_ErrorEquation" Text="{Binding dynotis.Interface.Thrust.calibration.Coefficient.ErrorEquation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="Orange" Grid.Row="1" Grid.Column="0" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
+                <TextBox x:Name="Torque_ErrorEquation" Text="{Binding dynotis.Interface.Torque.calibration.Coefficient.ErrorEquation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="true" IsEnabled ="true" Visibility="Visible" BorderBrush="DarkSeaGreen"  Grid.Row="1" Grid.Column="1" FontSize="20" FontWeight="Bold" Height="28" Margin="10 0 10 0" ></TextBox>
             </Grid>
         </GroupBox>
     </Grid>

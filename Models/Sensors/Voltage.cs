@@ -9,33 +9,130 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
 {
     public class Voltage : BindableBase
     {
-        private RawMeasurements _raw;
-        private CalibrationMeasurements _calibration;
-        private CalculatedMeasurements _calculated;
+        private Raw _raw;
+        private Calibration _calibration;
+        private Calculated _calculated;
 
-        public RawMeasurements Raw
+        public Raw raw
         {
             get => _raw;
             set => SetProperty(ref _raw, value);
         }
 
-        public CalibrationMeasurements Calibration
+        public Calibration calibration
         {
             get => _calibration;
             set => SetProperty(ref _calibration, value);
         }
 
-        public CalculatedMeasurements Calculated
+        public Calculated calculated
         {
             get => _calculated;
             set => SetProperty(ref _calculated, value);
         }
-
         public Voltage()
         {
-            Raw = new RawMeasurements();
-            Calibration = new CalibrationMeasurements();
-            Calculated = new CalculatedMeasurements();
+            raw = new Raw();
+            calibration = new Calibration();
+            calculated = new Calculated();
+        }
+        public class Calculated : BindableBase
+        {
+            private double _value;
+            private string _unitName;
+            private string _unitSymbol;
+            private double _noise;
+            private double _dara;
+
+            public double Value
+            {
+                get => _value;
+                set => SetProperty(ref _value, value);
+            }
+
+            public string UnitName
+            {
+                get => _unitName;
+                set => SetProperty(ref _unitName, value);
+            }
+
+            public string UnitSymbol
+            {
+                get => _unitSymbol;
+                set => SetProperty(ref _unitSymbol, value);
+            }
+
+            public double Noise
+            {
+                get => _noise;
+                set => SetProperty(ref _noise, value);
+            }
+            public double Dara
+            {
+                get => _dara;
+                set => SetProperty(ref _dara, value);
+            }
+        }
+        public class Calibration : BindableBase
+        {
+            private List<double> _pointAppliedBuffer = new List<double>();
+            private List<double> _pointRawBuffer = new List<double>();
+            private string _appliedUnit;
+            private double _applied;
+            private bool _addingOn;
+            private Coefficients _coefficients = new Coefficients();
+
+            public List<double> PointRawBuffer
+            {
+                get => _pointRawBuffer;
+                set => SetProperty(ref _pointRawBuffer, value);
+            }
+            public List<double> PointAppliedBuffer
+            {
+                get => _pointAppliedBuffer;
+                set => SetProperty(ref _pointAppliedBuffer, value);
+            }
+            public double Applied
+            {
+                get => _applied;
+                set => SetProperty(ref _applied, value);
+            }
+            public string AppliedUnit
+            {
+                get => _appliedUnit;
+                set => SetProperty(ref _appliedUnit, value);
+            }
+            public bool AddingOn
+            {
+                get => _addingOn;
+                set => SetProperty(ref _addingOn, value);
+            }
+            public Coefficients Coefficient
+            {
+                get => _coefficients;
+                set => SetProperty(ref _coefficients, value);
+            }
+        }
+        public class Raw : BindableBase
+        {
+            private double _value;
+            private double _noiseValue;
+            private List<double> _buffer = new();
+            public double Value
+            {
+                get => _value;
+                set => SetProperty(ref _value, value);
+            }
+            public double NoiseValue
+            {
+                get => _noiseValue;
+                set => SetProperty(ref _noiseValue, value);
+            }
+            public List<double> Buffer
+            {
+                get => _buffer;
+                set => SetProperty(ref _buffer, value);
+            }
         }
     }
 }

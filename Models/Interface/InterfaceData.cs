@@ -1,12 +1,12 @@
-﻿using Dynotis_Calibration_and_Signal_Analyzer.Models.Device;
-using Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors;
-using Dynotis_Calibration_and_Signal_Analyzer.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dynotis_Calibration_and_Signal_Analyzer.Models.Device;
+using Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors;
+using Dynotis_Calibration_and_Signal_Analyzer.Services;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
 {
@@ -45,37 +45,39 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
         }
         public Thrust Thrust { get; set; }
         public Torque Torque { get; set; }
+        public LoadCellTest LoadCellTest { get; set; }
         public Current Current { get; set; }
         public Voltage Voltage { get; set; }
         public ObservableCollection<DataGridRowModel> ThrustData { get; set; }
         public ObservableCollection<DataGridRowModel> TorqueData { get; set; }
-        public ObservableCollection<DataGridRowModel> LoadCellData { get; set; }
+        public ObservableCollection<DataGridRowModel> LoadCellTestData { get; set; }
         public ObservableCollection<DataGridRowModel> CurrentData { get; set; }
         public ObservableCollection<DataGridRowModel> VoltageData { get; set; }
         public InterfaceData()
         {
             Thrust = new Thrust();
             Torque = new Torque();
+            LoadCellTest = new LoadCellTest();
             Current = new Current();
             Voltage = new Voltage();
 
             ThrustData = new ObservableCollection<DataGridRowModel>();
             TorqueData = new ObservableCollection<DataGridRowModel>();
-            LoadCellData = new ObservableCollection<DataGridRowModel>();
+            LoadCellTestData = new ObservableCollection<DataGridRowModel>();
             CurrentData = new ObservableCollection<DataGridRowModel>();
             VoltageData = new ObservableCollection<DataGridRowModel>();
         }
         public void UpdateThrustData(Thrust thrust)
         {
             ThrustData.Clear();
-            for (int i = 0; i < thrust.Calibration.PointRawBuffer.Count; i++)
+            for (int i = 0; i < thrust.calibration.PointRawBuffer.Count; i++)
             {
                 ThrustData.Add(new DataGridRowModel
                 {
                     No = i + 1,
-                    ADC_Thrust = thrust.Calibration.PointRawBuffer[i],
-                    Applied_Thrust = thrust.Calibration.PointAppliedBuffer[i],
-                    ADC_Torque = thrust.Calibration.PointErrorBuffer[i]
+                    ADC_Thrust = thrust.calibration.PointRawBuffer[i],
+                    Applied_Thrust = thrust.calibration.PointAppliedBuffer[i],
+                    ADC_Torque = thrust.calibration.PointErrorBuffer[i]
                 });
             }
         }
@@ -83,30 +85,35 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
         public void UpdateTorqueData(Torque torque)
         {
             TorqueData.Clear();
-            for (int i = 0; i < torque.Calibration.PointRawBuffer.Count; i++)
+            for (int i = 0; i < torque.calibration.PointRawBuffer.Count; i++)
             {
                 TorqueData.Add(new DataGridRowModel
                 {
                     No = i + 1,
-                    ADC_Torque = torque.Calibration.PointRawBuffer[i],
-                    Applied_Torque = torque.Calibration.PointAppliedBuffer[i],
-                    ADC_Thrust = torque.Calibration.PointErrorBuffer[i]
+                    ADC_Torque = torque.calibration.PointRawBuffer[i],
+                    Applied_Torque = torque.calibration.PointAppliedBuffer[i],
+                    ADC_Thrust = torque.calibration.PointErrorBuffer[i]
                 });
             }
         }
 
-        public void UpdateLoadCellData(Thrust thrust, Torque torque)
+        public void UpdateLoadCellTestData(LoadCellTest loadCellTest, Thrust thrust, Torque torque)
         {
-            LoadCellData.Clear();
-            for (int i = 0; i < thrust.Calibration.PointRawBuffer.Count; i++)
+            LoadCellTestData.Clear();
+            for (int i = 0; i < thrust.calibration.PointRawBuffer.Count; i++)
             {
-                LoadCellData.Add(new DataGridRowModel
+                LoadCellTestData.Add(new DataGridRowModel
                 {
                     No = i + 1,
-                    ADC_Thrust = thrust.Calibration.PointRawBuffer[i],
-                    Applied_Thrust = thrust.Calibration.PointAppliedBuffer[i],
-                    ADC_Torque = torque.Calibration.PointRawBuffer[i],
-                    Applied_Torque = torque.Calibration.PointAppliedBuffer[i]
+                    Applied_Thrust = loadCellTest.Thrust.AppliedBuffer[i],
+                    Calculated_Thrust = loadCellTest.Thrust.Buffer[i],
+                    Error_Thrust = loadCellTest.Thrust.ErrorBuffer[i],
+                    FSError_Thrust = loadCellTest.Thrust.FSErrorBuffer[i],
+
+                    Applied_Torque = loadCellTest.Torque.AppliedBuffer[i],
+                    Calculated_Torque = loadCellTest.Torque.Buffer[i],
+                    Error_Torque = loadCellTest.Torque.ErrorBuffer[i],
+                    FSError_Torque = loadCellTest.Torque.FSErrorBuffer[i]
                 });
             }
         }
@@ -114,13 +121,13 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
         public void UpdateCurrentData(Current current)
         {
             CurrentData.Clear();
-            for (int i = 0; i < current.Calibration.PointRawBuffer.Count; i++)
+            for (int i = 0; i < current.calibration.PointRawBuffer.Count; i++)
             {
                 CurrentData.Add(new DataGridRowModel
                 {
                     No = i + 1,
-                    ADC_Current = current.Calibration.PointRawBuffer[i],
-                    Applied_Current = current.Calibration.PointAppliedBuffer[i]
+                    ADC_Current = current.calibration.PointRawBuffer[i],
+                    Applied_Current = current.calibration.PointAppliedBuffer[i]
                 });
             }
         }
@@ -128,13 +135,13 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
         public void UpdateVoltageData(Voltage voltage)
         {
             VoltageData.Clear();
-            for (int i = 0; i < voltage.Calibration.PointRawBuffer.Count; i++)
+            for (int i = 0; i < voltage.calibration.PointRawBuffer.Count; i++)
             {
                 VoltageData.Add(new DataGridRowModel
                 {
                     No = i + 1,
-                    ADC_Voltage = voltage.Calibration.PointRawBuffer[i],
-                    Applied_Voltage = voltage.Calibration.PointAppliedBuffer[i]
+                    ADC_Voltage = voltage.calibration.PointRawBuffer[i],
+                    Applied_Voltage = voltage.calibration.PointAppliedBuffer[i]
                 });
             }
         }

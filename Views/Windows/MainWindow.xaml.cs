@@ -111,10 +111,19 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             }
 
         }
-
-        private void DeletePointButton_Click(object sender, RoutedEventArgs e)
+        private async void DeletePointButton_Click(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                if (dynotis != null)
+                {
+                    await dynotis.DeletePointAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private async void Port_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -241,7 +250,35 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                     break;
             }
         }
+        private void Tork_Dara_Button_Click(object sender, RoutedEventArgs e)
+        {
 
+        }
+
+        private void Itki_Dara_Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ThrustUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void TorqueUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void CurrentUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void VoltageUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -285,16 +322,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             {
                 e.Handled = true; // Prevent space key input
             }
-        }
-
-        private void Tork_Dara_Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Itki_Dara_Button_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }
