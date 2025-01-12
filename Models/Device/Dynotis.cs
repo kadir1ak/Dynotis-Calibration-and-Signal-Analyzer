@@ -353,34 +353,34 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         {
             double appliedValue = thrust.calibration.Applied;
             await CollectDataForThrust(thrust.calibration, thrust.raw, torque.raw, appliedValue);
-            Interface.UpdateThrustData(thrust);
+            Interface.UpdateThrustDataGrid(thrust);
         }
 
         private async Task AddTorquePointAsync()
         {
             double appliedValue = torque.calibration.Applied;
             await CollectDataForTorque(torque.calibration, torque.raw, thrust.raw, appliedValue);
-            Interface.UpdateTorqueData(torque);
+            Interface.UpdateTorqueDataGrid(torque);
         }
 
         private async Task AddCurrentPointAsync()
         {
             double appliedValue = current.calibration.Applied;
             await CollectDataForCurrent(current.calibration, current.raw, appliedValue);
-            Interface.UpdateCurrentData(current);
+            Interface.UpdateCurrentDataGrid(current);
         }
 
         private async Task AddVoltagePointAsync()
         {
             double appliedValue = voltage.calibration.Applied;
             await CollectDataForVoltage(voltage.calibration, voltage.raw, appliedValue);
-            Interface.UpdateVoltageData(voltage);
+            Interface.UpdateVoltageDataGrid(voltage);
         }
 
         private async Task AddLoadCellTestPointAsync()
         {
             await CollectLoadCellTestData(loadCellTest, thrust, torque);
-            Interface.UpdateLoadCellTestData(loadCellTest);
+            Interface.UpdateLoadCellTestDataGrid(loadCellTest);
         }
 
         private async Task CollectDataForThrust(Thrust.Calibration calibration, Thrust.Raw raw, Torque.Raw errorRaw, double appliedValue)
@@ -689,30 +689,30 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         private void DeleteThrustPoint()
         {
             DeletePointFromThrustData(thrust.calibration);
-            Interface.UpdateThrustData(thrust);
+            Interface.UpdateThrustDataGrid(thrust);
         }
 
         private void DeleteTorquePoint()
         {
             DeletePointFromTorqueData(torque.calibration);
-            Interface.UpdateTorqueData(torque);
+            Interface.UpdateTorqueDataGrid(torque);
         }
 
         private void DeleteCurrentPoint()
         {
             DeletePointFromCurrentData(current.calibration);
-            Interface.UpdateCurrentData(current);
+            Interface.UpdateCurrentDataGrid(current);
         }
 
         private void DeleteVoltagePoint()
         {
             DeletePointFromVoltageData(voltage.calibration);
-            Interface.UpdateVoltageData(voltage);
+            Interface.UpdateVoltageDataGrid(voltage);
         }
         private void DeleteLoadCellTestPoint()
         {
             DeletePointFromLoadCellTestData(loadCellTest);
-            Interface.UpdateVoltageData(voltage);
+            Interface.UpdateVoltageDataGrid(voltage);
         }
         private void DeletePointFromThrustData(Thrust.Calibration calibration)
         {
@@ -801,27 +801,27 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 {
                     case Mode.Thrust:
                         DeleteAllPointsFromThrustData(thrust.calibration);
-                        Interface.UpdateThrustData(thrust);
+                        Interface.UpdateThrustDataGrid(thrust);
                         break;
 
                     case Mode.Torque:
                         DeleteAllPointsFromTorqueData(torque.calibration);
-                        Interface.UpdateTorqueData(torque);
+                        Interface.UpdateTorqueDataGrid(torque);
                         break;
 
                     case Mode.Current:
                         DeleteAllPointsFromCurrentData(current.calibration);
-                        Interface.UpdateCurrentData(current);
+                        Interface.UpdateCurrentDataGrid(current);
                         break;
 
                     case Mode.Voltage:
                         DeleteAllPointsFromVoltageData(voltage.calibration);
-                        Interface.UpdateVoltageData(voltage);
+                        Interface.UpdateVoltageDataGrid(voltage);
                         break;
 
                     case Mode.LoadCellTest:
                         DeleteAllPointsFromLoadCellTestData(loadCellTest);
-                        Interface.UpdateVoltageData(voltage);
+                        Interface.UpdateVoltageDataGrid(voltage);
                         break;
 
                     default:
@@ -840,19 +840,19 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             try
             {
                 DeleteAllPointsFromThrustData(thrust.calibration);
-                Interface.UpdateThrustData(thrust);
+                Interface.UpdateThrustDataGrid(thrust);
 
                 DeleteAllPointsFromTorqueData(torque.calibration);
-                Interface.UpdateTorqueData(torque);
+                Interface.UpdateTorqueDataGrid(torque);
 
                 DeleteAllPointsFromCurrentData(current.calibration);
-                Interface.UpdateCurrentData(current);
+                Interface.UpdateCurrentDataGrid(current);
 
                 DeleteAllPointsFromVoltageData(voltage.calibration);
-                Interface.UpdateVoltageData(voltage);
+                Interface.UpdateVoltageDataGrid(voltage);
 
                 DeleteAllPointsFromLoadCellTestData(loadCellTest);
-                Interface.UpdateVoltageData(voltage);
+                Interface.UpdateVoltageDataGrid(voltage);
             }
             catch (Exception ex)
             {
@@ -970,7 +970,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 string errorEquation = GeneratePolynomialEquation(errorCoefficients, "e");
 
                 calibration.Coefficient.Equation = equation;
-                calibration.Coefficient.ErrorEquation = errorEquation;
+                error.Coefficient.ErrorEquation = errorEquation;
 
                 // Kullanıcıya sonuçları göster
                 MessageBox.Show($"{modeName} calibration completed successfully.\n\n" +
@@ -1022,7 +1022,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 string errorEquation = GeneratePolynomialEquation(errorCoefficients, "e");
 
                 calibration.Coefficient.Equation = equation;
-                calibration.Coefficient.ErrorEquation = errorEquation;
+                error.Coefficient.ErrorEquation = errorEquation;
 
                 // Kullanıcıya sonuçları göster
                 MessageBox.Show($"{modeName} calibration completed successfully.\n\n" +
@@ -1236,6 +1236,82 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 torque.calculated.ErrorValue = Math.Round(calculatedErrorValue, 3);
                 torque.raw.ErrorValue = Math.Round(calculatedErrorRawValue, 3);
                 torque.calculated.NoiseValue = Math.Round(calculatedNoiseValue, 3);
+            }
+            catch (Exception ex)
+            {
+                // Hata yönetimi
+                MessageBox.Show($"Error in calculation: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        public async Task CalculateCurrentValueAsync(Current current)
+        {
+
+            try
+            {
+                if (current.calibration?.Coefficient == null)
+                {
+                    throw new InvalidOperationException("Hata katsayıları eksik. Hesaplama devam edemiyor.");
+                }
+
+                // Katsayıları al
+                var coeff = current.calibration.Coefficient;
+
+                // Value = A * x³ + B * x² + C * x + D
+                double calculatedValue = coeff.A * Math.Pow(current.raw.Value, 3) +
+                                         coeff.B * Math.Pow(current.raw.Value, 2) +
+                                         coeff.C * current.raw.Value +
+                                         coeff.D;
+
+                // Noise Value = A * x³ + B * x² + C * x + D
+                double calculatedNoiseValue = coeff.A * Math.Pow(current.raw.NoiseValue, 3) +
+                                              coeff.B * Math.Pow(current.raw.NoiseValue, 2) +
+                                              coeff.C * current.raw.NoiseValue +
+                                              coeff.D;
+
+                await Task.Delay(10); // Simülasyon için kısa bir gecikme
+
+                // Hesaplanan değerleri güncelle
+                current.calculated.Value = Math.Round(calculatedValue, 3);
+                current.calculated.RawValue = Math.Round(current.raw.Value, 3);
+                current.calculated.NoiseValue = Math.Round(calculatedNoiseValue, 3);
+            }
+            catch (Exception ex)
+            {
+                // Hata yönetimi
+                MessageBox.Show($"Error in calculation: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        public async Task CalculateVoltageValueAsync(Voltage voltage)
+        {
+
+            try
+            {
+                if (voltage.calibration?.Coefficient == null)
+                {
+                    throw new InvalidOperationException("Hata katsayıları eksik. Hesaplama devam edemiyor.");
+                }
+
+                // Katsayıları al
+                var coeff = voltage.calibration.Coefficient;
+
+                // Value = A * x³ + B * x² + C * x + D
+                double calculatedValue = coeff.A * Math.Pow(voltage.raw.Value, 3) +
+                                         coeff.B * Math.Pow(voltage.raw.Value, 2) +
+                                         coeff.C * voltage.raw.Value +
+                                         coeff.D;
+
+                // Noise Value = A * x³ + B * x² + C * x + D
+                double calculatedNoiseValue = coeff.A * Math.Pow(voltage.raw.NoiseValue, 3) +
+                                              coeff.B * Math.Pow(voltage.raw.NoiseValue, 2) +
+                                              coeff.C * voltage.raw.NoiseValue +
+                                              coeff.D;
+
+                await Task.Delay(10); // Simülasyon için kısa bir gecikme
+
+                // Hesaplanan değerleri güncelle
+                voltage.calculated.Value = Math.Round(calculatedValue, 3);
+                voltage.calculated.RawValue = Math.Round(voltage.raw.Value, 3);
+                voltage.calculated.NoiseValue = Math.Round(calculatedNoiseValue, 3);
             }
             catch (Exception ex)
             {
@@ -1465,6 +1541,278 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         #endregion
 
+        #region Excel Import
+        public async Task ExcelImportAsync()
+        {
+            try
+            {
+                // Kullanıcıdan dosya seçmesini isteyin
+                var openFileDialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Filter = "Excel Dosyası (*.xlsx)|*.xlsx",
+                    Title = "Excel Dosyasını Aç"
+                };
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    string filePath = openFileDialog.FileName;
+
+                    // Excel dosyasını aç
+                    using (var package = new OfficeOpenXml.ExcelPackage(new FileInfo(filePath)))
+                    {
+                        // İtki Verileri
+                        var thrustSheet = package.Workbook.Worksheets["İtki Verileri"];
+                        if (thrustSheet != null)
+                        {
+                            ObservableCollection<ThrustDataGrid> temp = ReadThrustWorksheet(thrustSheet);
+                            Interface.ThrustData.Clear(); 
+                            foreach (var item in temp)
+                            {
+                                Interface.ThrustData.Add(item); 
+                            }
+                            Interface.UpdateThrustFromData(thrust);
+                        }
+
+                        // Tork Verileri
+                        var torqueSheet = package.Workbook.Worksheets["Tork Verileri"];
+                        if (torqueSheet != null)
+                        {
+                            ObservableCollection<TorqueDataGrid> temp = ReadTorqueWorksheet(torqueSheet);
+                            Interface.TorqueData.Clear();
+                            foreach (var item in temp)
+                            {
+                                Interface.TorqueData.Add(item);
+                            }
+                            Interface.UpdateTorqueFromData(torque);
+                        }
+
+                        // Load Cell Test Verileri
+                        var loadCellSheet = package.Workbook.Worksheets["Load Cell Test Verileri"];
+                        if (loadCellSheet != null)
+                        {
+                            ObservableCollection<LoadCellTestDataGrid> temp = ReadLoadCellTestWorksheet(loadCellSheet);
+                            Interface.LoadCellTestData.Clear();
+                            foreach (var item in temp)
+                            {
+                                Interface.LoadCellTestData.Add(item);
+                            }
+                            Interface.UpdateLoadCellTestFromData(loadCellTest);
+                        }
+
+                        // Akım Verileri
+                        var currentSheet = package.Workbook.Worksheets["Akım Verileri"];
+                        if (currentSheet != null)
+                        {
+                            ObservableCollection<CurrentDataGrid> temp = ReadCurrentWorksheet(currentSheet);
+                            Interface.CurrentData.Clear();
+                            foreach (var item in temp)
+                            {
+                                Interface.CurrentData.Add(item);
+                            }
+                            Interface.UpdateCurrentFromData(current);
+                        }
+
+                        // Voltaj Verileri
+                        var voltageSheet = package.Workbook.Worksheets["Voltaj Verileri"];
+                        if (voltageSheet != null)
+                        {
+                            ObservableCollection<VoltageDataGrid> temp = ReadVoltageWorksheet(voltageSheet);
+                            Interface.VoltageData.Clear(); 
+                            foreach (var item in temp)
+                            {
+                                Interface.VoltageData.Add(item);
+                            }
+                            Interface.UpdateVoltageFromData(voltage);
+                        }
+
+                        MessageBox.Show("Excel dosyası başarıyla içeri aktarıldı.", "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Excel'den içeri aktarma sırasında bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private ObservableCollection<ThrustDataGrid> ReadThrustWorksheet(OfficeOpenXml.ExcelWorksheet worksheet)
+        {
+            var thrustData = new ObservableCollection<ThrustDataGrid>();
+            int row = 2; // Veriler 2. satırdan başlıyor
+
+            while (worksheet.Cells[row, 1].Value != null)
+            {
+                // Eğer hücre değeri "No" ise, bu satırı atla
+                if (worksheet.Cells[row, 1].Value.ToString() == "No")
+                {
+                    row++;
+                    continue;
+                }
+
+                var data = new ThrustDataGrid
+                {
+                    No = SafeConvertToInt(worksheet.Cells[row, 1].Value),
+                    Applied_Thrust = SafeConvertToDouble(worksheet.Cells[row, 2].Value),
+                    ADC_Thrust = SafeConvertToDouble(worksheet.Cells[row, 3].Value),
+                    ADC_Torque = SafeConvertToDouble(worksheet.Cells[row, 4].Value)
+                };
+                thrustData.Add(data);
+                row++;
+            }
+
+            return thrustData;
+        }
+
+        private ObservableCollection<TorqueDataGrid> ReadTorqueWorksheet(OfficeOpenXml.ExcelWorksheet worksheet)
+        {
+            var torqueData = new ObservableCollection<TorqueDataGrid>();
+            int row = 2; // Veriler 2. satırdan başlıyor
+
+            while (worksheet.Cells[row, 1].Value != null)
+            {
+                // Eğer hücre değeri "No" ise, bu satırı atla
+                if (worksheet.Cells[row, 1].Value.ToString() == "No")
+                {
+                    row++;
+                    continue;
+                }
+
+                var data = new TorqueDataGrid
+                {
+                    No = SafeConvertToInt(worksheet.Cells[row, 1].Value),
+                    Applied_Torque = SafeConvertToDouble(worksheet.Cells[row, 2].Value),
+                    ADC_Torque = SafeConvertToDouble(worksheet.Cells[row, 3].Value),
+                    ADC_Thrust = SafeConvertToDouble(worksheet.Cells[row, 4].Value)
+                };
+                torqueData.Add(data);
+                row++;
+            }
+
+            return torqueData;
+        } 
+
+        private ObservableCollection<CurrentDataGrid> ReadCurrentWorksheet(OfficeOpenXml.ExcelWorksheet worksheet)
+        {
+            var currentData = new ObservableCollection<CurrentDataGrid>();
+            int row = 2; // Veriler 2. satırdan başlıyor
+
+            while (worksheet.Cells[row, 1].Value != null)
+            {
+                // Eğer hücre değeri "No" ise, bu satırı atla
+                if (worksheet.Cells[row, 1].Value.ToString() == "No")
+                {
+                    row++;
+                    continue;
+                }
+
+                var data = new CurrentDataGrid
+                {
+                    No = SafeConvertToInt(worksheet.Cells[row, 1].Value),
+                    Applied_Current = SafeConvertToDouble(worksheet.Cells[row, 2].Value),
+                    ADC_Current = SafeConvertToDouble(worksheet.Cells[row, 3].Value)
+                };
+                currentData.Add(data);
+                row++;
+            }
+
+            return currentData;
+        }
+        private ObservableCollection<VoltageDataGrid> ReadVoltageWorksheet(OfficeOpenXml.ExcelWorksheet worksheet)
+        {
+            var voltageData = new ObservableCollection<VoltageDataGrid>();
+            int row = 2; // Veriler 2. satırdan başlıyor
+
+            while (worksheet.Cells[row, 1].Value != null)
+            {
+                // Eğer hücre değeri "No" ise, bu satırı atla
+                if (worksheet.Cells[row, 1].Value.ToString() == "No")
+                {
+                    row++;
+                    continue;
+                }
+
+                var data = new VoltageDataGrid
+                {
+                    No = SafeConvertToInt(worksheet.Cells[row, 1].Value),
+                    Applied_Voltage = SafeConvertToDouble(worksheet.Cells[row, 2].Value),
+                    ADC_Voltage = SafeConvertToDouble(worksheet.Cells[row, 3].Value)
+                };
+                voltageData.Add(data);
+                row++;
+            }
+
+            return voltageData;
+        }
+        private ObservableCollection<LoadCellTestDataGrid> ReadLoadCellTestWorksheet(OfficeOpenXml.ExcelWorksheet worksheet)
+        {
+            var loadCellData = new ObservableCollection<LoadCellTestDataGrid>();
+
+            // İlk tabloyu oku
+            int startRow1 = 2; // İlk tablo verileri 2. satırdan başlıyor
+            while (worksheet.Cells[startRow1, 1].Value != null)
+            {
+                // Eğer hücre değeri "No" ise, bu satırı atla
+                if (worksheet.Cells[startRow1, 1].Value.ToString() == "No")
+                {
+                    startRow1++;
+                    continue;
+                }
+
+                var data = new LoadCellTestDataGrid
+                {
+                    No = SafeConvertToInt(worksheet.Cells[startRow1, 1].Value),                     // "No" sütunu
+                    Applied_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 2].Value),        // "Uygulanan İtki (gr)" sütunu
+                    Calculated_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 3].Value),     // "Hesaplanan İtki (gr)" sütunu
+                    Error_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 4].Value),          // "Hata (%)" sütunu
+                    FSError_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 5].Value)         // "FS Hata (%)" sütunu
+                };
+                loadCellData.Add(data);
+                startRow1++; // Bir sonraki satıra geç
+            }
+
+            // İkinci tabloyu oku
+            int startRow2 = startRow1 + 2; // İkinci tablo, ilk tablodan sonra 2 satır boşluk bırakılarak başlıyor
+            while (worksheet.Cells[startRow2, 1].Value != null)
+            {
+                // Eğer hücre değeri "No" ise, bu satırı atla
+                if (worksheet.Cells[startRow2, 1].Value.ToString() == "No")
+                {
+                    startRow2++;
+                    continue;
+                }
+
+                var data = new LoadCellTestDataGrid
+                {
+                    No = SafeConvertToInt(worksheet.Cells[startRow2, 1].Value),                     // "No" sütunu
+                    Applied_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 2].Value),        // "Uygulanan Tork (Nmm)" sütunu
+                    Calculated_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 3].Value),     // "Hesaplanan Tork (Nmm)" sütunu
+                    Error_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 4].Value),          // "Hata (%)" sütunu
+                    FSError_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 5].Value)         // "FS Hata (%)" sütunu
+                };
+                loadCellData.Add(data);
+                startRow2++; // Bir sonraki satıra geç
+            }
+
+            return loadCellData;
+        }
+        private int SafeConvertToInt(object value)
+        {
+            if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+                return 0; // Varsayılan değer döndür
+            if (int.TryParse(value.ToString(), out int result))
+                return result;
+            throw new FormatException($"Geçersiz tamsayı formatı: {value}");
+        }
+
+        private double SafeConvertToDouble(object value)
+        {
+            if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+                return 0.0; // Varsayılan değer döndür
+            if (double.TryParse(value.ToString(), out double result))
+                return result;
+            throw new FormatException($"Geçersiz double formatı: {value}");
+        }
+        #endregion
+
         #region Plot
 
         private PlotModel _plotModel;
@@ -1583,14 +1931,25 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             // İtki ve Tork hesaplama işlemlerini başlat
                             await CalculateThrustValueAsync(thrust, torque);
                             await CalculateTorqueValueAsync(torque, thrust);
+                            await CalculateCurrentValueAsync(current);
+                            await CalculateVoltageValueAsync(voltage);
 
                             Interface.PortReadData = $"Port Message: {portReadData}";
                             Interface.PortReadTime = portReadTime;
 
 
                             Interface.Current.raw.Value = current.raw.Value;
-                            Interface.Voltage.raw.Value = voltage.raw.Value;
+                            Interface.Current.raw.NoiseValue = current.raw.NoiseValue;
+                            Interface.Current.calculated.Value = current.calculated.Value;
+                            Interface.Current.calculated.NoiseValue = current.calculated.NoiseValue;
+                            Interface.Current.calculated.RawValue = current.calculated.RawValue;
 
+
+                            Interface.Voltage.raw.Value = voltage.raw.Value;
+                            Interface.Voltage.raw.NoiseValue = voltage.raw.NoiseValue;
+                            Interface.Voltage.calculated.Value = voltage.calculated.Value;
+                            Interface.Voltage.calculated.NoiseValue = voltage.calculated.NoiseValue;
+                            Interface.Voltage.calculated.RawValue = voltage.calculated.RawValue;
 
                             Interface.Thrust.raw.Value = thrust.raw.Value;
                             Interface.Thrust.raw.NoiseValue = thrust.raw.NoiseValue;

@@ -40,8 +40,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
             private double _value;
             private string _unitName;
             private string _unitSymbol;
-            private double _noise;
-            private double _dara;
+            private double _noiseValue;
+            private double _rawValue;
 
             public double Value
             {
@@ -61,15 +61,15 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
                 set => SetProperty(ref _unitSymbol, value);
             }
 
-            public double Noise
+            public double NoiseValue
             {
-                get => _noise;
-                set => SetProperty(ref _noise, value);
+                get => _noiseValue;
+                set => SetProperty(ref _noiseValue, value);
             }
-            public double Dara
+            public double RawValue
             {
-                get => _dara;
-                set => SetProperty(ref _dara, value);
+                get => _rawValue;
+                set => SetProperty(ref _rawValue, value);
             }
         }
         public class Calibration : BindableBase
@@ -116,6 +116,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
         {
             private double _value;
             private double _noiseValue;
+
             private List<double> _buffer = new();
             public double Value
             {

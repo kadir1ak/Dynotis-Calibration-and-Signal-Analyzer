@@ -244,7 +244,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             {
                 if (dynotis != null)
                 {
-                   // await dynotis.ExcelImportAsync();
+                    await dynotis.ExcelImportAsync();
                 }
             }
             catch (Exception ex)

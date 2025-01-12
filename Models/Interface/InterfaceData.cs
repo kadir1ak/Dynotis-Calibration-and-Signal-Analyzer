@@ -56,11 +56,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
         public LoadCellTest LoadCellTest { get; set; }
         public Current Current { get; set; }
         public Voltage Voltage { get; set; }
-        public ObservableCollection<DataGridRowModel> ThrustData { get; set; }
-        public ObservableCollection<DataGridRowModel> TorqueData { get; set; }
-        public ObservableCollection<DataGridRowModel> LoadCellTestData { get; set; }
-        public ObservableCollection<DataGridRowModel> CurrentData { get; set; }
-        public ObservableCollection<DataGridRowModel> VoltageData { get; set; }
+        public ObservableCollection<ThrustDataGrid> ThrustData { get; set; }
+        public ObservableCollection<TorqueDataGrid> TorqueData { get; set; }
+        public ObservableCollection<LoadCellTestDataGrid> LoadCellTestData { get; set; }
+        public ObservableCollection<CurrentDataGrid> CurrentData { get; set; }
+        public ObservableCollection<VoltageDataGrid> VoltageData { get; set; }
         public InterfaceData()
         {
             Thrust = new Thrust();
@@ -69,18 +69,18 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
             Current = new Current();
             Voltage = new Voltage();
 
-            ThrustData = new ObservableCollection<DataGridRowModel>();
-            TorqueData = new ObservableCollection<DataGridRowModel>();
-            LoadCellTestData = new ObservableCollection<DataGridRowModel>();
-            CurrentData = new ObservableCollection<DataGridRowModel>();
-            VoltageData = new ObservableCollection<DataGridRowModel>();
+            ThrustData = new ObservableCollection<ThrustDataGrid>();
+            TorqueData = new ObservableCollection<TorqueDataGrid>();
+            LoadCellTestData = new ObservableCollection<LoadCellTestDataGrid>();
+            CurrentData = new ObservableCollection<CurrentDataGrid>();
+            VoltageData = new ObservableCollection<VoltageDataGrid>();
         }
-        public void UpdateThrustData(Thrust thrust)
+        public void UpdateThrustDataGrid(Thrust thrust)
         {
             ThrustData.Clear();
             for (int i = 0; i < thrust.calibration.PointRawBuffer.Count; i++)
             {
-                ThrustData.Add(new DataGridRowModel
+                ThrustData.Add(new ThrustDataGrid
                 {
                     No = i + 1,
                     ADC_Thrust = thrust.calibration.PointRawBuffer[i],
@@ -89,13 +89,27 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
                 });
             }
         }
+        public void UpdateThrustFromData(Thrust thrust)
+        {
+            // Önce mevcut buffer'ları temizliyoruz
+            thrust.calibration.PointRawBuffer.Clear();
+            thrust.calibration.PointAppliedBuffer.Clear();
+            thrust.calibration.PointErrorBuffer.Clear();
 
-        public void UpdateTorqueData(Torque torque)
+            // ThrustData koleksiyonundaki verileri ilgili buffer'lara ekliyoruz
+            foreach (var data in ThrustData)
+            {
+                thrust.calibration.PointRawBuffer.Add(data.ADC_Thrust);
+                thrust.calibration.PointAppliedBuffer.Add(data.Applied_Thrust);
+                thrust.calibration.PointErrorBuffer.Add(data.ADC_Torque);
+            }
+        }
+        public void UpdateTorqueDataGrid(Torque torque)
         {
             TorqueData.Clear();
             for (int i = 0; i < torque.calibration.PointRawBuffer.Count; i++)
             {
-                TorqueData.Add(new DataGridRowModel
+                TorqueData.Add(new TorqueDataGrid
                 {
                     No = i + 1,
                     ADC_Torque = torque.calibration.PointRawBuffer[i],
@@ -104,13 +118,28 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
                 });
             }
         }
+        public void UpdateTorqueFromData(Torque torque)
+        {
+            // Mevcut buffer'ları temizliyoruz
+            torque.calibration.PointRawBuffer.Clear();
+            torque.calibration.PointAppliedBuffer.Clear();
+            torque.calibration.PointErrorBuffer.Clear();
 
-        public void UpdateLoadCellTestData(LoadCellTest loadCellTest)
+            // TorqueData koleksiyonundaki verileri ilgili buffer'lara ekliyoruz
+            foreach (var data in TorqueData)
+            {
+                torque.calibration.PointRawBuffer.Add(data.ADC_Torque);
+                torque.calibration.PointAppliedBuffer.Add(data.Applied_Torque);
+                torque.calibration.PointErrorBuffer.Add(data.ADC_Thrust);
+            }
+        }
+
+        public void UpdateLoadCellTestDataGrid(LoadCellTest loadCellTest)
         {
             LoadCellTestData.Clear();
             for (int i = 0; i < loadCellTest.Thrust.Buffer.Count; i++)
             {
-                LoadCellTestData.Add(new DataGridRowModel
+                LoadCellTestData.Add(new LoadCellTestDataGrid
                 {
                     No = i + 1,
 
@@ -126,13 +155,40 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
                 });
             }
         }
+        public void UpdateLoadCellTestFromData(LoadCellTest loadCellTest)
+        {
+            // Mevcut buffer'ları temizliyoruz
+            loadCellTest.Thrust.Buffer.Clear();
+            loadCellTest.Thrust.AppliedBuffer.Clear();
+            loadCellTest.Thrust.ErrorBuffer.Clear();
+            loadCellTest.Thrust.FSErrorBuffer.Clear();
 
-        public void UpdateCurrentData(Current current)
+            loadCellTest.Torque.Buffer.Clear();
+            loadCellTest.Torque.AppliedBuffer.Clear();
+            loadCellTest.Torque.ErrorBuffer.Clear();
+            loadCellTest.Torque.FSErrorBuffer.Clear();
+
+            // LoadCellTestData koleksiyonundaki verileri ilgili buffer'lara ekliyoruz
+            foreach (var data in LoadCellTestData)
+            {
+                loadCellTest.Thrust.AppliedBuffer.Add(data.Applied_Thrust);
+                loadCellTest.Thrust.Buffer.Add(data.Calculated_Thrust);
+                loadCellTest.Thrust.ErrorBuffer.Add(data.Error_Thrust);
+                loadCellTest.Thrust.FSErrorBuffer.Add(data.FSError_Thrust);
+
+                loadCellTest.Torque.AppliedBuffer.Add(data.Applied_Torque);
+                loadCellTest.Torque.Buffer.Add(data.Calculated_Torque);
+                loadCellTest.Torque.ErrorBuffer.Add(data.Error_Torque);
+                loadCellTest.Torque.FSErrorBuffer.Add(data.FSError_Torque);
+            }
+        }
+
+        public void UpdateCurrentDataGrid(Current current)
         {
             CurrentData.Clear();
             for (int i = 0; i < current.calibration.PointRawBuffer.Count; i++)
             {
-                CurrentData.Add(new DataGridRowModel
+                CurrentData.Add(new CurrentDataGrid
                 {
                     No = i + 1,
                     ADC_Current = current.calibration.PointRawBuffer[i],
@@ -140,13 +196,26 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
                 });
             }
         }
+        public void UpdateCurrentFromData(Current current)
+        {
+            // Mevcut buffer'ları temizliyoruz
+            current.calibration.PointRawBuffer.Clear();
+            current.calibration.PointAppliedBuffer.Clear();
 
-        public void UpdateVoltageData(Voltage voltage)
+            // CurrentData koleksiyonundaki verileri ilgili buffer'lara ekliyoruz
+            foreach (var data in CurrentData)
+            {
+                current.calibration.PointRawBuffer.Add(data.ADC_Current);
+                current.calibration.PointAppliedBuffer.Add(data.Applied_Current);
+            }
+        }
+
+        public void UpdateVoltageDataGrid(Voltage voltage)
         {
             VoltageData.Clear();
             for (int i = 0; i < voltage.calibration.PointRawBuffer.Count; i++)
             {
-                VoltageData.Add(new DataGridRowModel
+                VoltageData.Add(new VoltageDataGrid
                 {
                     No = i + 1,
                     ADC_Voltage = voltage.calibration.PointRawBuffer[i],
@@ -154,6 +223,21 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
                 });
             }
         }
+        public void UpdateVoltageFromData(Voltage voltage)
+        {
+            // Mevcut buffer'ları temizliyoruz
+            voltage.calibration.PointRawBuffer.Clear();
+            voltage.calibration.PointAppliedBuffer.Clear();
+
+            // VoltageData koleksiyonundaki verileri ilgili buffer'lara ekliyoruz
+            foreach (var data in VoltageData)
+            {
+                voltage.calibration.PointRawBuffer.Add(data.ADC_Voltage);
+                voltage.calibration.PointAppliedBuffer.Add(data.Applied_Voltage);
+            }
+        }
+
+
     }
     public enum Mode
     {
@@ -163,27 +247,45 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
         Current,
         Voltage
     }
-    public class DataGridRowModel
+    public class ThrustDataGrid 
     {
-        public int No { get; set; }
-        public double ADC_Thrust { get; set; }
-        public double Applied_Thrust { get; set; }
-        public double Calculated_Thrust { get; set; }
-        public double Error_Thrust { get; set; }
-        public double FSError_Thrust { get; set; }
-        public double ADC_Torque { get; set; }
-        public double Applied_Torque { get; set; }
-        public double Calculated_Torque { get; set; }
-        public double Error_Torque { get; set; }
-        public double FSError_Torque { get; set; }
-        public double ADC_Current { get; set; }
-        public double Applied_Current { get; set; }
-        public double Calculated_Current { get; set; }
-        public double Error_Current { get; set; }
-        public double ADC_Voltage { get; set; }
-        public double Applied_Voltage { get; set; }
-        public double Calculated_Voltage { get; set; }
-        public double Error_Voltage { get; set; }
+        public int No { get; set; } // Verinin sıra numarası
+        public double Applied_Thrust { get; set; } // Uygulanan itki (gr)
+        public double ADC_Thrust { get; set; } // Okunan itki (ADC)
+        public double ADC_Torque { get; set; } // Okunan tork (ADC)
     }
+    public class TorqueDataGrid 
+    {
+        public int No { get; set; } // Verinin sıra numarası
+        public double Applied_Torque { get; set; } // Uygulanan tork (Nmm)
+        public double ADC_Torque { get; set; } // Okunan tork (ADC)
+        public double ADC_Thrust { get; set; } // Okunan itki (ADC)
+    }
+    public class LoadCellTestDataGrid 
+    {
+        public int No { get; set; } // Verinin sıra numarası
+        public double Applied_Thrust { get; set; } // Uygulanan itki (gr)
+        public double Calculated_Thrust { get; set; } // Hesaplanan itki (gr)
+        public double Error_Thrust { get; set; } // Hata (%)
+        public double FSError_Thrust { get; set; } // FS Hata (%)
+        public double Applied_Torque { get; set; } // Uygulanan tork (Nmm)
+        public double Calculated_Torque { get; set; } // Hesaplanan tork (Nmm)
+        public double Error_Torque { get; set; } // Hata (%)
+        public double FSError_Torque { get; set; } // FS Hata (%)
+    }
+    public class CurrentDataGrid 
+    {
+        public int No { get; set; } // Verinin sıra numarası
+        public double Applied_Current { get; set; } // Uygulanan akım (mA)
+        public double ADC_Current { get; set; } // Okunan akım (ADC)
+    }
+    public class VoltageDataGrid
+    {
+        public int No { get; set; } // Verinin sıra numarası
+        public double Applied_Voltage { get; set; } // Uygulanan voltaj (V)
+        public double ADC_Voltage { get; set; } // Okunan voltaj (ADC)
+    }
+
+
 
 }
