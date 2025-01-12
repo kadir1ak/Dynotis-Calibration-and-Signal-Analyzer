@@ -152,7 +152,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     if (Application.Current?.Dispatcher.CheckAccess() == true)
                     {
                         // UI iş parçacığında isek doğrudan çalıştır
-                        UpdateSensorData(indata, itki, tork, akım, voltaj);
+                        UpdateSensorData(indata, time, itki, tork, akım, voltaj);
                         CalculateSampleRate();
                     }
                     else
@@ -160,7 +160,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                         // UI iş parçacığında değilsek Dispatcher kullan
                         Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                         {
-                            UpdateSensorData(indata, itki, tork, akım, voltaj);
+                            UpdateSensorData(indata, time, itki, tork, akım, voltaj);
                             CalculateSampleRate();
                         }));
                     }
@@ -176,10 +176,10 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Unexpected Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private void UpdateSensorData(string indata, double itki, double tork, double akım, double voltaj)
+        private void UpdateSensorData(string indata, double time, double itki, double tork, double akım, double voltaj)
         {
             portReadData = indata;
-            portReadTime += 0.001;
+            portReadTime = time;
 
             thrust.raw.Value = itki;
             torque.raw.Value = tork;
@@ -416,9 +416,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 // Değerleri kalibrasyon eğrisine ekle
                 if (Values.Any())
                 {
-                    calibration.PointRawBuffer.Add(AverageValue);
-                    calibration.PointAppliedBuffer.Add(calibration.Applied);
-                    calibration.PointErrorBuffer.Add(AverageErrorValue);
+                    calibration.PointRawBuffer.Add(Math.Round(AverageValue, 3));
+                    calibration.PointAppliedBuffer.Add(Math.Round(calibration.Applied, 3));
+                    calibration.PointErrorBuffer.Add(Math.Round(AverageErrorValue, 3));
                 }
                 else
                 {
@@ -467,9 +467,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 // Değerleri kalibrasyon eğrisine ekle
                 if (Values.Any())
                 {
-                    calibration.PointRawBuffer.Add(AverageValue);
-                    calibration.PointAppliedBuffer.Add(calibration.Applied);
-                    calibration.PointErrorBuffer.Add(AverageErrorValue);
+                    calibration.PointRawBuffer.Add(Math.Round(AverageValue, 3));
+                    calibration.PointAppliedBuffer.Add(Math.Round(calibration.Applied, 3));
+                    calibration.PointErrorBuffer.Add(Math.Round(AverageErrorValue, 3));
                 }
                 else
                 {
@@ -516,8 +516,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 // Değerleri kalibrasyon eğrisine ekle
                 if (Values.Any())
                 {
-                    calibration.PointRawBuffer.Add(AverageValue);
-                    calibration.PointAppliedBuffer.Add(calibration.Applied);
+                    calibration.PointRawBuffer.Add(Math.Round(AverageValue, 3));
+                    calibration.PointAppliedBuffer.Add(Math.Round(calibration.Applied, 3));
                 }
                 else
                 {
@@ -564,8 +564,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 // Değerleri kalibrasyon eğrisine ekle
                 if (Values.Any())
                 {
-                    calibration.PointRawBuffer.Add(AverageValue);
-                    calibration.PointAppliedBuffer.Add(calibration.Applied);
+                    calibration.PointRawBuffer.Add(Math.Round(AverageValue, 3));
+                    calibration.PointAppliedBuffer.Add(Math.Round(calibration.Applied, 3));
                 }
                 else
                 {
@@ -629,14 +629,14 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
 
                 // Load Cell Data'ya ekle
-                loadCellTest.Thrust.Buffer.Add(CalculatedThrustValue);
-                loadCellTest.Thrust.AppliedBuffer.Add(AppliedThrust);
-                loadCellTest.Thrust.ErrorBuffer.Add(ThrustErrorValue);
-                loadCellTest.Thrust.FSErrorBuffer.Add(ThrustFSErrorValue);
-                loadCellTest.Torque.Buffer.Add(CalculatedTorqueValue);
-                loadCellTest.Torque.AppliedBuffer.Add(AppliedTorque);     
-                loadCellTest.Torque.ErrorBuffer.Add(TorqueErrorValue);
-                loadCellTest.Torque.FSErrorBuffer.Add(TorqueFSErrorValue);
+                loadCellTest.Thrust.Buffer.Add(Math.Round(CalculatedThrustValue, 3));
+                loadCellTest.Thrust.AppliedBuffer.Add(Math.Round(AppliedThrust, 3));
+                loadCellTest.Thrust.ErrorBuffer.Add(Math.Round(ThrustErrorValue, 3));
+                loadCellTest.Thrust.FSErrorBuffer.Add(Math.Round(ThrustFSErrorValue, 3));
+                loadCellTest.Torque.Buffer.Add(Math.Round(CalculatedTorqueValue, 3));
+                loadCellTest.Torque.AppliedBuffer.Add(Math.Round(AppliedTorque, 3));     
+                loadCellTest.Torque.ErrorBuffer.Add(Math.Round(TorqueErrorValue, 3));
+                loadCellTest.Torque.FSErrorBuffer.Add(Math.Round(TorqueFSErrorValue, 3));
 
                 // İşlem tamamlandığında progress %0 yap
                 Interface.Progress = 0;
@@ -1374,25 +1374,25 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     if (PlotModel.Series[0] is LineSeries thrustSeries)
                     {
                         thrustSeries.Points.Add(new DataPoint(latestTime, thrustValue));
-                        if (thrustSeries.Points.Count > 100) thrustSeries.Points.RemoveAt(0); // Maksimum 100 nokta tut
+                        if (thrustSeries.Points.Count > 1000) thrustSeries.Points.RemoveAt(0); // Maksimum 100 nokta tut
                     }
 
                     if (PlotModel.Series[1] is LineSeries torqueSeries)
                     {
                         torqueSeries.Points.Add(new DataPoint(latestTime, torqueValue));
-                        if (torqueSeries.Points.Count > 100) torqueSeries.Points.RemoveAt(0);
+                        if (torqueSeries.Points.Count > 1000) torqueSeries.Points.RemoveAt(0);
                     }
 
                     if (PlotModel.Series[2] is LineSeries currentSeries)
                     {
                         currentSeries.Points.Add(new DataPoint(latestTime, currentValue));
-                        if (currentSeries.Points.Count > 100) currentSeries.Points.RemoveAt(0);
+                        if (currentSeries.Points.Count > 1000) currentSeries.Points.RemoveAt(0);
                     }
 
                     if (PlotModel.Series[3] is LineSeries voltageSeries)
                     {
                         voltageSeries.Points.Add(new DataPoint(latestTime, voltageValue));
-                        if (voltageSeries.Points.Count > 100) voltageSeries.Points.RemoveAt(0);
+                        if (voltageSeries.Points.Count > 1000) voltageSeries.Points.RemoveAt(0);
                     }
 
                     PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz

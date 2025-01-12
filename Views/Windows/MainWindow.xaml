@@ -550,7 +550,7 @@
                     <Label x:Name="label76" Grid.Row="5" Grid.Column="0" Content="Sonuç" FontWeight="Bold" FontSize="16"></Label>
 
                     <Label x:Name="label70" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="DarkOrange" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
-                    <Label x:Name="Itki_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.raw.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_ADC_Error_Label" Grid.Row="3" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.raw.ErrorValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.calculated.RawValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
@@ -599,7 +599,7 @@
                     <Label x:Name="label77" Grid.Row="5" Grid.Column="0" Content="Sonuç" FontWeight="Bold" FontSize="16"></Label>
 
                     <Label x:Name="label59" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
-                    <Label x:Name="Tork_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Tork_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.raw.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Tork_ADC_Error_Label" Grid.Row="3" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.raw.ErrorValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Tork_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.calculated.RawValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
@@ -647,7 +647,7 @@
                     <Label x:Name="label175" Grid.Row="3" Grid.Column="0" Content="Hesaplanan Değer" FontWeight="Bold" FontSize="16"></Label>
                     
                     <Label x:Name="label170" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="#FF587DC5" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
-                    <Label x:Name="Akım_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Current.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Akım_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Current.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Akım_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Current.raw.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Akım_ADC_Hesaplanan_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="label125" Grid.Row="0" Grid.Column="3" Content="mAmper" FontSize="24" Foreground="#FF587DC5" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
@@ -690,7 +690,7 @@
                     <Label x:Name="label164" Grid.Row="3" Grid.Column="0" Content="Hesaplanan Değer" FontWeight="Bold" FontSize="16"></Label>
 
                     <Label x:Name="label159" Grid.Row="0" Grid.Column="1" Content="ADC" FontSize="24" Foreground="#FFC96CD4" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
-                    <Label x:Name="Voltaj_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Voltaj_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Voltaj_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.raw.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Voltaj_ADC_Hesaplanan_Label" Grid.Row="3" Grid.Column="1" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="label121" Grid.Row="0" Grid.Column="2" Content="mVolt" FontSize="24" Foreground="#FFC96CD4" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
