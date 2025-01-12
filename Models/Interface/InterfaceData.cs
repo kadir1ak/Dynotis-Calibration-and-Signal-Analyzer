@@ -97,10 +97,10 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
             }
         }
 
-        public void UpdateLoadCellTestData(LoadCellTest loadCellTest, Thrust thrust, Torque torque)
+        public void UpdateLoadCellTestData(LoadCellTest loadCellTest)
         {
             LoadCellTestData.Clear();
-            for (int i = 0; i < thrust.calibration.PointRawBuffer.Count; i++)
+            for (int i = 0; i < loadCellTest.Thrust.Buffer.Count; i++)
             {
                 LoadCellTestData.Add(new DataGridRowModel
                 {
@@ -109,7 +109,14 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
                     Calculated_Thrust = loadCellTest.Thrust.Buffer[i],
                     Error_Thrust = loadCellTest.Thrust.ErrorBuffer[i],
                     FSError_Thrust = loadCellTest.Thrust.FSErrorBuffer[i],
+                });
+            }
 
+            for (int i = 0; i < loadCellTest.Torque.Buffer.Count; i++)
+            {
+                LoadCellTestData.Add(new DataGridRowModel
+                {
+                    No = i + 1,
                     Applied_Torque = loadCellTest.Torque.AppliedBuffer[i],
                     Calculated_Torque = loadCellTest.Torque.Buffer[i],
                     Error_Torque = loadCellTest.Torque.ErrorBuffer[i],

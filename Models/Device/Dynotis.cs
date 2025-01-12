@@ -18,6 +18,7 @@ using Dynotis_Calibration_and_Signal_Analyzer.Models.Serial;
 using Dynotis_Calibration_and_Signal_Analyzer.Services;
 using OxyPlot.Legends;
 using System.Windows.Input;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 {
@@ -378,7 +379,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         private async Task AddLoadCellTestPointAsync()
         {
             await CollectLoadCellTestData(loadCellTest, thrust, torque);
-            Interface.UpdateLoadCellTestData(loadCellTest, thrust, torque);
+            Interface.UpdateLoadCellTestData(loadCellTest);
         }
 
         private async Task CollectDataForThrust(Thrust.Calibration calibration, Thrust.Raw raw, Torque.Raw errorRaw, double appliedValue)
@@ -663,7 +664,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                         break;
 
                     case Mode.LoadCellTest:
-                 
+                        DeleteLoadCellTestPoint();
                         break;
 
                     default:
@@ -678,37 +679,42 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         private void DeleteThrustPoint()
         {
-            DeletePointFromThrustCalibration(thrust.calibration);
+            DeletePointFromThrustData(thrust.calibration);
             Interface.UpdateThrustData(thrust);
         }
 
         private void DeleteTorquePoint()
         {
-            DeletePointFromTorqueCalibration(torque.calibration);
+            DeletePointFromTorqueData(torque.calibration);
             Interface.UpdateTorqueData(torque);
         }
 
         private void DeleteCurrentPoint()
         {
-            DeletePointFromCurrentCalibration(current.calibration);
+            DeletePointFromCurrentData(current.calibration);
             Interface.UpdateCurrentData(current);
         }
 
         private void DeleteVoltagePoint()
         {
-            DeletePointFromVoltageCalibration(voltage.calibration);
+            DeletePointFromVoltageData(voltage.calibration);
             Interface.UpdateVoltageData(voltage);
         }
-        private void DeletePointFromThrustCalibration(Thrust.Calibration calibration)
+        private void DeleteLoadCellTestPoint()
         {
-            if (calibration.PointRawBuffer.Count > 0)
-            {
-                calibration.PointRawBuffer.RemoveAt(calibration.PointRawBuffer.Count - 1);
-            }
-
+            DeletePointFromLoadCellTestData(loadCellTest);
+            Interface.UpdateVoltageData(voltage);
+        }
+        private void DeletePointFromThrustData(Thrust.Calibration calibration)
+        {
             if (calibration.PointAppliedBuffer.Count > 0)
             {
                 calibration.PointAppliedBuffer.RemoveAt(calibration.PointAppliedBuffer.Count - 1);
+            }
+
+            if (calibration.PointRawBuffer.Count > 0)
+            {
+                calibration.PointRawBuffer.RemoveAt(calibration.PointRawBuffer.Count - 1);
             }
 
             if (calibration.PointErrorBuffer != null && calibration.PointErrorBuffer.Count > 0)
@@ -716,16 +722,16 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 calibration.PointErrorBuffer.RemoveAt(calibration.PointErrorBuffer.Count - 1);
             }
         }
-        private void DeletePointFromTorqueCalibration(Torque.Calibration calibration)
+        private void DeletePointFromTorqueData(Torque.Calibration calibration)
         {
-            if (calibration.PointRawBuffer.Count > 0)
-            {
-                calibration.PointRawBuffer.RemoveAt(calibration.PointRawBuffer.Count - 1);
-            }
-
             if (calibration.PointAppliedBuffer.Count > 0)
             {
                 calibration.PointAppliedBuffer.RemoveAt(calibration.PointAppliedBuffer.Count - 1);
+            }
+
+            if (calibration.PointRawBuffer.Count > 0)
+            {
+                calibration.PointRawBuffer.RemoveAt(calibration.PointRawBuffer.Count - 1);
             }
 
             if (calibration.PointErrorBuffer != null && calibration.PointErrorBuffer.Count > 0)
@@ -733,28 +739,46 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 calibration.PointErrorBuffer.RemoveAt(calibration.PointErrorBuffer.Count - 1);
             }
         }
-        private void DeletePointFromCurrentCalibration(Current.Calibration calibration)
+        private void DeletePointFromCurrentData(Current.Calibration calibration)
         {
-            if (calibration.PointRawBuffer.Count > 0)
-            {
-                calibration.PointRawBuffer.RemoveAt(calibration.PointRawBuffer.Count - 1);
-            }
-
             if (calibration.PointAppliedBuffer.Count > 0)
             {
                 calibration.PointAppliedBuffer.RemoveAt(calibration.PointAppliedBuffer.Count - 1);
+            }
+
+            if (calibration.PointRawBuffer.Count > 0)
+            {
+                calibration.PointRawBuffer.RemoveAt(calibration.PointRawBuffer.Count - 1);
             }
         }
-        private void DeletePointFromVoltageCalibration(Voltage.Calibration calibration)
+        private void DeletePointFromVoltageData(Voltage.Calibration calibration)
         {
+            if (calibration.PointAppliedBuffer.Count > 0)
+            {
+                calibration.PointAppliedBuffer.RemoveAt(calibration.PointAppliedBuffer.Count - 1);
+            }
+
             if (calibration.PointRawBuffer.Count > 0)
             {
                 calibration.PointRawBuffer.RemoveAt(calibration.PointRawBuffer.Count - 1);
             }
-
-            if (calibration.PointAppliedBuffer.Count > 0)
+        }
+        private void DeletePointFromLoadCellTestData(LoadCellTest loadCellTest)
+        {
+            if (loadCellTest.Thrust.AppliedBuffer.Count > 0)
             {
-                calibration.PointAppliedBuffer.RemoveAt(calibration.PointAppliedBuffer.Count - 1);
+                loadCellTest.Thrust.Buffer.RemoveAt(loadCellTest.Thrust.Buffer.Count - 1);
+                loadCellTest.Thrust.AppliedBuffer.RemoveAt(loadCellTest.Thrust.AppliedBuffer.Count - 1);
+                loadCellTest.Thrust.ErrorBuffer.RemoveAt(loadCellTest.Thrust.ErrorBuffer.Count - 1);
+                loadCellTest.Thrust.FSErrorBuffer.RemoveAt(loadCellTest.Thrust.FSErrorBuffer.Count - 1);
+            }
+
+            if (loadCellTest.Torque.AppliedBuffer.Count > 0)
+            {
+                loadCellTest.Torque.Buffer.RemoveAt(loadCellTest.Torque.Buffer.Count - 1);
+                loadCellTest.Torque.AppliedBuffer.RemoveAt(loadCellTest.Torque.AppliedBuffer.Count - 1);
+                loadCellTest.Torque.ErrorBuffer.RemoveAt(loadCellTest.Torque.ErrorBuffer.Count - 1);
+                loadCellTest.Torque.FSErrorBuffer.RemoveAt(loadCellTest.Torque.FSErrorBuffer.Count - 1);
             }
         }
         #endregion
@@ -767,10 +791,10 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 switch (Interface.Mode)
                 {
                     case Mode.Thrust:
-                        await CalibrateThrustAsync(thrust.calibration, "Thrust", 3);
+                        await CalibrateThrustAsync(thrust.calibration, torque.calibration, "Thrust", 3);
                         break;
                     case Mode.Torque:
-                        await CalibrateTorqueAsync(torque.calibration, "Torque", 3);
+                        await CalibrateTorqueAsync(torque.calibration, thrust.calibration, "Torque", 3);
                         break;
                     case Mode.Current:
                         await CalibrateCurrentAsync(current.calibration, "Current", 2);
@@ -789,7 +813,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Error during calibration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private async Task CalibrateThrustAsync(Thrust.Calibration calibration, string modeName, int degree)
+        private async Task CalibrateThrustAsync(Thrust.Calibration calibration, Torque.Calibration error, string modeName, int degree)
         {
             if (calibration == null)
                 throw new ArgumentNullException(nameof(calibration), "Calibration data is null.");
@@ -809,23 +833,20 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 // Polinom katsayılarını hesapla
                 var coefficients = Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointAppliedBuffer.ToArray(), degree);
 
-                // Hata katsayılarını hesapla (opsiyonel)
-                var errorCoefficients = calibration.PointErrorBuffer?.Count > 0
-                    ? Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointErrorBuffer.ToArray(), degree)
-                    : new double[degree + 1];
+
+                // Hata katsayılarını hesapla
+                var errorCoefficients = Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointErrorBuffer.ToArray(), degree);
 
                 // Katsayıları kalibrasyona ekle
-                calibration.Coefficient = new Coefficients
-                {
-                    A = coefficients.Length > 3 ? coefficients[3] : 0,
-                    B = coefficients.Length > 2 ? coefficients[2] : 0,
-                    C = coefficients.Length > 1 ? coefficients[1] : 0,
-                    D = coefficients.Length > 0 ? coefficients[0] : 0,
-                    ErrorA = errorCoefficients.Length > 3 ? errorCoefficients[3] : 0,
-                    ErrorB = errorCoefficients.Length > 2 ? errorCoefficients[2] : 0,
-                    ErrorC = errorCoefficients.Length > 1 ? errorCoefficients[1] : 0,
-                    ErrorD = errorCoefficients.Length > 0 ? errorCoefficients[0] : 0
-                };
+                calibration.Coefficient.A = coefficients.Length > 3 ? coefficients[3] : 0;
+                calibration.Coefficient.B = coefficients.Length > 2 ? coefficients[2] : 0;
+                calibration.Coefficient.C = coefficients.Length > 1 ? coefficients[1] : 0;
+                calibration.Coefficient.D = coefficients.Length > 0 ? coefficients[0] : 0;
+
+                error.Coefficient.ErrorA = errorCoefficients.Length > 3 ? errorCoefficients[3] : 0;
+                error.Coefficient.ErrorB = errorCoefficients.Length > 2 ? errorCoefficients[2] : 0;
+                error.Coefficient.ErrorC = errorCoefficients.Length > 1 ? errorCoefficients[1] : 0;
+                error.Coefficient.ErrorD = errorCoefficients.Length > 0 ? errorCoefficients[0] : 0;
 
                 // Denklemleri oluştur
                 string equation = GeneratePolynomialEquation(coefficients, "x");
@@ -845,7 +866,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Error during {modeName} calibration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private async Task CalibrateTorqueAsync(Torque.Calibration calibration, string modeName, int degree)
+        private async Task CalibrateTorqueAsync(Torque.Calibration calibration, Thrust.Calibration error, string modeName, int degree)
         {
             if (calibration == null)
                 throw new ArgumentNullException(nameof(calibration), "Calibration data is null.");
@@ -866,22 +887,18 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 var coefficients = Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointAppliedBuffer.ToArray(), degree);
 
                 // Hata katsayılarını hesapla (opsiyonel)
-                var errorCoefficients = calibration.PointErrorBuffer?.Count > 0
-                    ? Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointErrorBuffer.ToArray(), degree)
-                    : new double[degree + 1];
+                var errorCoefficients = Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointErrorBuffer.ToArray(), degree); ;
 
                 // Katsayıları kalibrasyona ekle
-                calibration.Coefficient = new Coefficients
-                {
-                    A = coefficients.Length > 3 ? coefficients[3] : 0,
-                    B = coefficients.Length > 2 ? coefficients[2] : 0,
-                    C = coefficients.Length > 1 ? coefficients[1] : 0,
-                    D = coefficients.Length > 0 ? coefficients[0] : 0,
-                    ErrorA = errorCoefficients.Length > 3 ? errorCoefficients[3] : 0,
-                    ErrorB = errorCoefficients.Length > 2 ? errorCoefficients[2] : 0,
-                    ErrorC = errorCoefficients.Length > 1 ? errorCoefficients[1] : 0,
-                    ErrorD = errorCoefficients.Length > 0 ? errorCoefficients[0] : 0
-                };
+                calibration.Coefficient.A = coefficients.Length > 3 ? coefficients[3] : 0;
+                calibration.Coefficient.B = coefficients.Length > 2 ? coefficients[2] : 0;
+                calibration.Coefficient.C = coefficients.Length > 1 ? coefficients[1] : 0;
+                calibration.Coefficient.D = coefficients.Length > 0 ? coefficients[0] : 0;
+
+                error.Coefficient.ErrorA = errorCoefficients.Length > 3 ? errorCoefficients[3] : 0;
+                error.Coefficient.ErrorB = errorCoefficients.Length > 2 ? errorCoefficients[2] : 0;
+                error.Coefficient.ErrorC = errorCoefficients.Length > 1 ? errorCoefficients[1] : 0;
+                error.Coefficient.ErrorD = errorCoefficients.Length > 0 ? errorCoefficients[0] : 0;
 
                 // Denklemleri oluştur
                 string equation = GeneratePolynomialEquation(coefficients, "x");
@@ -1000,6 +1017,117 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         #endregion
 
+        #region Calculation
+        public async Task CalculateThrustValueAsync(Thrust thrust,Torque torque)
+        {
+            
+            try
+            {
+                if (thrust.calibration?.Coefficient == null)
+                {
+                    throw new InvalidOperationException("Hata katsayıları eksik. Hesaplama devam edemiyor.");
+                }
+
+                // Katsayıları al
+                var coeff = thrust.calibration.Coefficient;
+
+                // Error Raw Value = A * x³ + B * x² + C * x + D
+                double calculatedErrorRawValue = coeff.ErrorA * Math.Pow(torque.raw.Value, 3) +
+                                              coeff.ErrorB * Math.Pow(torque.raw.Value, 2) +
+                                              coeff.ErrorC * torque.raw.Value +
+                                              coeff.ErrorD;
+
+                double rawValue = thrust.raw.Value - calculatedErrorRawValue;
+
+                // Error Value = A * x³ + B * x² + C * x + D
+                double calculatedErrorValue = coeff.A * Math.Pow(calculatedErrorRawValue, 3) +
+                                         coeff.B * Math.Pow(calculatedErrorRawValue, 2) +
+                                         coeff.C * calculatedErrorRawValue +
+                                         coeff.D;
+
+                // Value = A * x³ + B * x² + C * x + D
+                double calculatedValue = coeff.A * Math.Pow(rawValue, 3) +
+                                         coeff.B * Math.Pow(rawValue, 2) +
+                                         coeff.C * rawValue +
+                                         coeff.D;
+
+                // Noise Value = A * x³ + B * x² + C * x + D
+                double calculatedNoiseValue = coeff.A * Math.Pow(thrust.raw.NoiseValue, 3) +
+                                              coeff.B * Math.Pow(thrust.raw.NoiseValue, 2) +
+                                              coeff.C * thrust.raw.NoiseValue +
+                                              coeff.D;
+
+                await Task.Delay(10); // Simülasyon için kısa bir gecikme
+
+                // Hesaplanan değerleri güncelle
+                thrust.calculated.Value = Math.Round(calculatedValue, 3); 
+                thrust.calculated.RawValue = Math.Round(rawValue, 3); 
+                thrust.calculated.ErrorValue = Math.Round(calculatedErrorValue, 3); 
+                thrust.raw.ErrorValue = Math.Round(calculatedErrorRawValue, 3); 
+                thrust.calculated.NoiseValue = Math.Round(calculatedNoiseValue, 3); 
+            }
+            catch (Exception ex)
+            {
+                // Hata yönetimi
+                MessageBox.Show($"Error in calculation: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        public async Task CalculateTorqueValueAsync(Torque torque,Thrust thrust)
+        {
+
+            try
+            {
+                if (torque.calibration?.Coefficient == null)
+                {
+                    throw new InvalidOperationException("Hata katsayıları eksik. Hesaplama devam edemiyor.");
+                }
+
+                // Katsayıları al
+                var coeff = torque.calibration.Coefficient;
+
+                // Error Raw Value = A * x³ + B * x² + C * x + D
+                double calculatedErrorRawValue = coeff.ErrorA * Math.Pow(thrust.raw.Value, 3) +
+                                              coeff.ErrorB * Math.Pow(thrust.raw.Value, 2) +
+                                              coeff.ErrorC * thrust.raw.Value +
+                                              coeff.ErrorD;
+
+                double rawValue = torque.raw.Value - calculatedErrorRawValue;
+
+                // Error Value = A * x³ + B * x² + C * x + D
+                double calculatedErrorValue = coeff.A * Math.Pow(calculatedErrorRawValue, 3) +
+                                         coeff.B * Math.Pow(calculatedErrorRawValue, 2) +
+                                         coeff.C * calculatedErrorRawValue +
+                                         coeff.D;
+
+                // Value = A * x³ + B * x² + C * x + D
+                double calculatedValue = coeff.A * Math.Pow(rawValue, 3) +
+                                         coeff.B * Math.Pow(rawValue, 2) +
+                                         coeff.C * rawValue +
+                                         coeff.D;
+
+                // Noise Value = A * x³ + B * x² + C * x + D
+                double calculatedNoiseValue = coeff.A * Math.Pow(torque.raw.NoiseValue, 3) +
+                                              coeff.B * Math.Pow(torque.raw.NoiseValue, 2) +
+                                              coeff.C * torque.raw.NoiseValue +
+                                              coeff.D;
+
+                await Task.Delay(10); // Simülasyon için kısa bir gecikme
+
+                // Hesaplanan değerleri güncelle
+                torque.calculated.Value = Math.Round(calculatedValue, 3);
+                torque.calculated.RawValue = Math.Round(rawValue, 3);
+                torque.calculated.ErrorValue = Math.Round(calculatedErrorValue, 3);
+                torque.raw.ErrorValue = Math.Round(calculatedErrorRawValue, 3);
+                torque.calculated.NoiseValue = Math.Round(calculatedNoiseValue, 3);
+            }
+            catch (Exception ex)
+            {
+                // Hata yönetimi
+                MessageBox.Show($"Error in calculation: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
         #region Plot
 
         private PlotModel _plotModel;
@@ -1113,20 +1241,38 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                     if (latestData != null)
                     {
-                        await Application.Current.Dispatcher.InvokeAsync(() =>
+                        await Application.Current.Dispatcher.InvokeAsync(async () =>
                         {
+                            // İtki ve Tork hesaplama işlemlerini başlat
+                            await CalculateThrustValueAsync(thrust, torque);
+                            await CalculateTorqueValueAsync(torque, thrust);
+
                             Interface.PortReadData = $"Port Message: {portReadData}";
                             Interface.PortReadTime = portReadTime;
 
-                            Interface.Thrust.raw.Value = thrust.raw.Value;
-                            Interface.Torque.raw.Value = torque.raw.Value;
+
                             Interface.Current.raw.Value = current.raw.Value;
                             Interface.Voltage.raw.Value = voltage.raw.Value;
 
+
+                            Interface.Thrust.raw.Value = thrust.raw.Value;
                             Interface.Thrust.raw.NoiseValue = thrust.raw.NoiseValue;
+                            Interface.Thrust.raw.ErrorValue = thrust.raw.ErrorValue;
+                            Interface.Thrust.calculated.RawValue = thrust.calculated.RawValue;
+
+                            Interface.Thrust.calculated.NoiseValue = thrust.calculated.NoiseValue;
+                            Interface.Thrust.calculated.Value = thrust.calculated.Value;
+                            Interface.Thrust.calculated.NetValue = thrust.calculated.NetValue;
+
+                            Interface.Torque.raw.Value = torque.raw.Value;
                             Interface.Torque.raw.NoiseValue = torque.raw.NoiseValue;
-                            Interface.Current.raw.NoiseValue = current.raw.NoiseValue;
-                            Interface.Voltage.raw.NoiseValue = voltage.raw.NoiseValue;
+                            Interface.Torque.raw.ErrorValue = torque.raw.ErrorValue;
+                            Interface.Torque.calculated.RawValue = torque.calculated.RawValue;
+
+                            Interface.Torque.calculated.NoiseValue = torque.calculated.NoiseValue;
+                            Interface.Torque.calculated.Value = torque.calculated.Value;
+                            Interface.Torque.calculated.NetValue = torque.calculated.NetValue;
+
 
                             Interface.Thrust.calibration.Coefficient.Equation = "İtki (gF) = " + thrust.calibration.Coefficient.Equation;
                             Interface.Torque.calibration.Coefficient.Equation = "Tork (Nmm) = " + torque.calibration.Coefficient.Equation;
