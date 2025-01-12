@@ -19,6 +19,7 @@ using Dynotis_Calibration_and_Signal_Analyzer.Services;
 using OxyPlot.Legends;
 using System.Windows.Input;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Collections.ObjectModel;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 {
@@ -1242,6 +1243,100 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Error in calculation: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        #endregion
+
+        #region Excel Export
+        public async Task ExcelExportAsync()
+        {
+            try
+            {
+                // Kullanıcıdan dosya yolu seçmesini isteyin
+                var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "Excel Dosyası (*.xlsx)|*.xlsx",
+                    Title = "Excel Dosyasını Kaydet",
+                    FileName = "Veriler.xlsx"
+                };
+
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    string filePath = saveFileDialog.FileName;
+
+                    // Excel dosyasını oluştur
+                    using (var package = new OfficeOpenXml.ExcelPackage())
+                    {
+                        // İtki Verileri
+                        if (Interface.ThrustData != null && Interface.ThrustData.Any())
+                        {
+                            var thrustSheet = package.Workbook.Worksheets.Add("İtki Verileri");
+                            FillWorksheet(thrustSheet, Interface.ThrustData, new[] { "No", "Uygulanan İtki (gr)", "Okunan İtki (ADC)", "Okunan Tork (ADC)" });
+                        }
+
+                        // Tork Verileri
+                        if (Interface.TorqueData != null && Interface.TorqueData.Any())
+                        {
+                            var torqueSheet = package.Workbook.Worksheets.Add("Tork Verileri");
+                            FillWorksheet(torqueSheet, Interface.TorqueData, new[] { "No", "Uygulanan Tork (Nmm)", "Okunan Tork (ADC)", "Okunan İtki (ADC)" });
+                        }
+
+                        // Load Cell Test Verileri
+                        if (Interface.LoadCellTestData != null && Interface.LoadCellTestData.Any())
+                        {
+                            var loadCellSheet = package.Workbook.Worksheets.Add("Load Cell Test Verileri");
+                            FillWorksheet(loadCellSheet, Interface.LoadCellTestData, new[] { "No", "Uygulanan İtki (gr)", "Hesaplanan İtki (gr)", "Hata (%)", "FS Hata (%)" });
+                        }
+
+                        // Akım Verileri
+                        if (Interface.CurrentData != null && Interface.CurrentData.Any())
+                        {
+                            var currentSheet = package.Workbook.Worksheets.Add("Akım Verileri");
+                            FillWorksheet(currentSheet, Interface.CurrentData, new[] { "No", "Uygulanan Akım (mA)", "Okunan Akım (ADC)" });
+                        }
+
+                        // Voltaj Verileri
+                        if (Interface.VoltageData != null && Interface.VoltageData.Any())
+                        {
+                            var voltageSheet = package.Workbook.Worksheets.Add("Voltaj Verileri");
+                            FillWorksheet(voltageSheet, Interface.VoltageData, new[] { "No", "Uygulanan Voltaj (mV)", "Okunan Voltaj (ADC)" });
+                        }
+
+                        // Dosyayı kaydet
+                        await package.SaveAsAsync(new FileInfo(filePath));
+                        MessageBox.Show("Veriler başarıyla Excel'e aktarıldı.", "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Excel'e aktarma sırasında bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        private void FillWorksheet<T>(OfficeOpenXml.ExcelWorksheet worksheet, IEnumerable<T> data, string[] headers)
+        {
+            // Başlıkları ekle
+            for (int i = 0; i < headers.Length; i++)
+            {
+                worksheet.Cells[1, i + 1].Value = headers[i];
+                worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+                worksheet.Cells[1, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Verileri ekle
+            int row = 2;
+            foreach (var item in data)
+            {
+                var properties = item.GetType().GetProperties();
+                for (int col = 0; col < headers.Length; col++)
+                {
+                    worksheet.Cells[row, col + 1].Value = properties[col].GetValue(item)?.ToString();
+                }
+                row++;
+            }
+
+            // Otomatik sütun genişliği
+            worksheet.Cells.AutoFitColumns();
+        }
+
         #endregion
 
         #region Plot

@@ -223,14 +223,34 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
         #endregion
 
         #region Excel
-        private void ExcelExport_Click(object sender, RoutedEventArgs e)
+        private async void ExcelExport_Click(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                if (dynotis != null)
+                {
+                    await dynotis.ExcelExportAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }            
         }
 
-        private void ExcelImport_Click(object sender, RoutedEventArgs e)
+        private async void ExcelImport_Click(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                if (dynotis != null)
+                {
+                   // await dynotis.ExcelImportAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         #endregion
 
