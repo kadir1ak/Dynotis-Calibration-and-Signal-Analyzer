@@ -1354,52 +1354,87 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         private readonly object _PlotDataLock = new();
         private async Task UpdatePlotDataLoop(CancellationToken token)
         {
-            while (!token.IsCancellationRequested)
+            try
             {
-                await Task.Delay(PlotUpdateTimeMillisecond, token);
-
-                // Son verileri al
-                double latestTime, thrustValue, torqueValue, currentValue, voltageValue;
-
-                lock (_PlotDataLock)
+                while (!token.IsCancellationRequested)
                 {
-                    latestTime = portReadTime;
-                    thrustValue = thrust.raw.Value;
-                    torqueValue = torque.raw.Value;
-                    currentValue = current.raw.Value;
-                    voltageValue = voltage.raw.Value;
+                    await Task.Delay(PlotUpdateTimeMillisecond, token);
+
+                    // Son verileri al
+                    double latestTime, thrustValue, torqueValue, currentValue, voltageValue;
+
+                    lock (_PlotDataLock)
+                    {
+                        latestTime = portReadTime;
+                        thrustValue = thrust.raw.Value;
+                        torqueValue = torque.raw.Value;
+                        currentValue = current.raw.Value;
+                        voltageValue = voltage.raw.Value;
+                    }
+
+                    // Grafiği güncelle
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        if (PlotModel.Series[0] is LineSeries thrustSeries)
+                        {
+                            try
+                            {
+                                thrustSeries.Points.Add(new DataPoint(latestTime, thrustValue));
+                                while (thrustSeries.Points.Count > Interface.Dividing) thrustSeries.Points.RemoveAt(0);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }  
+                        }
+
+                        if (PlotModel.Series[1] is LineSeries torqueSeries)
+                        {
+                            try
+                            {
+                                torqueSeries.Points.Add(new DataPoint(latestTime, torqueValue));
+                                while (torqueSeries.Points.Count > Interface.Dividing) torqueSeries.Points.RemoveAt(0);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
+                        }
+
+                        if (PlotModel.Series[2] is LineSeries currentSeries)
+                        {
+                            try
+                            {
+                                currentSeries.Points.Add(new DataPoint(latestTime, currentValue));
+                                while (currentSeries.Points.Count > Interface.Dividing) currentSeries.Points.RemoveAt(0);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
+                        }
+
+                        if (PlotModel.Series[3] is LineSeries voltageSeries)
+                        {
+                            try
+                            {
+                                voltageSeries.Points.Add(new DataPoint(latestTime, voltageValue));
+                                while (voltageSeries.Points.Count > Interface.Dividing) voltageSeries.Points.RemoveAt(0);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
+                        }
+
+                        PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
+                    });
                 }
-
-                // Grafiği güncelle
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    if (PlotModel.Series[0] is LineSeries thrustSeries)
-                    {
-                        thrustSeries.Points.Add(new DataPoint(latestTime, thrustValue));
-                        while (thrustSeries.Points.Count > Interface.Dividing) thrustSeries.Points.RemoveAt(0);
-                    }
-
-                    if (PlotModel.Series[1] is LineSeries torqueSeries)
-                    {
-                        torqueSeries.Points.Add(new DataPoint(latestTime, torqueValue));
-                        while (torqueSeries.Points.Count > Interface.Dividing) torqueSeries.Points.RemoveAt(0);
-                    }
-
-                    if (PlotModel.Series[2] is LineSeries currentSeries)
-                    {
-                        currentSeries.Points.Add(new DataPoint(latestTime, currentValue));
-                        while (currentSeries.Points.Count > Interface.Dividing) currentSeries.Points.RemoveAt(0);
-                    }
-
-                    if (PlotModel.Series[3] is LineSeries voltageSeries)
-                    {
-                        voltageSeries.Points.Add(new DataPoint(latestTime, voltageValue));
-                        while (voltageSeries.Points.Count > Interface.Dividing) voltageSeries.Points.RemoveAt(0);
-                    }
-
-                    PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
-                });
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }         
         }
 
         public void StartUpdatePlotDataLoop()
