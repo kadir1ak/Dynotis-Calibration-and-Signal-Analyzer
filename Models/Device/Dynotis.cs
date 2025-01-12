@@ -587,9 +587,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 List<double> calculatedThrustValues = new List<double>();
                 List<double> calculatedTorqueValues = new List<double>();
 
-                double AppliedThrust = thrust.calibration.Applied;
-                double AppliedTorque = torque.calibration.Applied;
-
                 int duration = 5000; // 5 saniye (5000 ms)
                 int interval = 50; // 50 ms aralıklarla veri topla
                 int elapsed = 0;
@@ -608,17 +605,28 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     Interface.Progress = (elapsed / (double)duration) * 100.0; // Yüzde olarak ilerleme
                 }
 
+                double AppliedThrust = thrust.calibration.Applied;
+                double AppliedTorque = torque.calibration.Applied;
+
+                double ThrustCapacity = thrust.calibration.Capacity;
+                double TorqueCapacity = torque.calibration.Capacity;
+
                 // Ortalama değerler
                 double CalculatedThrustValue = calculatedThrustValues.Any() ? calculatedThrustValues.Average() : 0.0;
                 double CalculatedTorqueValue = calculatedTorqueValues.Any() ? calculatedTorqueValues.Average() : 0.0;
 
                 // Thrust için yüzde hata hesaplamaları
                 double ThrustErrorValue = ((CalculatedThrustValue - AppliedThrust) / AppliedThrust) * 100;
-                double ThrustFSErrorValue = ((CalculatedThrustValue - AppliedThrust) / AppliedThrust) * 100;
+
+                // Thrust için FS hata hesaplamaları
+                double ThrustFSErrorValue = ((CalculatedThrustValue - AppliedThrust) / ThrustCapacity) * 100;
 
                 // Torque için yüzde hata hesaplamaları
                 double TorqueErrorValue = ((CalculatedTorqueValue - AppliedTorque) / AppliedTorque) * 100;
-                double TorqueFSErrorValue = ((CalculatedTorqueValue - AppliedTorque) / AppliedTorque) * 100;
+
+                // Torque için FS hata hesaplamaları
+                double TorqueFSErrorValue = ((CalculatedTorqueValue - AppliedTorque) / TorqueCapacity) * 100;
+
 
                 // Load Cell Data'ya ekle
                 loadCellTest.Thrust.Buffer.Add(CalculatedThrustValue);
@@ -627,8 +635,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 loadCellTest.Thrust.FSErrorBuffer.Add(ThrustFSErrorValue);
                 loadCellTest.Torque.Buffer.Add(CalculatedTorqueValue);
                 loadCellTest.Torque.AppliedBuffer.Add(AppliedTorque);     
-                loadCellTest.Thrust.ErrorBuffer.Add(TorqueErrorValue);
-                loadCellTest.Thrust.FSErrorBuffer.Add(TorqueFSErrorValue);
+                loadCellTest.Torque.ErrorBuffer.Add(TorqueErrorValue);
+                loadCellTest.Torque.FSErrorBuffer.Add(TorqueFSErrorValue);
 
                 // İşlem tamamlandığında progress %0 yap
                 Interface.Progress = 0;

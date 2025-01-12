@@ -100,6 +100,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
             private List<double> _pointErrorBuffer = new List<double>();
             private string _appliedUnit;
             private double _applied;
+            private double _capacity;
             private bool _addingOn;
             private Coefficients _coefficients = new Coefficients();
 
@@ -122,6 +123,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
             {
                 get => _applied;
                 set => SetProperty(ref _applied, value);
+            }
+            public double Capacity
+            {
+                get => _capacity;
+                set => SetProperty(ref _capacity, value);
             }
             public string AppliedUnit
             {

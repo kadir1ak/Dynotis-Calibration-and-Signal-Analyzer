@@ -336,6 +336,19 @@
                         <Label x:Name="Uygulanan_Itki_Birim_Label" Content="gr" FontSize="16"></Label>
                     </StackPanel>
                     <CheckBox Content="Değeri ekleyerek ilerle" IsChecked="{Binding dynotis.Interface.Thrust.calibration.AddingOn, Mode=TwoWay}" FontSize="16" Margin="5 10 5 5"></CheckBox>
+                </StackPanel>              
+            </GroupBox>
+
+            <GroupBox x:Name="Itki_Kapasite_Border" Grid.Row="2" Grid.Column="0" BorderBrush="Orange" BorderThickness="2" Margin="5" >
+                <GroupBox.Header >
+                    <TextBlock Text="İtki Kapasitesi" FontSize="20" FontWeight="Bold"/>
+                </GroupBox.Header>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="5 0 0 5">
+                    <Label x:Name="Itki_Kapasite_Title" Content="İtki Kapasitesi" FontSize="16"></Label>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
+                        <TextBox x:Name="Itki_Kapasite_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.thrust.calibration.Capacity, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
+                        <Label x:Name="Itki_Kapasite_Birim_Label" Content="gF" FontSize="16"></Label>
+                    </StackPanel>
                 </StackPanel>
             </GroupBox>
 
@@ -358,6 +371,19 @@
                         </StackPanel>
                     </StackPanel>
                     <CheckBox Content="Değeri ekleyerek ilerle" IsChecked="{Binding dynotis.Interface.Torque.calibration.AddingOn, Mode=TwoWay}" FontSize="16" Margin="5 10 5 5"></CheckBox>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox x:Name="Tork_Kapasite_Border" Grid.Row="2" Grid.Column="2" BorderBrush="DarkSeaGreen" BorderThickness="2" Margin="5">
+                <GroupBox.Header >
+                    <TextBlock Text="Tork Kapasitesi" FontSize="20" FontWeight="Bold"/>
+                </GroupBox.Header>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="5 0 5 5">
+                    <Label x:Name="Tork_Kapasite_Title" Content="Tork Kapasitesi" FontSize="16"></Label>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
+                        <TextBox x:Name="Tork_Kapasite_TextBox" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.calibration.Capacity, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
+                        <Label x:Name="Tork_Kapasite_Birim_Label" Content="Nmm" FontSize="16"></Label>
+                    </StackPanel>
                 </StackPanel>
             </GroupBox>
 

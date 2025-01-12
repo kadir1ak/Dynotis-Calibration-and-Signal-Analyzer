@@ -183,6 +183,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             Akım_Border.Visibility = Visibility.Collapsed;
             Voltaj_Border.Visibility = Visibility.Collapsed;
 
+            Itki_Kapasite_Border.Visibility = Visibility.Collapsed;
+            Tork_Kapasite_Border.Visibility = Visibility.Collapsed;
+
             Itki_Data_Border.Visibility = Visibility.Collapsed;
             Tork_Data_Border.Visibility = Visibility.Collapsed;
             Akım_Data_Border.Visibility = Visibility.Collapsed;
@@ -224,6 +227,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                     Tork_Border.Visibility = Visibility.Visible;
                     Itki_Data_Border.Visibility = Visibility.Visible;
                     Tork_Data_Border.Visibility = Visibility.Visible;
+                    Itki_Kapasite_Border.Visibility = Visibility.Visible;
+                    Tork_Kapasite_Border.Visibility = Visibility.Visible;
                     Thrust_Equation.Visibility = Visibility.Visible;
                     Torque_Equation.Visibility = Visibility.Visible;
                     Thrust_ErrorEquation.Visibility = Visibility.Visible;
