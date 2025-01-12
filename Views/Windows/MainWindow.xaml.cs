@@ -66,66 +66,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             Closed += (s, e) => serialPortsManager.Dispose();
             #endregion
         }
-        private void Clear_Click(object sender, RoutedEventArgs e)
-        {
 
-        }
-
-        private async void Calibration_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (dynotis != null)
-                {
-                    await dynotis.PerformCalibrationAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void ExcelExport_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void ExcelImport_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private async void AddPointButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (dynotis != null)
-                {
-                    await dynotis.AddPointAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-        }
-        private async void DeletePointButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (dynotis != null)
-                {
-                    await dynotis.DeletePointAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
+        #region Port Selection Changed
         private async void Port_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (portComboBox.SelectedItem is string selectedPort)
@@ -144,6 +86,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                 }
             }
         }
+        #endregion
+
+        #region TabControl Refresh
         private void Tablolar_TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is TabControl tabControl && tabControl.SelectedItem is TabItem selectedTab)
@@ -172,9 +117,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                             break;
                     }
                     UpdateVisibility(dynotis.Interface.Mode);
-                }               
+                }
             }
         }
+        #endregion
+
+        #region Update Visibility
         private void UpdateVisibility(Mode mode)
         {
             // Tüm GroupBox'ları gizle
@@ -255,6 +203,88 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                     break;
             }
         }
+        #endregion
+
+        #region Calibration
+        private async void Calibration_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (dynotis != null)
+                {
+                    await dynotis.PerformCalibrationAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region Excel
+        private void ExcelExport_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ExcelImport_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        #endregion
+
+        #region Point Add
+        private async void AddPointButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (dynotis != null)
+                {
+                    await dynotis.AddPointAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region Point Delete
+        private async void DeletePointButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (dynotis != null)
+                {
+                    await dynotis.DeletePointAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region Points Delete
+        private async void Clear_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (dynotis != null)
+                {
+                    await dynotis.DeleteAllPointsAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
         private void Tork_Dara_Button_Click(object sender, RoutedEventArgs e)
         {
 
@@ -285,6 +315,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
 
         }
 
+        #region INotifyPropertyChanged
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -299,18 +330,19 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             OnPropertyChanged(propertyName);
             return true;
         }
+        #endregion
+
+        #region TextInput Events
         private void NumericTextBoxDouble_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9.,]+"); // Allow only numbers, dots, and commas
             e.Handled = regex.IsMatch(e.Text);
         }
-
         private void NumericTextBoxInt_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+"); // Allow only numbers
             e.Handled = regex.IsMatch(e.Text);
         }
-
         private void NumericTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             TextBox textBox = sender as TextBox;
@@ -320,7 +352,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                 textBox.CaretIndex = textBox.Text.Length; // Move caret to end
             }
         }
-
         private void NumericTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Space)
@@ -328,6 +359,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                 e.Handled = true; // Prevent space key input
             }
         }
+        #endregion
     }
 }
 

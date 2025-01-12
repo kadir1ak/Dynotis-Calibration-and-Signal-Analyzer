@@ -315,7 +315,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         #endregion
 
-        #region Add Point
+        #region Point Add
         public async Task AddPointAsync()
         {
             try
@@ -648,7 +648,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         #endregion
 
-        #region Delete Point
+        #region Point Delete
         public async Task DeletePointAsync()
         {
             try
@@ -788,6 +788,114 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 loadCellTest.Torque.ErrorBuffer.RemoveAt(loadCellTest.Torque.ErrorBuffer.Count - 1);
                 loadCellTest.Torque.FSErrorBuffer.RemoveAt(loadCellTest.Torque.FSErrorBuffer.Count - 1);
             }
+        }
+        #endregion
+
+        #region All Points Delete
+        public async Task DeleteAllPointsAsync()
+        {
+            try
+            {
+                switch (Interface.Mode)
+                {
+                    case Mode.Thrust:
+                        DeleteAllPointsFromThrustData(thrust.calibration);
+                        Interface.UpdateThrustData(thrust);
+                        break;
+
+                    case Mode.Torque:
+                        DeleteAllPointsFromTorqueData(torque.calibration);
+                        Interface.UpdateTorqueData(torque);
+                        break;
+
+                    case Mode.Current:
+                        DeleteAllPointsFromCurrentData(current.calibration);
+                        Interface.UpdateCurrentData(current);
+                        break;
+
+                    case Mode.Voltage:
+                        DeleteAllPointsFromVoltageData(voltage.calibration);
+                        Interface.UpdateVoltageData(voltage);
+                        break;
+
+                    case Mode.LoadCellTest:
+                        DeleteAllPointsFromLoadCellTestData(loadCellTest);
+                        Interface.UpdateVoltageData(voltage);
+                        break;
+
+                    default:
+                        MessageBox.Show("Geçerli bir mod seçiniz.", "Hata", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public async Task DeleteAllPointsInAllModesAsync()
+        {
+            try
+            {
+                DeleteAllPointsFromThrustData(thrust.calibration);
+                Interface.UpdateThrustData(thrust);
+
+                DeleteAllPointsFromTorqueData(torque.calibration);
+                Interface.UpdateTorqueData(torque);
+
+                DeleteAllPointsFromCurrentData(current.calibration);
+                Interface.UpdateCurrentData(current);
+
+                DeleteAllPointsFromVoltageData(voltage.calibration);
+                Interface.UpdateVoltageData(voltage);
+
+                DeleteAllPointsFromLoadCellTestData(loadCellTest);
+                Interface.UpdateVoltageData(voltage);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void DeleteAllPointsFromThrustData(Thrust.Calibration calibration)
+        {
+            calibration.PointAppliedBuffer.Clear();
+            calibration.PointRawBuffer.Clear();
+            calibration.PointErrorBuffer?.Clear();
+        }
+
+        private void DeleteAllPointsFromTorqueData(Torque.Calibration calibration)
+        {
+            calibration.PointAppliedBuffer.Clear();
+            calibration.PointRawBuffer.Clear();
+            calibration.PointErrorBuffer?.Clear();
+        }
+
+        private void DeleteAllPointsFromCurrentData(Current.Calibration calibration)
+        {
+            calibration.PointAppliedBuffer.Clear();
+            calibration.PointRawBuffer.Clear();
+        }
+
+        private void DeleteAllPointsFromVoltageData(Voltage.Calibration calibration)
+        {
+            calibration.PointAppliedBuffer.Clear();
+            calibration.PointRawBuffer.Clear();
+        }
+
+        private void DeleteAllPointsFromLoadCellTestData(LoadCellTest loadCellTest)
+        {
+            loadCellTest.Thrust.Buffer.Clear();
+            loadCellTest.Thrust.AppliedBuffer.Clear();
+            loadCellTest.Thrust.ErrorBuffer.Clear();
+            loadCellTest.Thrust.FSErrorBuffer.Clear();
+
+            loadCellTest.Torque.Buffer.Clear();
+            loadCellTest.Torque.AppliedBuffer.Clear();
+            loadCellTest.Torque.ErrorBuffer.Clear();
+            loadCellTest.Torque.FSErrorBuffer.Clear();
         }
         #endregion
 
