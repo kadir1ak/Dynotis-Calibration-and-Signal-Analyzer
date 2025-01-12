@@ -30,6 +30,14 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
             get => _progress;
             set => SetProperty(ref _progress, value);
         }
+
+        private double _dividing = 0;
+        public double Dividing
+        {
+            get => _dividing;
+            set => SetProperty(ref _dividing, value);
+        }
+
         private Mode _mode;
         public Mode Mode
         {

@@ -37,8 +37,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
             serialPort = new SerialPort();
 
-            InitializePlotModel();
             InitializeInterface();
+            InitializePlotModel();
         }
 
         #region Taslak
@@ -1322,6 +1322,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         public void InitializeInterface()
         {
+            Interface.Dividing = 100;
+
             Interface.Thrust.calibration.AddingOn = thrust.calibration.AddingOn = true;
             Interface.Torque.calibration.AddingOn = torque.calibration.AddingOn = true;
             Interface.Current.calibration.AddingOn = current.calibration.AddingOn = false;
@@ -1374,25 +1376,25 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     if (PlotModel.Series[0] is LineSeries thrustSeries)
                     {
                         thrustSeries.Points.Add(new DataPoint(latestTime, thrustValue));
-                        if (thrustSeries.Points.Count > 1000) thrustSeries.Points.RemoveAt(0); // Maksimum 100 nokta tut
+                        while (thrustSeries.Points.Count > Interface.Dividing) thrustSeries.Points.RemoveAt(0);
                     }
 
                     if (PlotModel.Series[1] is LineSeries torqueSeries)
                     {
                         torqueSeries.Points.Add(new DataPoint(latestTime, torqueValue));
-                        if (torqueSeries.Points.Count > 1000) torqueSeries.Points.RemoveAt(0);
+                        while (torqueSeries.Points.Count > Interface.Dividing) torqueSeries.Points.RemoveAt(0);
                     }
 
                     if (PlotModel.Series[2] is LineSeries currentSeries)
                     {
                         currentSeries.Points.Add(new DataPoint(latestTime, currentValue));
-                        if (currentSeries.Points.Count > 1000) currentSeries.Points.RemoveAt(0);
+                        while (currentSeries.Points.Count > Interface.Dividing) currentSeries.Points.RemoveAt(0);
                     }
 
                     if (PlotModel.Series[3] is LineSeries voltageSeries)
                     {
                         voltageSeries.Points.Add(new DataPoint(latestTime, voltageValue));
-                        if (voltageSeries.Points.Count > 1000) voltageSeries.Points.RemoveAt(0);
+                        while (voltageSeries.Points.Count > Interface.Dividing) voltageSeries.Points.RemoveAt(0);
                     }
 
                     PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz

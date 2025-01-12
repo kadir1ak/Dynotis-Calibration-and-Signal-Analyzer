@@ -704,7 +704,17 @@
             <!-- Grafik Paneli -->
             <TabControl x:Name="Grafikler_TabControl" Grid.Row="1" Grid.ColumnSpan="5" Margin="5">
                 <TabItem x:Name="TabItem_oxy" Header="oxy" FontSize="24">
-                    <oxy:PlotView x:Name="Plot_Area" FontSize="16" Model="{Binding dynotis.PlotModel}"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Grid.Row="0">
+                            <Slider Value="{Binding dynotis.Interface.Dividing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="10" Maximum="1000" TickFrequency="10" IsSnapToTickEnabled="True" Height="20" Width="200" Margin="20 5 0 0"/>
+                            <Label Content="{Binding dynotis.Interface.Dividing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" FontSize="16" HorizontalAlignment="Left" Margin="10 0 0 0"/>
+                        </StackPanel>
+                         <oxy:PlotView x:Name="Plot_Area" Grid.Row="1" FontSize="16" Model="{Binding dynotis.PlotModel}"/>
+                    </Grid>                   
                 </TabItem>
                 <TabItem x:Name="TabItem_lcv" Header="lvc" FontSize="24">
                 </TabItem>
