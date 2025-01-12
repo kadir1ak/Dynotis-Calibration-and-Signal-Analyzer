@@ -1269,35 +1269,35 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                         if (Interface.ThrustData != null && Interface.ThrustData.Any())
                         {
                             var thrustSheet = package.Workbook.Worksheets.Add("İtki Verileri");
-                            FillWorksheet(thrustSheet, Interface.ThrustData, new[] { "No", "Uygulanan İtki (gr)", "Okunan İtki (ADC)", "Okunan Tork (ADC)" });
+                            FillThrustWorksheet(thrustSheet, Interface);
                         }
 
                         // Tork Verileri
                         if (Interface.TorqueData != null && Interface.TorqueData.Any())
                         {
                             var torqueSheet = package.Workbook.Worksheets.Add("Tork Verileri");
-                            FillWorksheet(torqueSheet, Interface.TorqueData, new[] { "No", "Uygulanan Tork (Nmm)", "Okunan Tork (ADC)", "Okunan İtki (ADC)" });
+                            FillTorqueWorksheet(torqueSheet, Interface);
                         }
 
                         // Load Cell Test Verileri
                         if (Interface.LoadCellTestData != null && Interface.LoadCellTestData.Any())
                         {
                             var loadCellSheet = package.Workbook.Worksheets.Add("Load Cell Test Verileri");
-                            FillWorksheet(loadCellSheet, Interface.LoadCellTestData, new[] { "No", "Uygulanan İtki (gr)", "Hesaplanan İtki (gr)", "Hata (%)", "FS Hata (%)" });
+                            FillLoadCellTestWorksheet(loadCellSheet, Interface);
                         }
 
                         // Akım Verileri
                         if (Interface.CurrentData != null && Interface.CurrentData.Any())
                         {
                             var currentSheet = package.Workbook.Worksheets.Add("Akım Verileri");
-                            FillWorksheet(currentSheet, Interface.CurrentData, new[] { "No", "Uygulanan Akım (mA)", "Okunan Akım (ADC)" });
+                            FillCurrentWorksheet(currentSheet, Interface);
                         }
 
                         // Voltaj Verileri
                         if (Interface.VoltageData != null && Interface.VoltageData.Any())
                         {
                             var voltageSheet = package.Workbook.Worksheets.Add("Voltaj Verileri");
-                            FillWorksheet(voltageSheet, Interface.VoltageData, new[] { "No", "Uygulanan Voltaj (mV)", "Okunan Voltaj (ADC)" });
+                            FillVoltageWorksheet(voltageSheet, Interface);
                         }
 
                         // Dosyayı kaydet
@@ -1311,9 +1311,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Excel'e aktarma sırasında bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private void FillWorksheet<T>(OfficeOpenXml.ExcelWorksheet worksheet, IEnumerable<T> data, string[] headers)
+
+        private void FillThrustWorksheet(OfficeOpenXml.ExcelWorksheet worksheet, InterfaceData DataGrid)
         {
             // Başlıkları ekle
+            string[] headers = new[] { "No", "Uygulanan İtki (gr)", "Okunan İtki (ADC)", "Okunan Tork (ADC)" };
             for (int i = 0; i < headers.Length; i++)
             {
                 worksheet.Cells[1, i + 1].Value = headers[i];
@@ -1322,21 +1324,145 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             }
 
             // Verileri ekle
-            int row = 2;
-            foreach (var item in data)
+            int row = 2; // Veriler 2. satırdan itibaren başlıyor
+            foreach (var thrustDataGrid in DataGrid.ThrustData)
             {
-                var properties = item.GetType().GetProperties();
-                for (int col = 0; col < headers.Length; col++)
-                {
-                    worksheet.Cells[row, col + 1].Value = properties[col].GetValue(item)?.ToString();
-                }
-                row++;
+                worksheet.Cells[row, 1].Value = thrustDataGrid.No;                  // "No" sütunu
+                worksheet.Cells[row, 2].Value = thrustDataGrid.Applied_Thrust;      // "Uygulanan İtki (gr)" sütunu
+                worksheet.Cells[row, 3].Value = thrustDataGrid.ADC_Thrust;          // "Okunan İtki (ADC)" sütunu
+                worksheet.Cells[row, 4].Value = thrustDataGrid.ADC_Torque;          // "Okunan Tork (ADC)" sütunu
+                row++; // Bir sonraki satıra geç
             }
 
             // Otomatik sütun genişliği
             worksheet.Cells.AutoFitColumns();
         }
+        private void FillTorqueWorksheet(OfficeOpenXml.ExcelWorksheet worksheet, InterfaceData DataGrid)
+        {
+            // Başlıkları ekle
+            string[] headers = new[] { "No", "Uygulanan Tork (Nmm)", "Okunan Tork (ADC)", "Okunan İtki (ADC)" };
+            for (int i = 0; i < headers.Length; i++)
+            {
+                worksheet.Cells[1, i + 1].Value = headers[i];
+                worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+                worksheet.Cells[1, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
 
+            // Verileri ekle
+            int row = 2; // Veriler 2. satırdan itibaren başlıyor
+            foreach (var torqueDataGrid in DataGrid.TorqueData)
+            {
+                worksheet.Cells[row, 1].Value = torqueDataGrid.No;                  // "No" sütunu
+                worksheet.Cells[row, 2].Value = torqueDataGrid.Applied_Torque;      // "Uygulanan Tork (Nmm)" sütunu
+                worksheet.Cells[row, 3].Value = torqueDataGrid.ADC_Torque;          // "Okunan Tork (ADC)" sütunu
+                worksheet.Cells[row, 4].Value = torqueDataGrid.ADC_Thrust;          // "Okunan İtki (ADC)" sütunu
+                row++; // Bir sonraki satıra geç
+            }
+
+            // Otomatik sütun genişliği
+            worksheet.Cells.AutoFitColumns();
+        }
+        private void FillCurrentWorksheet(OfficeOpenXml.ExcelWorksheet worksheet, InterfaceData DataGrid)
+        {
+            // Başlıkları ekle
+            string[] headers = new[] { "No", "Uygulanan Akım (mA)", "Okunan Akım (ADC)" };
+            for (int i = 0; i < headers.Length; i++)
+            {
+                worksheet.Cells[1, i + 1].Value = headers[i];
+                worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+                worksheet.Cells[1, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Verileri ekle
+            int row = 2; // Veriler 2. satırdan itibaren başlıyor
+            foreach (var currentDataGrid in DataGrid.CurrentData)
+            {
+                worksheet.Cells[row, 1].Value = currentDataGrid.No;                  // "No" sütunu
+                worksheet.Cells[row, 2].Value = currentDataGrid.Applied_Current;      // "Uygulanan Akım (mA)" sütunu
+                worksheet.Cells[row, 3].Value = currentDataGrid.ADC_Current;          // "Okunan Akım (ADC)" sütunu
+                row++; // Bir sonraki satıra geç
+            }
+
+            // Otomatik sütun genişliği
+            worksheet.Cells.AutoFitColumns();
+        }
+        private void FillVoltageWorksheet(OfficeOpenXml.ExcelWorksheet worksheet, InterfaceData DataGrid)
+        {
+            // Başlıkları ekle
+            string[] headers = new[] { "No", "Uygulanan Voltaj (mV)", "Okunan Voltaj (ADC)" };
+            for (int i = 0; i < headers.Length; i++)
+            {
+                worksheet.Cells[1, i + 1].Value = headers[i];
+                worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+                worksheet.Cells[1, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Verileri ekle
+            int row = 2; // Veriler 2. satırdan itibaren başlıyor
+            foreach (var voltageDataGrid in DataGrid.VoltageData)
+            {
+                worksheet.Cells[row, 1].Value = voltageDataGrid.No;                  // "No" sütunu
+                worksheet.Cells[row, 2].Value = voltageDataGrid.Applied_Voltage;      // "Uygulanan Voltaj (mV)" sütunu
+                worksheet.Cells[row, 3].Value = voltageDataGrid.ADC_Voltage;          // "Okunan Voltaj (ADC)" sütunu
+                row++; // Bir sonraki satıra geç
+            }
+
+            // Otomatik sütun genişliği
+            worksheet.Cells.AutoFitColumns();
+        }
+        private void FillLoadCellTestWorksheet(OfficeOpenXml.ExcelWorksheet worksheet, InterfaceData DataGrid)
+        {
+            // İlk tablo için başlangıç satırı
+            int startRow1 = 1;
+
+            // İlk tablo başlıklarını ekle
+            string[] headers1 = new[] { "No", "Uygulanan İtki (gr)", "Hesaplanan İtki (gr)", "Hata (%)", "FS Hata (%)" };
+            for (int i = 0; i < headers1.Length; i++)
+            {
+                worksheet.Cells[startRow1, i + 1].Value = headers1[i];
+                worksheet.Cells[startRow1, i + 1].Style.Font.Bold = true;
+                worksheet.Cells[startRow1, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // İlk tablo verilerini ekle
+            int row1 = startRow1 + 1; // Veriler başlıktan sonraki satırdan başlıyor
+            foreach (var thrustDataGrid in DataGrid.LoadCellTestData)
+            {
+                worksheet.Cells[row1, 1].Value = thrustDataGrid.No;                     // "No" sütunu
+                worksheet.Cells[row1, 2].Value = thrustDataGrid.Applied_Thrust;         // "Uygulanan İtki (gr)" sütunu
+                worksheet.Cells[row1, 3].Value = thrustDataGrid.Calculated_Thrust;      // "Hesaplanan İtki (gr)" sütunu
+                worksheet.Cells[row1, 4].Value = thrustDataGrid.Error_Thrust;           // "Hata (%)" sütunu
+                worksheet.Cells[row1, 5].Value = thrustDataGrid.FSError_Thrust;         // "FS Hata (%)" sütunu
+                row1++; // Bir sonraki satıra geç
+            }
+
+            // İkinci tablo için başlangıç satırı (ilk tablodan sonra boş bir satır bırakabilirsiniz)
+            int startRow2 = row1 + 2;
+
+            // İkinci tablo başlıklarını ekle
+            string[] headers2 = new[] { "No", "Uygulanan Tork (Nmm)", "Hesaplanan Tork (Nmm)", "Hata (%)", "FS Hata (%)" };
+            for (int i = 0; i < headers2.Length; i++)
+            {
+                worksheet.Cells[startRow2, i + 1].Value = headers2[i];
+                worksheet.Cells[startRow2, i + 1].Style.Font.Bold = true;
+                worksheet.Cells[startRow2, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // İkinci tablo verilerini ekle
+            int row2 = startRow2 + 1; // Veriler başlıktan sonraki satırdan başlıyor
+            foreach (var torqueDataGrid in DataGrid.LoadCellTestData)
+            {
+                worksheet.Cells[row2, 1].Value = torqueDataGrid.No;                     // "No" sütunu
+                worksheet.Cells[row2, 2].Value = torqueDataGrid.Applied_Torque;         // "Uygulanan Tork (Nmm)" sütunu
+                worksheet.Cells[row2, 3].Value = torqueDataGrid.Calculated_Torque;      // "Hesaplanan Tork (Nmm)" sütunu
+                worksheet.Cells[row2, 4].Value = torqueDataGrid.Error_Torque;           // "Hata (%)" sütunu
+                worksheet.Cells[row2, 5].Value = torqueDataGrid.FSError_Torque;         // "FS Hata (%)" sütunu
+                row2++; // Bir sonraki satıra geç
+            }
+
+            // Otomatik sütun genişliği
+            worksheet.Cells.AutoFitColumns();
+        }
         #endregion
 
         #region Plot
