@@ -363,7 +363,7 @@
                         <TextBox x:Name="Uygulanan_Tork_TextBox" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                         <Label x:Name="Uygulanan_Tork_Birim_Label" Content="gr" FontSize="16"></Label>
                     </StackPanel>
-                    <StackPanel x:Name="Tork_Uygulanan_Mesafe_Giris_Kutusu">
+                    <StackPanel x:Name="Tork_Uygulanan_Mesafe_Giris_Kutusu" Visibility="{Binding dynotis.Interface.AppliedDistanceVisibility}">
                         <Label x:Name="Label83" Content="Uygulanan Tork Mesafesi (mm)" FontSize="16"></Label>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
                             <TextBox x:Name="Uygulanan_Tork_Mesafesi_TextBox" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.Calibration.AppliedDistance, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
@@ -472,7 +472,7 @@
                 </GroupBox>
 
                 <!-- Birimler -->
-                <GroupBox x:Name="Birim_Border" IsEnabled="{Binding dynotis.Interface.UnitsIsEnabled}" Grid.Row="1" Grid.Column="0"  BorderBrush="#FF3FC0C3" BorderThickness="2" Margin="0 5 0 5">
+                <GroupBox x:Name="Birim_Border" Grid.Row="1" Grid.Column="0"  BorderBrush="#FF3FC0C3" BorderThickness="2" Margin="0 5 0 5">
                     <GroupBox.Header >
                         <TextBlock Text="Uygulanan Birimler" FontSize="16" FontWeight="Bold"/>
                     </GroupBox.Header>
@@ -490,24 +490,24 @@
 
                         <!-- İtki ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="0" Text="İtki: " VerticalAlignment="Center" FontSize="16" Margin="0,0,10,0" />
-                        <ComboBox Grid.Column="1" Grid.Row="0" Height="24" FontSize="14" x:Name="ItkiComboBox" SelectionChanged="ThrustUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="0" Height="24" FontSize="14" x:Name="ItkiComboBox" IsEnabled="{Binding dynotis.Interface.ThrustUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Thrust.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectionChanged="ThrustUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="Gram" />
                             <ComboBoxItem Content="Newton" />
                         </ComboBox>
                         <!-- Tork ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="1" Text="Tork: " VerticalAlignment="Center" FontSize="16" Margin="0,0,10,0" />
-                        <ComboBox Grid.Column="1" Grid.Row="1" Height="24" FontSize="14" x:Name="TorkComboBox" SelectionChanged="TorqueUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="1" Height="24" FontSize="14" x:Name="TorkComboBox" IsEnabled="{Binding dynotis.Interface.TorqueUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Torque.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectionChanged="TorqueUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="Gram*Milimetre" />
                             <ComboBoxItem Content="Newton" />
                         </ComboBox>
                         <!-- Akım ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="2" Text="Akım: " VerticalAlignment="Center" Margin="0,0,10,0" FontSize="16" />
-                        <ComboBox Grid.Column="1" Grid.Row="2" Height="24" FontSize="14" x:Name="AkimComboBox" SelectionChanged="CurrentUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="2" Height="24" FontSize="14" x:Name="AkimComboBox" IsEnabled="{Binding dynotis.Interface.CurrentUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Current.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="mAmper" />
                         </ComboBox>
                         <!-- Voltaj ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="3" Text="Voltaj: " VerticalAlignment="Center" Margin="0,0,10,0" FontSize="16" />
-                        <ComboBox Grid.Column="1" Grid.Row="3" Height="24" FontSize="14" x:Name="VoltajComboBox" SelectionChanged="VoltageUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="3" Height="24" FontSize="14" x:Name="VoltajComboBox" IsEnabled="{Binding dynotis.Interface.VoltageUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Voltage.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="mVolt" />
                         </ComboBox>
                     </Grid>

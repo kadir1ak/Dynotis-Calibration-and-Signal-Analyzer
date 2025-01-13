@@ -53,11 +53,39 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
             set => SetProperty(ref _checkboxIsEnabled, value);
         }     
 
-        private bool _unitsIsEnabled;
-        public bool UnitsIsEnabled
+        private bool _thrustUnitsIsEnabled;
+        public bool ThrustUnitsIsEnabled
         {
-            get => _unitsIsEnabled;
-            set => SetProperty(ref _unitsIsEnabled, value);
+            get => _thrustUnitsIsEnabled;
+            set => SetProperty(ref _thrustUnitsIsEnabled, value);
+        }      
+        
+        private bool _torqueUnitsIsEnabled;
+        public bool TorqueUnitsIsEnabled
+        {
+            get => _torqueUnitsIsEnabled;
+            set => SetProperty(ref _torqueUnitsIsEnabled, value);
+        }
+
+        private bool _currentUnitsIsEnabled;
+        public bool CurrentUnitsIsEnabled
+        {
+            get => _currentUnitsIsEnabled;
+            set => SetProperty(ref _currentUnitsIsEnabled, value);
+        }
+
+        private bool _voltageUnitsIsEnabled;
+        public bool VoltageUnitsIsEnabled
+        {
+            get => _voltageUnitsIsEnabled;
+            set => SetProperty(ref _voltageUnitsIsEnabled, value);
+        }
+
+        private Visibility _appliedDistanceVisibility;
+        public Visibility AppliedDistanceVisibility
+        {
+            get => _appliedDistanceVisibility;
+            set => SetProperty(ref _appliedDistanceVisibility, value);
         }
 
         private double _dividing = 0;

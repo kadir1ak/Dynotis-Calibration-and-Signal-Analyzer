@@ -20,6 +20,7 @@ using OxyPlot.Legends;
 using System.Windows.Input;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Collections.ObjectModel;
+using Microsoft.VisualBasic;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 {
@@ -293,6 +294,65 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         #endregion
 
+        #region Units Update
+        public async Task UnitThrustUpdateAsync(string Unit)
+        {
+            try
+            {
+                if(Unit == "Gram")
+                {
+                    thrust.calculated.UnitName = "Gram";
+                    thrust.calculated.UnitSymbol = "gr";
+                    Interface.Thrust.calculated.UnitName = "Gram";
+                    Interface.Thrust.calculated.UnitSymbol = "gr";
+                }
+                else if (Unit == "Newton")
+                {
+                    if (Unit == "Newton")
+                    {
+                        thrust.calculated.UnitName = "Newton";
+                        thrust.calculated.UnitSymbol = "N";
+                        Interface.Thrust.calculated.UnitName = "Newton";
+                        Interface.Thrust.calculated.UnitSymbol = "N";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        public async Task UnitTorqueUpdateAsync(string Unit)
+        {
+            try
+            {
+                if (Unit == "Gram*Milimetre")
+                {
+                    torque.calculated.UnitName = "Nmm";
+                    torque.calculated.UnitSymbol = "Nmm";
+                    Interface.Torque.calculated.UnitName = "Gram*Milimetre";
+                    Interface.Torque.calculated.UnitSymbol = "gr";
+                    Interface.AppliedDistanceVisibility = Visibility.Visible;
+                }
+                else if (Unit == "Newton")
+                {
+                    if (Unit == "Newton")
+                    {
+                        torque.calculated.UnitName = "Newton";
+                        torque.calculated.UnitSymbol = "N";
+                        Interface.Torque.calculated.UnitName = "Newton";
+                        Interface.Torque.calculated.UnitSymbol = "N";
+                        Interface.AppliedDistanceVisibility = Visibility.Collapsed;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
         #region Calculates Statistic
         private void UpdateRawBuffer(List<double> rawBuffer, double newValue)
         {
@@ -354,7 +414,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             Interface.ButtonIsEnabled = false;
             Interface.TextboxIsEnabled = false;
             Interface.CheckboxIsEnabled = false;
-            Interface.UnitsIsEnabled = false;
+            Interface.ThrustUnitsIsEnabled = false;
             await CollectDataForThrust(thrust.calibration, thrust.raw, torque.raw, thrust.calibration.Applied);
             Interface.UpdateThrustDataGrid(thrust);
             Interface.ButtonIsEnabled = true;
@@ -367,7 +427,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             Interface.ButtonIsEnabled = false;
             Interface.TextboxIsEnabled = false;
             Interface.CheckboxIsEnabled = false;
-            Interface.UnitsIsEnabled = false;
+            Interface.TorqueUnitsIsEnabled = false;
             await CollectDataForTorque(torque.calibration, torque.raw, thrust.raw, torque.calibration.Applied);
             Interface.UpdateTorqueDataGrid(torque);
             Interface.ButtonIsEnabled = true;
@@ -379,7 +439,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         {
             Interface.ButtonIsEnabled = false;
             Interface.TextboxIsEnabled = false;
-            Interface.UnitsIsEnabled = false;
+            Interface.CurrentUnitsIsEnabled = false;
             await CollectDataForCurrent(current.calibration, current.raw, current.calibration.Applied);
             Interface.UpdateCurrentDataGrid(current);
             Interface.ButtonIsEnabled = true;
@@ -390,7 +450,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         {
             Interface.ButtonIsEnabled = false;
             Interface.TextboxIsEnabled = false;
-            Interface.UnitsIsEnabled = false;
+            Interface.VoltageUnitsIsEnabled = false;
             await CollectDataForVoltage(voltage.calibration, voltage.raw, voltage.calibration.Applied);
             Interface.UpdateVoltageDataGrid(voltage);
             Interface.ButtonIsEnabled = true;
@@ -401,7 +461,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         {
             Interface.ButtonIsEnabled = false;
             Interface.TextboxIsEnabled = false;
-            Interface.UnitsIsEnabled = false;
             await CollectLoadCellTestData(loadCellTest, thrust, torque);
             Interface.UpdateLoadCellTestDataGrid(loadCellTest);
             Interface.ButtonIsEnabled = true;
@@ -841,21 +900,25 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     case Mode.Thrust:
                         DeleteAllPointsFromThrustData(thrust.calibration);
                         Interface.UpdateThrustDataGrid(thrust);
+                        Interface.ThrustUnitsIsEnabled = true;
                         break;
 
                     case Mode.Torque:
                         DeleteAllPointsFromTorqueData(torque.calibration);
                         Interface.UpdateTorqueDataGrid(torque);
+                        Interface.TorqueUnitsIsEnabled = true;
                         break;
 
                     case Mode.Current:
                         DeleteAllPointsFromCurrentData(current.calibration);
                         Interface.UpdateCurrentDataGrid(current);
+                        Interface.CurrentUnitsIsEnabled = true;
                         break;
 
                     case Mode.Voltage:
                         DeleteAllPointsFromVoltageData(voltage.calibration);
                         Interface.UpdateVoltageDataGrid(voltage);
+                        Interface.VoltageUnitsIsEnabled = true;
                         break;
 
                     case Mode.LoadCellTest:
@@ -2056,13 +2119,23 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             thrust.calibration.AddingOn = true;
             torque.calibration.AddingOn = true;
 
+            Interface.Thrust.calculated.UnitName = "Gram";
+            Interface.Torque.calculated.UnitName = "Gram*Milimetre";
+            Interface.AppliedDistanceVisibility = Visibility.Visible;
+
+            Interface.Current.calculated.UnitName = "mAmper";
+            Interface.Voltage.calculated.UnitName = "mVolt";
+
             Interface.Thrust.calibration.AddingOn = thrust.calibration.AddingOn;
             Interface.Torque.calibration.AddingOn = torque.calibration.AddingOn;
 
             Interface.ButtonIsEnabled = true;
             Interface.TextboxIsEnabled = true;
             Interface.CheckboxIsEnabled = true;
-            Interface.UnitsIsEnabled = true;
+            Interface.ThrustUnitsIsEnabled = true;
+            Interface.TorqueUnitsIsEnabled = true;
+            Interface.CurrentUnitsIsEnabled = true;
+            Interface.VoltageUnitsIsEnabled = true;
 
             thrust.calibration.Coefficient.Equation = "a₁x³ + a₂x² + a₃x + c";
             torque.calibration.Coefficient.Equation = "b₁x³ + b₂x² + b₃x + d";

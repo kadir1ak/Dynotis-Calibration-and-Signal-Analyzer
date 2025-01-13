@@ -312,6 +312,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
         }
         #endregion
 
+        #region Tare
         private void Tork_Dara_Button_Click(object sender, RoutedEventArgs e)
         {
 
@@ -321,26 +322,47 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
         {
 
         }
+        #endregion
 
-        private void ThrustUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        #region Units Update
+        private async void ThrustUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            try
+            {
+                if (dynotis != null && sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem selectedItem)
+                {
+                    // Seçilen öğenin içeriğini al
+                    string unit = selectedItem.Content.ToString();
 
+                    // Async metodu çağır
+                    await dynotis.UnitThrustUpdateAsync(unit);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        private void TorqueUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void TorqueUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            try
+            {
+                if (dynotis != null && sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem selectedItem)
+                {
+                    // Seçilen öğenin içeriğini al
+                    string unit = selectedItem.Content.ToString();
 
+                    // Async metodu çağır
+                    await dynotis.UnitTorqueUpdateAsync(unit);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
-
-        private void CurrentUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
-        private void VoltageUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
+        #endregion
 
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler? PropertyChanged;
