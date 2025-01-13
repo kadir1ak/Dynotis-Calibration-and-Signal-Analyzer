@@ -57,6 +57,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             DataContext = this;
             #endregion
 
+            #region Tablo Başlıkları İlk Değer Ataması
             Applied_ThrustColumn.Header = dynotis.Interface.Applied_ThrustColumn;
             Applied_TorqueColumn.Header = dynotis.Interface.Applied_TorqueColumn;
             LCApplied_ThrustColumn.Header = dynotis.Interface.Applied_ThrustColumn;
@@ -65,6 +66,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             LCCalculated_TorqueColumn.Header = dynotis.Interface.Calculated_TorqueColumn;
             Applied_CurrentColumn.Header = dynotis.Interface.Applied_CurrentColumn;
             Applied_VoltageColumn.Header = dynotis.Interface.Applied_VoltageColumn;
+            #endregion
 
             #region Serial Port Yönetimi
             // Serial port yöneticisi oluşturuldu
@@ -77,6 +79,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             Closed += (s, e) => serialPortsManager.Dispose();
             #endregion
         }
+
+        #region Interface PropertyChanged
         private void Interface_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             Dispatcher.Invoke(() =>
@@ -115,7 +119,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                 }
             });
         }
-
+        #endregion
 
         #region Port Selection Changed
         private async void Port_SelectionChanged(object sender, SelectionChangedEventArgs e)

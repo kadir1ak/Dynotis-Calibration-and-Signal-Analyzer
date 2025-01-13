@@ -8,7 +8,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x86;x64</Platforms>
+    <ApplicationIcon>measurement.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="measurement.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="7.5.2" />
