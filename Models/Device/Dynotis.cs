@@ -387,7 +387,14 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         {
             try
             {
-                calibration.Applied = appliedValue; // Uygulanan değeri ata
+                // Uygulanan değeri ata
+                double AppliedThrust = appliedValue;
+                if (calibration.AddingOn && calibration.PointAppliedBuffer.Count > 0)
+                {
+                    // Uygulanan değeri üzerine ekle
+                    AppliedThrust += calibration.PointAppliedBuffer[calibration.PointAppliedBuffer.Count - 1];
+                }
+
                 List<double> Values = new List<double>();
                 List<double> ErrorValues = new List<double>();
 
@@ -418,7 +425,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 if (Values.Any())
                 {
                     calibration.PointRawBuffer.Add(Math.Round(AverageValue, 3));
-                    calibration.PointAppliedBuffer.Add(Math.Round(calibration.Applied, 3));
+                    calibration.PointAppliedBuffer.Add(Math.Round(AppliedThrust, 3));
                     calibration.PointErrorBuffer.Add(Math.Round(AverageErrorValue, 3));
                 }
                 else
@@ -438,7 +445,14 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         {
             try
             {
-                calibration.Applied = appliedValue; // Uygulanan değeri ata
+                // Uygulanan değeri ata
+                double AppliedTorque = appliedValue;
+                if (calibration.AddingOn && calibration.PointAppliedBuffer.Count > 0)
+                {
+                    // Uygulanan değeri üzerine ekle
+                    AppliedTorque += calibration.PointAppliedBuffer[calibration.PointAppliedBuffer.Count - 1];
+                }
+
                 List<double> Values = new List<double>();
                 List<double> ErrorValues = new List<double>();
 
@@ -469,7 +483,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 if (Values.Any())
                 {
                     calibration.PointRawBuffer.Add(Math.Round(AverageValue, 3));
-                    calibration.PointAppliedBuffer.Add(Math.Round(calibration.Applied, 3));
+                    calibration.PointAppliedBuffer.Add(Math.Round(AppliedTorque, 3));
                     calibration.PointErrorBuffer.Add(Math.Round(AverageErrorValue, 3));
                 }
                 else
@@ -1937,6 +1951,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             Interface.PortReadData = $"Port Message: {portReadData}";
                             Interface.PortReadTime = portReadTime;
 
+                            thrust.calibration.AddingOn = Interface.Thrust.calibration.AddingOn;
+                            torque.calibration.AddingOn = Interface.Torque.calibration.AddingOn;
 
                             Interface.Current.raw.Value = current.raw.Value;
                             Interface.Current.raw.NoiseValue = current.raw.NoiseValue;
@@ -2012,10 +2028,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         {
             Interface.Dividing = 100;
 
-            Interface.Thrust.calibration.AddingOn = thrust.calibration.AddingOn = true;
-            Interface.Torque.calibration.AddingOn = torque.calibration.AddingOn = true;
-            Interface.Current.calibration.AddingOn = current.calibration.AddingOn = false;
-            Interface.Voltage.calibration.AddingOn = voltage.calibration.AddingOn = false;
+            thrust.calibration.AddingOn = true;
+            torque.calibration.AddingOn = true;
+
+            Interface.Thrust.calibration.AddingOn = thrust.calibration.AddingOn;
+            Interface.Torque.calibration.AddingOn = torque.calibration.AddingOn;
 
             thrust.calibration.Coefficient.Equation = "a₁x³ + a₂x² + a₃x + c";
             torque.calibration.Coefficient.Equation = "b₁x³ + b₂x² + b₃x + d";
