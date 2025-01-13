@@ -88,6 +88,48 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
             set => SetProperty(ref _appliedDistanceVisibility, value);
         }
 
+        private string _applied_ThrustColumn;
+        public string Applied_ThrustColumn
+        {
+            get => _applied_ThrustColumn;
+            set => SetProperty(ref _applied_ThrustColumn, value);
+        }
+
+        private string _applied_TorqueColumn;
+        public string Applied_TorqueColumn
+        {
+            get => _applied_TorqueColumn;
+            set => SetProperty(ref _applied_TorqueColumn, value);
+        }
+
+        private string _calculated_ThrustColumn;
+        public string Calculated_ThrustColumn
+        {
+            get => _calculated_ThrustColumn;
+            set => SetProperty(ref _calculated_ThrustColumn, value);
+        }
+
+        private string _calculated_TorqueColumn;
+        public string Calculated_TorqueColumn
+        {
+            get => _calculated_TorqueColumn;
+            set => SetProperty(ref _calculated_TorqueColumn, value);
+        }
+
+        private string _applied_CurrentColumn;
+        public string Applied_CurrentColumn
+        {
+            get => _applied_CurrentColumn;
+            set => SetProperty(ref _applied_CurrentColumn, value);
+        }
+
+        private string _applied_VoltageColumn;
+        public string Applied_VoltageColumn
+        {
+            get => _applied_VoltageColumn;
+            set => SetProperty(ref _applied_VoltageColumn, value);
+        }
+
         private double _dividing = 0;
         public double Dividing
         {

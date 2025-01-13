@@ -52,8 +52,19 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             #region Cihaz Oluşturma
             // Dynotis cihazını oluştur
             dynotis = new Dynotis();
+
+            dynotis.Interface.PropertyChanged += Interface_PropertyChanged;
             DataContext = this;
             #endregion
+
+            Applied_ThrustColumn.Header = dynotis.Interface.Applied_ThrustColumn;
+            Applied_TorqueColumn.Header = dynotis.Interface.Applied_TorqueColumn;
+            LCApplied_ThrustColumn.Header = dynotis.Interface.Applied_ThrustColumn;
+            LCApplied_TorqueColumn.Header = dynotis.Interface.Applied_TorqueColumn;
+            LCCalculated_ThrustColumn.Header = dynotis.Interface.Calculated_ThrustColumn;
+            LCCalculated_TorqueColumn.Header = dynotis.Interface.Calculated_TorqueColumn;
+            Applied_CurrentColumn.Header = dynotis.Interface.Applied_CurrentColumn;
+            Applied_VoltageColumn.Header = dynotis.Interface.Applied_VoltageColumn;
 
             #region Serial Port Yönetimi
             // Serial port yöneticisi oluşturuldu
@@ -66,6 +77,45 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             Closed += (s, e) => serialPortsManager.Dispose();
             #endregion
         }
+        private void Interface_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                // Applied_ThrustColumn ve LCApplied_ThrustColumn güncellemesi
+                if (e.PropertyName == nameof(dynotis.Interface.Applied_ThrustColumn))
+                {
+                    Applied_ThrustColumn.Header = dynotis.Interface.Applied_ThrustColumn;
+                    LCApplied_ThrustColumn.Header = dynotis.Interface.Applied_ThrustColumn;
+                }
+                // Applied_TorqueColumn ve LCApplied_TorqueColumn güncellemesi
+                else if (e.PropertyName == nameof(dynotis.Interface.Applied_TorqueColumn))
+                {
+                    Applied_TorqueColumn.Header = dynotis.Interface.Applied_TorqueColumn;
+                    LCApplied_TorqueColumn.Header = dynotis.Interface.Applied_TorqueColumn;
+                }
+                // Calculated_ThrustColumn ve LCCalculated_ThrustColumn güncellemesi
+                else if (e.PropertyName == nameof(dynotis.Interface.Calculated_ThrustColumn))
+                {
+                    LCCalculated_ThrustColumn.Header = dynotis.Interface.Calculated_ThrustColumn;
+                }
+                // Calculated_TorqueColumn ve LCCalculated_TorqueColumn güncellemesi
+                else if (e.PropertyName == nameof(dynotis.Interface.Calculated_TorqueColumn))
+                {
+                    LCCalculated_TorqueColumn.Header = dynotis.Interface.Calculated_TorqueColumn;
+                }
+                // Applied_CurrentColumn güncellemesi
+                else if (e.PropertyName == nameof(dynotis.Interface.Applied_CurrentColumn))
+                {
+                    Applied_CurrentColumn.Header = dynotis.Interface.Applied_CurrentColumn;
+                }
+                // Applied_VoltageColumn güncellemesi
+                else if (e.PropertyName == nameof(dynotis.Interface.Applied_VoltageColumn))
+                {
+                    Applied_VoltageColumn.Header = dynotis.Interface.Applied_VoltageColumn;
+                }
+            });
+        }
+
 
         #region Port Selection Changed
         private async void Port_SelectionChanged(object sender, SelectionChangedEventArgs e)

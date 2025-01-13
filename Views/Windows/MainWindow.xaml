@@ -38,8 +38,8 @@
                 <RowDefinition Height="200"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="40*"></ColumnDefinition>
                 <ColumnDefinition Width="50*"></ColumnDefinition>
+                <ColumnDefinition Width="40*"></ColumnDefinition>
                 <ColumnDefinition Width="50*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <!-- Tab Menüleri -->
@@ -59,8 +59,8 @@
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             
-                            <!-- İtki (gr) Column -->
-                            <DataGridTextColumn Header="Uygulanan İtki (gr)" Binding="{Binding Applied_Thrust}" Width="225">
+                            <!-- İtki Column -->
+                            <DataGridTextColumn x:Name="Applied_ThrustColumn" Binding="{Binding Applied_Thrust}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="Orange"/>
@@ -107,8 +107,8 @@
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             
-                            <!-- Tork (Nmm) Column -->
-                            <DataGridTextColumn Header="Uygulanan Tork (Nmm)" Binding="{Binding Applied_Torque}" Width="225">
+                            <!-- Tork Column -->
+                            <DataGridTextColumn x:Name="Applied_TorqueColumn" Binding="{Binding Applied_Torque}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="DarkSeaGreen"/>
@@ -163,7 +163,7 @@
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
-                                <DataGridTextColumn Header="Uygulanan İtki (gr)" Binding="{Binding Applied_Thrust}" Width="225">
+                                <DataGridTextColumn x:Name="LCApplied_ThrustColumn" Binding="{Binding Applied_Thrust}" Width="225">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Background" Value="Orange"/>
@@ -171,7 +171,7 @@
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
-                                <DataGridTextColumn Header="Hesaplanan İtki (gr)" Binding="{Binding Calculated_Thrust}" Width="225">
+                                <DataGridTextColumn x:Name="LCCalculated_ThrustColumn" Binding="{Binding Calculated_Thrust}" Width="225">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Background" Value="Orange"/>
@@ -212,7 +212,7 @@
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
-                                <DataGridTextColumn Header="Uygulanan Tork (Nmm)" Binding="{Binding Applied_Torque}" Width="225">
+                                <DataGridTextColumn x:Name="LCApplied_TorqueColumn" Binding="{Binding Applied_Torque}" Width="225">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Background" Value="DarkSeaGreen"/>
@@ -220,7 +220,7 @@
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
-                                <DataGridTextColumn Header="Hesaplanan Tork (Nmm)" Binding="{Binding Calculated_Torque}" Width="225">
+                                <DataGridTextColumn x:Name="LCCalculated_TorqueColumn" Binding="{Binding Calculated_Torque}" Width="225">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Background" Value="DarkSeaGreen"/>
@@ -263,8 +263,8 @@
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             
-                            <!-- Akım (mA) Column -->
-                            <DataGridTextColumn Header="Uygulanan Akım (mA)" Binding="{Binding Applied_Current}" Width="225">
+                            <!-- Akım Column -->
+                            <DataGridTextColumn x:Name="Applied_CurrentColumn" Binding="{Binding Applied_Current}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="#FF89ACEF"/>
@@ -300,8 +300,8 @@
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
 
-                            <!-- Voltaj (mV) Column -->
-                            <DataGridTextColumn Header="Uygulanan Voltaj (mV)" Binding="{Binding Applied_Voltage}" Width="225">
+                            <!-- Voltaj Column -->
+                            <DataGridTextColumn x:Name="Applied_VoltageColumn" Binding="{Binding Applied_Voltage}" Width="225">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="#FFE399EC"/>
@@ -330,10 +330,10 @@
                     <TextBlock Text="İtki" FontSize="20" FontWeight="Bold"/>
                 </GroupBox.Header>
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="5 0 0 5">
-                    <Label x:Name="Uygulanan_Itki_Birim_Title" Content="Uygulanan İtki" FontSize="16"></Label>
+                    <Label x:Name="Uygulanan_Itki_Birim_Title" Content="{Binding dynotis.Interface.Applied_ThrustColumn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat='Uygulanan İtki: {0}'}" FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
                         <TextBox x:Name="Uygulanan_Itki_TextBox" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.thrust.calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
-                        <Label x:Name="Uygulanan_Itki_Birim_Label" Content="gr" FontSize="16"></Label>
+                        <Label x:Name="Uygulanan_Itki_Birim_Label" Content="{Binding dynotis.Interface.Thrust.calibration.AppliedUnit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16"></Label>
                     </StackPanel>
                     <CheckBox x:Name="İtki_Deger_Ekleme_CheckBox" Content="Değeri ekleyerek ilerle" IsEnabled="{Binding dynotis.Interface.CheckboxIsEnabled}" IsChecked="{Binding dynotis.Interface.Thrust.calibration.AddingOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="5 10 5 5"></CheckBox>
                 </StackPanel>              
@@ -358,15 +358,15 @@
                     <TextBlock Text="Tork" FontSize="20" FontWeight="Bold"/>
                 </GroupBox.Header>
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="5 0 5 5">
-                    <Label x:Name="Uygulanan_Tork_Birim_Title" Content="Uygulanan Tork (gr)" FontSize="16"></Label>
+                    <Label x:Name="Uygulanan_Tork_Birim_Title" Content="{Binding dynotis.Interface.Applied_TorqueColumn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat='Uygulanan Tork: {0}'}"  FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
                         <TextBox x:Name="Uygulanan_Tork_TextBox" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
-                        <Label x:Name="Uygulanan_Tork_Birim_Label" Content="gr" FontSize="16"></Label>
+                        <Label x:Name="Uygulanan_Tork_Birim_Label" Content="{Binding dynotis.Interface.Torque.calibration.AppliedUnit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16"></Label>
                     </StackPanel>
                     <StackPanel x:Name="Tork_Uygulanan_Mesafe_Giris_Kutusu" Visibility="{Binding dynotis.Interface.AppliedDistanceVisibility}">
-                        <Label x:Name="Label83" Content="Uygulanan Tork Mesafesi (mm)" FontSize="16"></Label>
+                        <Label x:Name="Label83" Content="Uygulanan Tork Mesafesi" FontSize="16"></Label>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
-                            <TextBox x:Name="Uygulanan_Tork_Mesafesi_TextBox" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.Calibration.AppliedDistance, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
+                            <TextBox x:Name="Uygulanan_Tork_Mesafesi_TextBox" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.calibration.AppliedDistance, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                             <Label x:Name="Uygulanan_Tork_Mesafesi_Label" Content="mm" FontSize="16"></Label>                            
                         </StackPanel>
                     </StackPanel>
@@ -396,7 +396,7 @@
                     <Label x:Name="Label123" Content="Uygulanan Akım (mA)" FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
                         <TextBox x:Name="Uygulanan_Akım_TextBox" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.current.calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
-                        <Label x:Name="Uygulanan_Akım_Label" Content="mA" FontSize="16"></Label>
+                        <Label x:Name="Uygulanan_Akım_Label" Content="{Binding dynotis.Interface.Applied_CurrentColumn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16"></Label>
                     </StackPanel>
                 </StackPanel>
             </GroupBox>
@@ -410,7 +410,7 @@
                     <Label x:Name="Label133" Content="Uygulanan Voltaj (mV)" FontSize="16"></Label>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5 -5 0 0">
                         <TextBox x:Name="Uygulanan_Voltaj_TextBox" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.voltage.calibration.Applied, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
-                        <Label x:Name="Uygulanan_Voltaj_Label" Content="mV" FontSize="16"></Label>
+                        <Label x:Name="Uygulanan_Voltaj_Label" Content="{Binding dynotis.Interface.Applied_VoltageColumn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16"></Label>
                     </StackPanel>
                 </StackPanel>
             </GroupBox>
@@ -497,7 +497,7 @@
                         <!-- Tork ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="1" Text="Tork: " VerticalAlignment="Center" FontSize="16" Margin="0,0,10,0" />
                         <ComboBox Grid.Column="1" Grid.Row="1" Height="24" FontSize="14" x:Name="TorkComboBox" IsEnabled="{Binding dynotis.Interface.TorqueUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Torque.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectionChanged="TorqueUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
-                            <ComboBoxItem Content="Gram*Milimetre" />
+                            <ComboBoxItem Content="Newton*mm" />
                             <ComboBoxItem Content="Newton" />
                         </ComboBox>
                         <!-- Akım ComboBox -->
@@ -555,7 +555,7 @@
                     <Label x:Name="Itki_ADC_Error_Label" Grid.Row="3" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.raw.ErrorValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.calculated.RawValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Button x:Name="Itki_Dara_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Itki_Dara_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
-                    <Label x:Name="Uygulanan_Itki_Birim_Tablo" Grid.Row="0" Grid.Column="3" Content="Gram" FontSize="24" Foreground="DarkOrange" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="Uygulanan_Itki_Birim_Tablo" Grid.Row="0" Grid.Column="3" Content="{Binding dynotis.Interface.Thrust.calculated.UnitSymbol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="24" Foreground="DarkOrange" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Itki_GRAM_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_GRAM_Noise_Label" Grid.Row="2" Grid.Column="2" Content="{Binding dynotis.Interface.Thrust.calculated.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_GRAM_Error_Label" Grid.Row="3" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
@@ -604,7 +604,7 @@
                     <Label x:Name="Tork_ADC_Error_Label" Grid.Row="3" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.raw.ErrorValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Tork_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.calculated.RawValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Button x:Name="Tork_Dara_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Tork_Dara_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
-                    <Label x:Name="Uygulanan_Tork_Birim_Tablo" Grid.Row="0" Grid.Column="2" Content="Nmm" FontSize="24" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="Uygulanan_Tork_Birim_Tablo" Grid.Row="0" Grid.Column="2" Content="{Binding dynotis.Interface.Torque.calculated.UnitSymbol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="24" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Tork_Nmm_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Tork_Nmm_Noise_Label" Grid.Row="2" Grid.Column="2" Content="{Binding dynotis.Interface.Torque.calculated.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Tork_Nmm_Error_Label" Grid.Row="3" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
@@ -650,7 +650,7 @@
                     <Label x:Name="Akım_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Current.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Akım_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Current.raw.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Akım_ADC_Hesaplanan_Label" Grid.Row="3" Grid.Column="1" Content="{Binding dynotis.Interface.Current.calculated.RawValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="label125" Grid.Row="0" Grid.Column="3" Content="mAmper" FontSize="24" Foreground="#FF587DC5" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="label125" Grid.Row="0" Grid.Column="3" Content="{Binding dynotis.Interface.Current.calculated.UnitSymbol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="24" Foreground="#FF587DC5" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Akım_mA_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Akım_mA_Noise_Label" Grid.Row="2" Grid.Column="2" Content="{Binding dynotis.Interface.Current.calculated.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Akım_mA_Hesaplanan_Label" Grid.Row="3" Grid.Column="2" Content="{Binding dynotis.Interface.Current.calculated.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="20" Foreground="#FF587DC5" HorizontalAlignment="Right"></Label>
@@ -693,7 +693,7 @@
                     <Label x:Name="Voltaj_ADC_Okunan_Label" Grid.Row="1" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.raw.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Voltaj_ADC_Noise_Label" Grid.Row="2" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.raw.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Voltaj_ADC_Hesaplanan_Label" Grid.Row="3" Grid.Column="1" Content="{Binding dynotis.Interface.Voltage.calculated.RawValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="label121" Grid.Row="0" Grid.Column="2" Content="mVolt" FontSize="24" Foreground="#FFC96CD4" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
+                    <Label x:Name="label121" Grid.Row="0" Grid.Column="2" Content="{Binding dynotis.Interface.Voltage.calculated.UnitSymbol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="24" Foreground="#FFC96CD4" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
                     <Label x:Name="Voltaj_mV_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Voltaj_mV_Noise_Label" Grid.Row="2" Grid.Column="2" Content="{Binding dynotis.Interface.Voltage.calculated.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Voltaj_mV_Hesaplanan_Label" Grid.Row="3" Grid.Column="2" Content="{Binding dynotis.Interface.Voltage.calculated.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="20" Foreground="#FFC96CD4" HorizontalAlignment="Right"></Label>

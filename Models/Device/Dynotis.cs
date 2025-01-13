@@ -302,9 +302,10 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 if(Unit == "Gram")
                 {
                     thrust.calculated.UnitName = "Gram";
-                    thrust.calculated.UnitSymbol = "gr";
+                    thrust.calculated.UnitSymbol = "gF";
                     Interface.Thrust.calculated.UnitName = "Gram";
-                    Interface.Thrust.calculated.UnitSymbol = "gr";
+                    Interface.Thrust.calculated.UnitSymbol = "gF";
+                    Interface.Thrust.calibration.AppliedUnit = "gr";
                 }
                 else if (Unit == "Newton")
                 {
@@ -314,8 +315,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                         thrust.calculated.UnitSymbol = "N";
                         Interface.Thrust.calculated.UnitName = "Newton";
                         Interface.Thrust.calculated.UnitSymbol = "N";
+                        Interface.Thrust.calibration.AppliedUnit = "N";
                     }
                 }
+
+                Interface.Applied_ThrustColumn = $"Uygulanan İtki ({Interface.Thrust.calculated.UnitSymbol})";
+                Interface.Calculated_ThrustColumn = $"Hesaplanan İtki ({Interface.Thrust.calculated.UnitSymbol})";
             }
             catch (Exception ex)
             {
@@ -326,12 +331,13 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         {
             try
             {
-                if (Unit == "Gram*Milimetre")
+                if (Unit == "Newton*mm")
                 {
                     torque.calculated.UnitName = "Nmm";
                     torque.calculated.UnitSymbol = "Nmm";
-                    Interface.Torque.calculated.UnitName = "Gram*Milimetre";
-                    Interface.Torque.calculated.UnitSymbol = "gr";
+                    Interface.Torque.calculated.UnitName = "Newton*mm";
+                    Interface.Torque.calculated.UnitSymbol = "Nmm";
+                    Interface.Torque.calibration.AppliedUnit = "gr";
                     Interface.AppliedDistanceVisibility = Visibility.Visible;
                 }
                 else if (Unit == "Newton")
@@ -342,9 +348,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                         torque.calculated.UnitSymbol = "N";
                         Interface.Torque.calculated.UnitName = "Newton";
                         Interface.Torque.calculated.UnitSymbol = "N";
+                        Interface.Torque.calibration.AppliedUnit = "N";
                         Interface.AppliedDistanceVisibility = Visibility.Collapsed;
                     }
                 }
+                Interface.Applied_TorqueColumn = $"Uygulanan Tork ({Interface.Torque.calculated.UnitSymbol})";
+                Interface.Calculated_TorqueColumn = $"Hesaplanan Tork ({Interface.Torque.calculated.UnitSymbol})";
             }
             catch (Exception ex)
             {
@@ -473,11 +482,22 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             {
                 // Uygulanan değeri ata
                 double AppliedThrust = appliedValue;
+                // Değere birim uygulaması
+                if (thrust.calculated.UnitName == "Newton")
+                {
+                    AppliedThrust *= 1;
+                }
+                else if (thrust.calculated.UnitName == "Gram")
+                {
+                    AppliedThrust *= 1;
+                }
+                // Uygulanan değeri eklenecekse durum sorgulanır
                 if (calibration.AddingOn && calibration.PointAppliedBuffer.Count > 0)
                 {
                     // Uygulanan değeri üzerine ekle
                     AppliedThrust += calibration.PointAppliedBuffer[calibration.PointAppliedBuffer.Count - 1];
                 }
+                          
 
                 List<double> Values = new List<double>();
                 List<double> ErrorValues = new List<double>();
@@ -531,6 +551,16 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             {
                 // Uygulanan değeri ata
                 double AppliedTorque = appliedValue;
+                // Değere birim uygulaması
+                if (torque.calculated.UnitName == "Newton")
+                {
+                    AppliedTorque *= 1;
+                }
+                else if (torque.calculated.UnitName == "Nmm")
+                {
+                    AppliedTorque = AppliedTorque * 0.00981 * torque.calibration.AppliedDistance;
+                }
+                // Uygulanan değeri eklenecekse durum sorgulanır
                 if (calibration.AddingOn && calibration.PointAppliedBuffer.Count > 0)
                 {
                     // Uygulanan değeri üzerine ekle
@@ -709,6 +739,27 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                 double ThrustCapacity = thrust.calibration.Capacity;
                 double TorqueCapacity = torque.calibration.Capacity;
+
+                // Değere birim uygulaması
+                if (thrust.calculated.UnitName == "Newton")
+                {
+                    AppliedThrust *= 1;
+                }
+                else if (thrust.calculated.UnitName == "Gram")
+                {
+                    AppliedThrust *= 1;
+                }
+
+                // Değere birim uygulaması
+                if (torque.calculated.UnitName == "Newton")
+                {
+                    AppliedTorque *= 1;
+                }
+                else if (torque.calculated.UnitName == "Nmm")
+                {
+                    AppliedTorque = AppliedTorque * 0.00981 * torque.calibration.AppliedDistance;
+                }
+
 
                 // Ortalama değerler
                 double CalculatedThrustValue = calculatedThrustValues.Any() ? calculatedThrustValues.Average() : 0.0;
@@ -1493,7 +1544,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         private void FillThrustWorksheet(OfficeOpenXml.ExcelWorksheet worksheet, InterfaceData DataGrid)
         {
             // Başlıkları ekle
-            string[] headers = new[] { "No", "Uygulanan İtki (gr)", "Okunan İtki (ADC)", "Okunan Tork (ADC)" };
+            string[] headers = new[] { "No", Interface.Applied_ThrustColumn, "Okunan İtki (ADC)", "Okunan Tork (ADC)" };
             for (int i = 0; i < headers.Length; i++)
             {
                 worksheet.Cells[1, i + 1].Value = headers[i];
@@ -1518,7 +1569,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         private void FillTorqueWorksheet(OfficeOpenXml.ExcelWorksheet worksheet, InterfaceData DataGrid)
         {
             // Başlıkları ekle
-            string[] headers = new[] { "No", "Uygulanan Tork (Nmm)", "Okunan Tork (ADC)", "Okunan İtki (ADC)" };
+            string[] headers = new[] { "No", Interface.Applied_TorqueColumn, "Okunan Tork (ADC)", "Okunan İtki (ADC)" };
             for (int i = 0; i < headers.Length; i++)
             {
                 worksheet.Cells[1, i + 1].Value = headers[i];
@@ -1594,7 +1645,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             int startRow1 = 1;
 
             // İlk tablo başlıklarını ekle
-            string[] headers1 = new[] { "No", "Uygulanan İtki (gr)", "Hesaplanan İtki (gr)", "Hata (%)", "FS Hata (%)" };
+            string[] headers1 = new[] { "No", Interface.Applied_ThrustColumn, Interface.Calculated_ThrustColumn, "Hata (%)", "FS Hata (%)" };
             for (int i = 0; i < headers1.Length; i++)
             {
                 worksheet.Cells[startRow1, i + 1].Value = headers1[i];
@@ -1618,7 +1669,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             int startRow2 = row1 + 2;
 
             // İkinci tablo başlıklarını ekle
-            string[] headers2 = new[] { "No", "Uygulanan Tork (Nmm)", "Hesaplanan Tork (Nmm)", "Hata (%)", "FS Hata (%)" };
+            string[] headers2 = new[] { "No", Interface.Applied_TorqueColumn, Interface.Calculated_TorqueColumn, "Hata (%)", "FS Hata (%)" };
             for (int i = 0; i < headers2.Length; i++)
             {
                 worksheet.Cells[startRow2, i + 1].Value = headers2[i];
@@ -2074,10 +2125,10 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             Interface.Torque.calculated.NetValue = torque.calculated.NetValue;
 
 
-                            Interface.Thrust.calibration.Coefficient.Equation = "İtki (gF) = " + thrust.calibration.Coefficient.Equation;
-                            Interface.Torque.calibration.Coefficient.Equation = "Tork (Nmm) = " + torque.calibration.Coefficient.Equation;
-                            Interface.Current.calibration.Coefficient.Equation = "Akım (mA) = " + current.calibration.Coefficient.Equation;
-                            Interface.Voltage.calibration.Coefficient.Equation = "Voltaj (mV) = " + voltage.calibration.Coefficient.Equation;
+                            Interface.Thrust.calibration.Coefficient.Equation = "İtki (" + (thrust.calculated.UnitSymbol) + ") = " + thrust.calibration.Coefficient.Equation;
+                            Interface.Torque.calibration.Coefficient.Equation = "Tork (" + (torque.calculated.UnitSymbol) + ") = " + torque.calibration.Coefficient.Equation;
+                            Interface.Current.calibration.Coefficient.Equation = "Akım (" + (current.calculated.UnitSymbol) + ") = " + current.calibration.Coefficient.Equation;
+                            Interface.Voltage.calibration.Coefficient.Equation = "Voltaj (" + (voltage.calculated.UnitSymbol) + ") = " + voltage.calibration.Coefficient.Equation;
                             Interface.Thrust.calibration.Coefficient.ErrorEquation = "İtki Hatası (ADC) = " + thrust.calibration.Coefficient.ErrorEquation;
                             Interface.Torque.calibration.Coefficient.ErrorEquation = "Tork Hatası (ADC) = " + torque.calibration.Coefficient.ErrorEquation;
                         });
@@ -2119,6 +2170,26 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             thrust.calibration.AddingOn = true;
             torque.calibration.AddingOn = true;
 
+            thrust.calculated.UnitName = "Gram";
+            thrust.calculated.UnitSymbol = "gF";
+            torque.calculated.UnitName = "Nmm";
+            torque.calculated.UnitSymbol = "Nmm";
+
+            Interface.Thrust.calculated.UnitSymbol = "gF";
+            Interface.Torque.calculated.UnitSymbol = "Nmm";
+            Interface.Current.calculated.UnitSymbol = "mA";
+            Interface.Voltage.calculated.UnitSymbol = "mV";
+
+            Interface.Thrust.calibration.AppliedUnit = "gr";
+            Interface.Torque.calibration.AppliedUnit = "gr";
+
+            Interface.Applied_ThrustColumn = $"Uygulanan İtki ({Interface.Thrust.calculated.UnitSymbol})";
+            Interface.Calculated_ThrustColumn = $"Hesaplanan İtki ({Interface.Thrust.calculated.UnitSymbol})";
+            Interface.Applied_TorqueColumn = $"Uygulanan Tork ({Interface.Torque.calculated.UnitSymbol})";
+            Interface.Calculated_TorqueColumn = $"Hesaplanan Tork ({Interface.Torque.calculated.UnitSymbol})";
+            Interface.Applied_CurrentColumn = $"Uygulanan Akım ({Interface.Current.calculated.UnitSymbol})";
+            Interface.Applied_VoltageColumn = $"Uygulanan Gerilim ({Interface.Voltage.calculated.UnitSymbol})";
+
             Interface.Thrust.calculated.UnitName = "Gram";
             Interface.Torque.calculated.UnitName = "Gram*Milimetre";
             Interface.AppliedDistanceVisibility = Visibility.Visible;
@@ -2144,10 +2215,10 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             thrust.calibration.Coefficient.ErrorEquation = "a₁x³ + a₂x² + a₃x + c";
             torque.calibration.Coefficient.ErrorEquation = "b₁x³ + b₂x² + b₃x + d";
 
-            Interface.Thrust.calibration.Coefficient.Equation = "İtki (gF) = " + thrust.calibration.Coefficient.Equation;
-            Interface.Torque.calibration.Coefficient.Equation = "Tork (Nmm) = " + torque.calibration.Coefficient.Equation;
-            Interface.Current.calibration.Coefficient.Equation = "Akım (mA) = " + current.calibration.Coefficient.Equation;
-            Interface.Voltage.calibration.Coefficient.Equation = "Voltaj (mV) = " + voltage.calibration.Coefficient.Equation;
+            Interface.Thrust.calibration.Coefficient.Equation = "İtki (" + (thrust.calculated.UnitSymbol) + ") = " + thrust.calibration.Coefficient.Equation;
+            Interface.Torque.calibration.Coefficient.Equation = "Tork (" + (torque.calculated.UnitSymbol) + ") = " + torque.calibration.Coefficient.Equation;
+            Interface.Current.calibration.Coefficient.Equation = "Akım (" + (current.calculated.UnitSymbol) + ") = " + current.calibration.Coefficient.Equation;
+            Interface.Voltage.calibration.Coefficient.Equation = "Voltaj (" + (voltage.calculated.UnitSymbol) + ") = " + voltage.calibration.Coefficient.Equation;
             Interface.Thrust.calibration.Coefficient.ErrorEquation = "İtki Hatası (ADC) = " + thrust.calibration.Coefficient.ErrorEquation;
             Interface.Torque.calibration.Coefficient.ErrorEquation = "Tork Hatası (ADC) = " + torque.calibration.Coefficient.ErrorEquation;
 
