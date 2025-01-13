@@ -470,6 +470,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         {
             Interface.ButtonIsEnabled = false;
             Interface.TextboxIsEnabled = false;
+            Interface.TorqueUnitsIsEnabled = false;
+            Interface.ThrustUnitsIsEnabled = false;
             await CollectLoadCellTestData(loadCellTest, thrust, torque);
             Interface.UpdateLoadCellTestDataGrid(loadCellTest);
             Interface.ButtonIsEnabled = true;
@@ -861,7 +863,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         private void DeleteLoadCellTestPoint()
         {
             DeletePointFromLoadCellTestData(loadCellTest);
-            Interface.UpdateVoltageDataGrid(voltage);
+            Interface.UpdateLoadCellTestDataGrid(loadCellTest);
         }
         private void DeletePointFromThrustData(Thrust.Calibration calibration)
         {
@@ -974,7 +976,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                     case Mode.LoadCellTest:
                         DeleteAllPointsFromLoadCellTestData(loadCellTest);
-                        Interface.UpdateVoltageDataGrid(voltage);
+                        Interface.UpdateLoadCellTestDataGrid(loadCellTest);
+                        Interface.TorqueUnitsIsEnabled = true;
+                        Interface.ThrustUnitsIsEnabled = true;
                         break;
 
                     default:
