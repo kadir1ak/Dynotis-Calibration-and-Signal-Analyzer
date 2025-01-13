@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Device;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors;
 using Dynotis_Calibration_and_Signal_Analyzer.Services;
@@ -29,6 +30,34 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
         {
             get => _progress;
             set => SetProperty(ref _progress, value);
+        }
+
+        private bool _buttonIsEnabled;
+        public bool ButtonIsEnabled
+        {
+            get => _buttonIsEnabled;
+            set => SetProperty(ref _buttonIsEnabled, value);
+        }
+
+        private bool _textboxIsEnabled;
+        public bool TextboxIsEnabled
+        {
+            get => _textboxIsEnabled;
+            set => SetProperty(ref _textboxIsEnabled, value);
+        }
+
+        private bool _checkboxIsEnabled;
+        public bool CheckboxIsEnabled
+        {
+            get => _checkboxIsEnabled;
+            set => SetProperty(ref _checkboxIsEnabled, value);
+        }     
+
+        private bool _unitsIsEnabled;
+        public bool UnitsIsEnabled
+        {
+            get => _unitsIsEnabled;
+            set => SetProperty(ref _unitsIsEnabled, value);
         }
 
         private double _dividing = 0;

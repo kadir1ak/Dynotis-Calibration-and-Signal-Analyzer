@@ -351,36 +351,61 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
         private async Task AddThrustPointAsync()
         {
-            double appliedValue = thrust.calibration.Applied;
-            await CollectDataForThrust(thrust.calibration, thrust.raw, torque.raw, appliedValue);
+            Interface.ButtonIsEnabled = false;
+            Interface.TextboxIsEnabled = false;
+            Interface.CheckboxIsEnabled = false;
+            Interface.UnitsIsEnabled = false;
+            await CollectDataForThrust(thrust.calibration, thrust.raw, torque.raw, thrust.calibration.Applied);
             Interface.UpdateThrustDataGrid(thrust);
+            Interface.ButtonIsEnabled = true;
+            Interface.TextboxIsEnabled = true;
+            Interface.CheckboxIsEnabled = true;
         }
 
         private async Task AddTorquePointAsync()
         {
-            double appliedValue = torque.calibration.Applied;
-            await CollectDataForTorque(torque.calibration, torque.raw, thrust.raw, appliedValue);
+            Interface.ButtonIsEnabled = false;
+            Interface.TextboxIsEnabled = false;
+            Interface.CheckboxIsEnabled = false;
+            Interface.UnitsIsEnabled = false;
+            await CollectDataForTorque(torque.calibration, torque.raw, thrust.raw, torque.calibration.Applied);
             Interface.UpdateTorqueDataGrid(torque);
+            Interface.ButtonIsEnabled = true;
+            Interface.TextboxIsEnabled = true;
+            Interface.CheckboxIsEnabled = true;
         }
 
         private async Task AddCurrentPointAsync()
         {
-            double appliedValue = current.calibration.Applied;
-            await CollectDataForCurrent(current.calibration, current.raw, appliedValue);
+            Interface.ButtonIsEnabled = false;
+            Interface.TextboxIsEnabled = false;
+            Interface.UnitsIsEnabled = false;
+            await CollectDataForCurrent(current.calibration, current.raw, current.calibration.Applied);
             Interface.UpdateCurrentDataGrid(current);
+            Interface.ButtonIsEnabled = true;
+            Interface.TextboxIsEnabled = true;
         }
 
         private async Task AddVoltagePointAsync()
         {
-            double appliedValue = voltage.calibration.Applied;
-            await CollectDataForVoltage(voltage.calibration, voltage.raw, appliedValue);
+            Interface.ButtonIsEnabled = false;
+            Interface.TextboxIsEnabled = false;
+            Interface.UnitsIsEnabled = false;
+            await CollectDataForVoltage(voltage.calibration, voltage.raw, voltage.calibration.Applied);
             Interface.UpdateVoltageDataGrid(voltage);
+            Interface.ButtonIsEnabled = true;
+            Interface.TextboxIsEnabled = true;
         }
 
         private async Task AddLoadCellTestPointAsync()
         {
+            Interface.ButtonIsEnabled = false;
+            Interface.TextboxIsEnabled = false;
+            Interface.UnitsIsEnabled = false;
             await CollectLoadCellTestData(loadCellTest, thrust, torque);
             Interface.UpdateLoadCellTestDataGrid(loadCellTest);
+            Interface.ButtonIsEnabled = true;
+            Interface.TextboxIsEnabled = true;
         }
 
         private async Task CollectDataForThrust(Thrust.Calibration calibration, Thrust.Raw raw, Torque.Raw errorRaw, double appliedValue)
@@ -2033,6 +2058,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
             Interface.Thrust.calibration.AddingOn = thrust.calibration.AddingOn;
             Interface.Torque.calibration.AddingOn = torque.calibration.AddingOn;
+
+            Interface.ButtonIsEnabled = true;
+            Interface.TextboxIsEnabled = true;
+            Interface.CheckboxIsEnabled = true;
+            Interface.UnitsIsEnabled = true;
 
             thrust.calibration.Coefficient.Equation = "a₁x³ + a₂x² + a₃x + c";
             torque.calibration.Coefficient.Equation = "b₁x³ + b₂x² + b₃x + d";
