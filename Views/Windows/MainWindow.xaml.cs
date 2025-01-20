@@ -188,6 +188,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             Itki_Kapasite_Border.Visibility = Visibility.Collapsed;
             Tork_Kapasite_Border.Visibility = Visibility.Collapsed;
 
+            İtki_Uygulanan_Yön_Border.Visibility = Visibility.Collapsed;
+            Tork_Uygulanan_Yön_Border.Visibility = Visibility.Collapsed;
+
             İtki_Deger_Ekleme_CheckBox.Visibility = Visibility.Collapsed;
             Tork_Deger_Ekleme_CheckBox.Visibility = Visibility.Collapsed;
 
@@ -217,6 +220,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                     Torque_ErrorEquation.Visibility = Visibility.Visible;
                     İtki_Deger_Ekleme_CheckBox.Visibility = Visibility.Visible;
                     Tork_Deger_Ekleme_CheckBox.Visibility = Visibility.Visible;
+                    İtki_Uygulanan_Yön_Border.Visibility = Visibility.Visible;
                     break;
 
                 case Mode.Torque:
@@ -229,6 +233,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                     Torque_ErrorEquation.Visibility = Visibility.Visible;
                     İtki_Deger_Ekleme_CheckBox.Visibility = Visibility.Visible;
                     Tork_Deger_Ekleme_CheckBox.Visibility = Visibility.Visible;
+                    Tork_Uygulanan_Yön_Border.Visibility = Visibility.Visible;
                     break;
 
                 case Mode.LoadCellTest:
@@ -238,6 +243,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                     Tork_Data_Border.Visibility = Visibility.Visible;
                     Itki_Kapasite_Border.Visibility = Visibility.Visible;
                     Tork_Kapasite_Border.Visibility = Visibility.Visible;
+                    İtki_Uygulanan_Yön_Border.Visibility = Visibility.Visible;
+                    Tork_Uygulanan_Yön_Border.Visibility = Visibility.Visible;
                     Thrust_Equation.Visibility = Visibility.Visible;
                     Torque_Equation.Visibility = Visibility.Visible;
                     Thrust_ErrorEquation.Visibility = Visibility.Visible;

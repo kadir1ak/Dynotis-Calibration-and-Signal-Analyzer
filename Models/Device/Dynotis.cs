@@ -365,10 +365,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         #region Calculates Statistic
         private void UpdateRawBuffer(List<double> rawBuffer, double newValue)
         {
-            // Yeni değeri ekle
             rawBuffer.Add(newValue);
-
-            // Buffer kapasitesini kontrol et, aşarsa eski veriyi kaldır
             if (rawBuffer.Count > 100)
             {
                 rawBuffer.RemoveAt(0);
@@ -2096,6 +2093,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                             thrust.calibration.AddingOn = Interface.Thrust.calibration.AddingOn;
                             torque.calibration.AddingOn = Interface.Torque.calibration.AddingOn;
+
+                            torque.calibration.DirectionL = Interface.Torque.calibration.DirectionL;
+                            torque.calibration.DirectionR = Interface.Torque.calibration.DirectionR;
+
+                            thrust.calibration.DirectionC = Interface.Thrust.calibration.DirectionC;
+                            thrust.calibration.DirectionT = Interface.Thrust.calibration.DirectionT;
 
                             Interface.Current.raw.Value = current.raw.Value;
                             Interface.Current.raw.NoiseValue = current.raw.NoiseValue;

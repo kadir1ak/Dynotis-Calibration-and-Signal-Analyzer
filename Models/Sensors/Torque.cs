@@ -1,4 +1,5 @@
 ﻿using Dynotis_Calibration_and_Signal_Analyzer.Services;
+using OfficeOpenXml.Drawing.Chart;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -101,6 +102,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
             private double _appliedDistance;  
             private double _capacity;  
             private bool _addingOn;
+            private bool _directionL = false;
+            private bool _directionR = true;
             private Coefficients _coefficients = new Coefficients();
 
             public List<double> PointRawBuffer
@@ -137,6 +140,16 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
             {
                 get => _addingOn;
                 set => SetProperty(ref _addingOn, value);
+            }       
+            public bool DirectionL
+            {
+                get => _directionL;
+                set => SetProperty(ref _directionL, value);
+            }  
+            public bool DirectionR
+            {
+                get => _directionR;
+                set => SetProperty(ref _directionR, value);
             }
             public double AppliedDistance
             {

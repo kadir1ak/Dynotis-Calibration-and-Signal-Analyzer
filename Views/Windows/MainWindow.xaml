@@ -3,10 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:local="clr-namespace:Dynotis_Calibration_and_Signal_Analyzer"        
         xmlns:oxy="http://oxyplot.org/wpf"   
         mc:Ignorable="d"
-        Title="MainWindow" Height="1080" Width="1920" WindowState="Maximized">
+        Title="Dynotis Calibration and Signal Analyzer" Height="1080" Width="1920" WindowState="Maximized">
 
     <Window.Resources>
         <!-- Style for TextBox accepting double values -->
@@ -35,7 +36,8 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="100*"></RowDefinition>
                 <RowDefinition Height="200"></RowDefinition>
-                <RowDefinition Height="200"></RowDefinition>
+                <RowDefinition Height="80"></RowDefinition>
+                <RowDefinition Height="120"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50*"></ColumnDefinition>
@@ -54,6 +56,16 @@
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="#FFF3E597"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <!-- İtki Yönü Column -->
+                            <DataGridTextColumn Header="Yön" Binding="{Binding Direction_Thrust}" Width="100">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="Orange"/>
                                         <Setter Property="Foreground" Value="Black"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
@@ -106,6 +118,16 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
+                            
+                            <!-- Tork Yönü Column -->
+                            <DataGridTextColumn Header="Yön" Binding="{Binding Direction_Torque}" Width="100">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Background" Value="DarkSeaGreen"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn> 
                             
                             <!-- Tork Column -->
                             <DataGridTextColumn x:Name="Applied_TorqueColumn" Binding="{Binding Applied_Torque}" Width="225">
@@ -163,6 +185,14 @@
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
+                                <DataGridTextColumn Header="Yön" Binding="{Binding Direction_Thrust}" Width="100">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="Orange"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
                                 <DataGridTextColumn x:Name="LCApplied_ThrustColumn" Binding="{Binding Applied_Thrust}" Width="225">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
@@ -208,6 +238,14 @@
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Background" Value="#FFF3E597"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Yön" Binding="{Binding Direction_Torque}" Width="100">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Background" Value="DarkSeaGreen"/>
                                             <Setter Property="Foreground" Value="Black"/>
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
@@ -339,7 +377,7 @@
                 </StackPanel>              
             </GroupBox>
 
-            <GroupBox x:Name="Itki_Kapasite_Border" Grid.Row="2" Grid.Column="0" BorderBrush="Orange" BorderThickness="2" Margin="5" >
+            <GroupBox x:Name="Itki_Kapasite_Border" Grid.Row="3" Grid.Column="0" BorderBrush="Orange" BorderThickness="2" Margin="5" >
                 <GroupBox.Header >
                     <TextBlock Text="İtki Kapasitesi" FontSize="20" FontWeight="Bold"/>
                 </GroupBox.Header>
@@ -349,6 +387,29 @@
                         <TextBox x:Name="Itki_Kapasite_TextBox" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.thrust.calibration.Capacity, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                         <Label x:Name="Itki_Kapasite_Birim_Label" Content="gF" FontSize="16"></Label>
                     </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox x:Name="İtki_Uygulanan_Yön_Border" Grid.Row="2" Grid.Column="0" BorderBrush="Orange" BorderThickness="2" Margin="5" >
+                <GroupBox.Header >
+                    <TextBlock Text="Uygulanan İtki Yönü" FontSize="20" FontWeight="Bold"/>
+                </GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <!-- Basma RadioButton -->
+                    <RadioButton IsChecked="{Binding dynotis.Interface.Thrust.calibration.DirectionC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="10 10 20 0" GroupName="ThrustDirection">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Basma" VerticalAlignment="Center" Margin="0 -5 0 0"/>
+                            <iconPacks:PackIconMaterial Kind="ArrowCollapseVertical" Width="20" Height="20" Margin="5 -2 0 0" />
+                        </StackPanel>
+                    </RadioButton>
+
+                    <!-- Çekme RadioButton -->
+                    <RadioButton IsChecked="{Binding dynotis.Interface.Thrust.calibration.DirectionT, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="10 10 0 0" GroupName="ThrustDirection">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Çekme" VerticalAlignment="Center" Margin="0 -5 0 0"/>
+                            <iconPacks:PackIconMaterial Kind="ArrowExpandVertical" Width="20" Height="20" Margin="5 -2 0 0" />
+                        </StackPanel>
+                    </RadioButton>
                 </StackPanel>
             </GroupBox>
 
@@ -369,12 +430,12 @@
                             <TextBox x:Name="Uygulanan_Tork_Mesafesi_TextBox" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.calibration.AppliedDistance, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                             <Label x:Name="Uygulanan_Tork_Mesafesi_Label" Content="mm" FontSize="16"></Label>                            
                         </StackPanel>
-                    </StackPanel>
-                    <CheckBox x:Name="Tork_Deger_Ekleme_CheckBox" Content="Değeri ekleyerek ilerle" IsEnabled="{Binding dynotis.Interface.CheckboxIsEnabled}" IsChecked="{Binding dynotis.Interface.Torque.calibration.AddingOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="5 10 5 5"></CheckBox>
+                    </StackPanel>                  
+                    <CheckBox x:Name="Tork_Deger_Ekleme_CheckBox" Content="Değeri ekleyerek ilerle" IsEnabled="{Binding dynotis.Interface.CheckboxIsEnabled}" IsChecked="{Binding dynotis.Interface.Torque.calibration.AddingOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="5 0 5 5"></CheckBox>
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox x:Name="Tork_Kapasite_Border" Grid.Row="2" Grid.Column="2" BorderBrush="DarkSeaGreen" BorderThickness="2" Margin="5">
+            <GroupBox x:Name="Tork_Kapasite_Border" Grid.Row="3" Grid.Column="2" BorderBrush="DarkSeaGreen" BorderThickness="2" Margin="5">
                 <GroupBox.Header >
                     <TextBlock Text="Tork Kapasitesi" FontSize="20" FontWeight="Bold"/>
                 </GroupBox.Header>
@@ -384,6 +445,29 @@
                         <TextBox x:Name="Tork_Kapasite_TextBox" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}" Style="{StaticResource NumericTextBoxDoubleStyle}" Text="{Binding dynotis.torque.calibration.Capacity, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="80" Height="22" FontSize="16"></TextBox>
                         <Label x:Name="Tork_Kapasite_Birim_Label" Content="Nmm" FontSize="16"></Label>
                     </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox x:Name="Tork_Uygulanan_Yön_Border" Grid.Row="2" Grid.Column="2" BorderBrush="DarkSeaGreen" BorderThickness="2" Margin="5" >
+                <GroupBox.Header >
+                    <TextBlock Text="Uygulanan Tork Yönü" FontSize="20" FontWeight="Bold"/>
+                </GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <!-- Sol RadioButton -->
+                    <RadioButton IsChecked="{Binding dynotis.Interface.Torque.calibration.DirectionL, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="10 10 20 0" GroupName="TorqueDirection">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Sol" VerticalAlignment="Center" Margin="0 -4 0 0"/>
+                            <iconPacks:PackIconMaterial Kind="RotateRight" Width="20" Height="20" Margin="5 -3 0 0" />
+                        </StackPanel>
+                    </RadioButton>
+
+                    <!-- Sağ RadioButton -->
+                    <RadioButton IsChecked="{Binding dynotis.Interface.Torque.calibration.DirectionR, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="10 10 0 0" GroupName="TorqueDirection">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Sağ" VerticalAlignment="Center" Margin="0 -4 0 0"/>
+                            <iconPacks:PackIconMaterial Kind="RotateLeft" Width="20" Height="20" Margin="5 -3 0 0" />
+                        </StackPanel>
+                    </RadioButton>
                 </StackPanel>
             </GroupBox>
 
@@ -430,7 +514,7 @@
             </Grid>
 
             <!-- Kalibrasyon ve Excel Buttonları -->
-            <Grid Grid.Row="2" Grid.Column="1" Margin="2">
+            <Grid Grid.Row="2" Grid.RowSpan="4" Grid.Column="1" Margin="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50*"></RowDefinition>
                     <RowDefinition Height="50*"></RowDefinition>

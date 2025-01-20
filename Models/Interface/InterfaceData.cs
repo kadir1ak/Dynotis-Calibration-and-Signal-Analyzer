@@ -349,6 +349,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
     public class ThrustDataGrid 
     {
         public int No { get; set; } // Verinin sıra numarası
+        public double Direction_Thrust { get; set; } // Uygulanan itki Yönü
         public double Applied_Thrust { get; set; } // Uygulanan itki (gr)
         public double ADC_Thrust { get; set; } // Okunan itki (ADC)
         public double ADC_Torque { get; set; } // Okunan tork (ADC)
@@ -356,6 +357,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
     public class TorqueDataGrid 
     {
         public int No { get; set; } // Verinin sıra numarası
+        public double Direction_Torque { get; set; } // Uygulanan tork yönü
         public double Applied_Torque { get; set; } // Uygulanan tork (Nmm)
         public double ADC_Torque { get; set; } // Okunan tork (ADC)
         public double ADC_Thrust { get; set; } // Okunan itki (ADC)
@@ -363,11 +365,13 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
     public class LoadCellTestDataGrid 
     {
         public int No { get; set; } // Verinin sıra numarası
-        public double Applied_Thrust { get; set; } // Uygulanan itki (gr)
+        public double Applied_Thrust { get; set; } // Uygulanan itki yönü
+        public double Direction_Thrust { get; set; } // Uygulanan itki (gr)
         public double Calculated_Thrust { get; set; } // Hesaplanan itki (gr)
         public double Error_Thrust { get; set; } // Hata (%)
         public double FSError_Thrust { get; set; } // FS Hata (%)
-        public double Applied_Torque { get; set; } // Uygulanan tork (Nmm)
+        public double Applied_Torque { get; set; } // Uygulanan tork yönü
+        public double Direction_Torque { get; set; } // Uygulanan tork (Nmm)
         public double Calculated_Torque { get; set; } // Hesaplanan tork (Nmm)
         public double Error_Torque { get; set; } // Hata (%)
         public double FSError_Torque { get; set; } // FS Hata (%)
