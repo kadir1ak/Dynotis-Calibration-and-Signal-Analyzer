@@ -62,7 +62,7 @@
                             </DataGridTextColumn>
                             
                             <!-- İtki Yönü Column -->
-                            <DataGridTextColumn Header="Yön" Binding="{Binding Direction_Thrust}" Width="100">
+                            <DataGridTextColumn Header="Yön" Binding="{Binding AppliedDirection_Thrust}" Width="100">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="Orange"/>
@@ -120,7 +120,7 @@
                             </DataGridTextColumn>
                             
                             <!-- Tork Yönü Column -->
-                            <DataGridTextColumn Header="Yön" Binding="{Binding Direction_Torque}" Width="100">
+                            <DataGridTextColumn Header="Yön" Binding="{Binding AppliedDirection_Torque}" Width="100">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Background" Value="DarkSeaGreen"/>
@@ -185,7 +185,7 @@
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
-                                <DataGridTextColumn Header="Yön" Binding="{Binding Direction_Thrust}" Width="100">
+                                <DataGridTextColumn Header="Yön" Binding="{Binding AppliedDirection_Thrust}" Width="100">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Background" Value="Orange"/>
@@ -242,7 +242,7 @@
                                         </Style>
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
-                                <DataGridTextColumn Header="Yön" Binding="{Binding Direction_Torque}" Width="100">
+                                <DataGridTextColumn Header="Yön" Binding="{Binding AppliedDirection_Torque}" Width="100">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Background" Value="DarkSeaGreen"/>

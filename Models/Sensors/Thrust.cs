@@ -99,10 +99,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
             private List<double> _pointAppliedBuffer = new List<double>();
             private List<double> _pointRawBuffer = new List<double>();
             private List<double> _pointErrorBuffer = new List<double>();
+            private List<string> _pointDirectionBuffer = new List<string>();
             private string _appliedUnit;
             private double _applied;
             private double _capacity;
             private bool _addingOn;
+            private string _appliedDirection;
             private bool _directionC = false;
             private bool _directionT = true;
             private Coefficients _coefficients = new Coefficients();
@@ -121,6 +123,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
             {
                 get => _pointErrorBuffer;
                 set => SetProperty(ref _pointErrorBuffer, value);
+            }
+            public List<string> PointDirectionBuffer
+            {
+                get => _pointDirectionBuffer;
+                set => SetProperty(ref _pointDirectionBuffer, value);
             }
             public double Applied
             {
@@ -142,6 +149,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
                 get => _addingOn;
                 set => SetProperty(ref _addingOn, value);
             }
+            public string AppliedDirection
+            {
+                get => _appliedDirection;
+                set => SetProperty(ref _appliedDirection, value);
+            }   
             public bool DirectionC
             {
                 get => _directionC;

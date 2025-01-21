@@ -150,16 +150,76 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
                 }
             }
         }
-        public Thrust Thrust { get; set; }
-        public Torque Torque { get; set; }
-        public LoadCellTest LoadCellTest { get; set; }
-        public Current Current { get; set; }
-        public Voltage Voltage { get; set; }
-        public ObservableCollection<ThrustDataGrid> ThrustData { get; set; }
-        public ObservableCollection<TorqueDataGrid> TorqueData { get; set; }
-        public ObservableCollection<LoadCellTestDataGrid> LoadCellTestData { get; set; }
-        public ObservableCollection<CurrentDataGrid> CurrentData { get; set; }
-        public ObservableCollection<VoltageDataGrid> VoltageData { get; set; }
+        private Thrust _thrust;
+        public Thrust Thrust
+        {
+            get => _thrust;
+            set => SetProperty(ref _thrust, value);
+        }
+
+        private Torque _torque;
+        public Torque Torque
+        {
+            get => _torque;
+            set => SetProperty(ref _torque, value);
+        }
+
+        private LoadCellTest _loadCellTest;
+        public LoadCellTest LoadCellTest
+        {
+            get => _loadCellTest;
+            set => SetProperty(ref _loadCellTest, value);
+        }
+
+        private Current _current;
+        public Current Current
+        {
+            get => _current;
+            set => SetProperty(ref _current, value);
+        }
+
+        private Voltage _voltage;
+        public Voltage Voltage
+        {
+            get => _voltage;
+            set => SetProperty(ref _voltage, value);
+        }
+
+        private ObservableCollection<ThrustDataGrid> _thrustData;
+        public ObservableCollection<ThrustDataGrid> ThrustData
+        {
+            get => _thrustData;
+            set => SetProperty(ref _thrustData, value);
+        }
+
+        private ObservableCollection<TorqueDataGrid> _torqueData;
+        public ObservableCollection<TorqueDataGrid> TorqueData
+        {
+            get => _torqueData;
+            set => SetProperty(ref _torqueData, value);
+        }
+
+        private ObservableCollection<LoadCellTestDataGrid> _loadCellTestData;
+        public ObservableCollection<LoadCellTestDataGrid> LoadCellTestData
+        {
+            get => _loadCellTestData;
+            set => SetProperty(ref _loadCellTestData, value);
+        }
+
+        private ObservableCollection<CurrentDataGrid> _currentData;
+        public ObservableCollection<CurrentDataGrid> CurrentData
+        {
+            get => _currentData;
+            set => SetProperty(ref _currentData, value);
+        }
+
+        private ObservableCollection<VoltageDataGrid> _voltageData;
+        public ObservableCollection<VoltageDataGrid> VoltageData
+        {
+            get => _voltageData;
+            set => SetProperty(ref _voltageData, value);
+        }
+
         public InterfaceData()
         {
             Thrust = new Thrust();
@@ -182,6 +242,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
                 ThrustData.Add(new ThrustDataGrid
                 {
                     No = i + 1,
+                    AppliedDirection_Thrust = thrust.calibration.PointDirectionBuffer[i],
                     ADC_Thrust = thrust.calibration.PointRawBuffer[i],
                     Applied_Thrust = thrust.calibration.PointAppliedBuffer[i],
                     ADC_Torque = thrust.calibration.PointErrorBuffer[i]
@@ -211,6 +272,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
                 TorqueData.Add(new TorqueDataGrid
                 {
                     No = i + 1,
+                    AppliedDirection_Torque = torque.calibration.PointDirectionBuffer[i],
                     ADC_Torque = torque.calibration.PointRawBuffer[i],
                     Applied_Torque = torque.calibration.PointAppliedBuffer[i],
                     ADC_Thrust = torque.calibration.PointErrorBuffer[i]
@@ -346,48 +408,209 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
         Current,
         Voltage
     }
-    public class ThrustDataGrid 
+    public class ThrustDataGrid : BindableBase
     {
-        public int No { get; set; } // Verinin sıra numarası
-        public double Direction_Thrust { get; set; } // Uygulanan itki Yönü
-        public double Applied_Thrust { get; set; } // Uygulanan itki (gr)
-        public double ADC_Thrust { get; set; } // Okunan itki (ADC)
-        public double ADC_Torque { get; set; } // Okunan tork (ADC)
+        private int _no;
+        public int No
+        {
+            get => _no;
+            set => SetProperty(ref _no, value);
+        }
+
+        private string _appliedDirection_Thrust;
+        public string AppliedDirection_Thrust
+        {
+            get => _appliedDirection_Thrust;
+            set => SetProperty(ref _appliedDirection_Thrust, value);
+        }
+
+        private double _applied_Thrust;
+        public double Applied_Thrust
+        {
+            get => _applied_Thrust;
+            set => SetProperty(ref _applied_Thrust, value);
+        }
+
+        private double _adc_Thrust;
+        public double ADC_Thrust
+        {
+            get => _adc_Thrust;
+            set => SetProperty(ref _adc_Thrust, value);
+        }
+
+        private double _adc_Torque;
+        public double ADC_Torque
+        {
+            get => _adc_Torque;
+            set => SetProperty(ref _adc_Torque, value);
+        }
     }
-    public class TorqueDataGrid 
+
+    public class TorqueDataGrid : BindableBase
     {
-        public int No { get; set; } // Verinin sıra numarası
-        public double Direction_Torque { get; set; } // Uygulanan tork yönü
-        public double Applied_Torque { get; set; } // Uygulanan tork (Nmm)
-        public double ADC_Torque { get; set; } // Okunan tork (ADC)
-        public double ADC_Thrust { get; set; } // Okunan itki (ADC)
+        private int _no;
+        public int No
+        {
+            get => _no;
+            set => SetProperty(ref _no, value);
+        }
+
+        private string _appliedDirection_Torque;
+        public string AppliedDirection_Torque
+        {
+            get => _appliedDirection_Torque;
+            set => SetProperty(ref _appliedDirection_Torque, value);
+        }
+
+        private double _applied_Torque;
+        public double Applied_Torque
+        {
+            get => _applied_Torque;
+            set => SetProperty(ref _applied_Torque, value);
+        }
+
+        private double _adc_Torque;
+        public double ADC_Torque
+        {
+            get => _adc_Torque;
+            set => SetProperty(ref _adc_Torque, value);
+        }
+
+        private double _adc_Thrust;
+        public double ADC_Thrust
+        {
+            get => _adc_Thrust;
+            set => SetProperty(ref _adc_Thrust, value);
+        }
     }
-    public class LoadCellTestDataGrid 
+
+    public class LoadCellTestDataGrid : BindableBase
     {
-        public int No { get; set; } // Verinin sıra numarası
-        public double Applied_Thrust { get; set; } // Uygulanan itki yönü
-        public double Direction_Thrust { get; set; } // Uygulanan itki (gr)
-        public double Calculated_Thrust { get; set; } // Hesaplanan itki (gr)
-        public double Error_Thrust { get; set; } // Hata (%)
-        public double FSError_Thrust { get; set; } // FS Hata (%)
-        public double Applied_Torque { get; set; } // Uygulanan tork yönü
-        public double Direction_Torque { get; set; } // Uygulanan tork (Nmm)
-        public double Calculated_Torque { get; set; } // Hesaplanan tork (Nmm)
-        public double Error_Torque { get; set; } // Hata (%)
-        public double FSError_Torque { get; set; } // FS Hata (%)
+        private int _no;
+        public int No
+        {
+            get => _no;
+            set => SetProperty(ref _no, value);
+        }
+
+        private string _appliedDirection_Thrust;
+        public string AppliedDirection_Thrust
+        {
+            get => _appliedDirection_Thrust;
+            set => SetProperty(ref _appliedDirection_Thrust, value);
+        }
+
+        private double _applied_Thrust;
+        public double Applied_Thrust
+        {
+            get => _applied_Thrust;
+            set => SetProperty(ref _applied_Thrust, value);
+        }
+
+        private double _calculated_Thrust;
+        public double Calculated_Thrust
+        {
+            get => _calculated_Thrust;
+            set => SetProperty(ref _calculated_Thrust, value);
+        }
+
+        private double _error_Thrust;
+        public double Error_Thrust
+        {
+            get => _error_Thrust;
+            set => SetProperty(ref _error_Thrust, value);
+        }
+
+        private double _fsError_Thrust;
+        public double FSError_Thrust
+        {
+            get => _fsError_Thrust;
+            set => SetProperty(ref _fsError_Thrust, value);
+        }
+
+        private string _appliedDirection_Torque;
+        public string AppliedDirection_Torque
+        {
+            get => _appliedDirection_Torque;
+            set => SetProperty(ref _appliedDirection_Torque, value);
+        }
+
+        private double _applied_Torque;
+        public double Applied_Torque
+        {
+            get => _applied_Torque;
+            set => SetProperty(ref _applied_Torque, value);
+        }
+
+        private double _calculated_Torque;
+        public double Calculated_Torque
+        {
+            get => _calculated_Torque;
+            set => SetProperty(ref _calculated_Torque, value);
+        }
+
+        private double _error_Torque;
+        public double Error_Torque
+        {
+            get => _error_Torque;
+            set => SetProperty(ref _error_Torque, value);
+        }
+
+        private double _fsError_Torque;
+        public double FSError_Torque
+        {
+            get => _fsError_Torque;
+            set => SetProperty(ref _fsError_Torque, value);
+        }
     }
-    public class CurrentDataGrid 
+    public class CurrentDataGrid : BindableBase
     {
-        public int No { get; set; } // Verinin sıra numarası
-        public double Applied_Current { get; set; } // Uygulanan akım (mA)
-        public double ADC_Current { get; set; } // Okunan akım (ADC)
+        private int _no;
+        public int No
+        {
+            get => _no;
+            set => SetProperty(ref _no, value);
+        }
+
+        private double _applied_Current;
+        public double Applied_Current
+        {
+            get => _applied_Current;
+            set => SetProperty(ref _applied_Current, value);
+        }
+
+        private double _adc_Current;
+        public double ADC_Current
+        {
+            get => _adc_Current;
+            set => SetProperty(ref _adc_Current, value);
+        }
     }
-    public class VoltageDataGrid
+
+    public class VoltageDataGrid : BindableBase
     {
-        public int No { get; set; } // Verinin sıra numarası
-        public double Applied_Voltage { get; set; } // Uygulanan voltaj (V)
-        public double ADC_Voltage { get; set; } // Okunan voltaj (ADC)
+        private int _no;
+        public int No
+        {
+            get => _no;
+            set => SetProperty(ref _no, value);
+        }
+
+        private double _applied_Voltage;
+        public double Applied_Voltage
+        {
+            get => _applied_Voltage;
+            set => SetProperty(ref _applied_Voltage, value);
+        }
+
+        private double _adc_Voltage;
+        public double ADC_Voltage
+        {
+            get => _adc_Voltage;
+            set => SetProperty(ref _adc_Voltage, value);
+        }
     }
+
 
 
 

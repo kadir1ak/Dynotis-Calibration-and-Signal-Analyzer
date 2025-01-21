@@ -480,6 +480,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             {
                 // Uygulanan değeri ata
                 double AppliedThrust = appliedValue;
+                // Uygulanan yön bilgisini ata
+                string AppliedDirection = calibration.AppliedDirection;
                 // Değere birim uygulaması
                 if (thrust.calculated.UnitName == "Newton")
                 {
@@ -501,11 +503,21 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 // Uygulanan değeri eklenecekse durum sorgulanır
                 if (calibration.AddingOn && calibration.PointAppliedBuffer.Count > 0)
                 {
-                    // Uygulanan değeri üzerine ekle
-                    AppliedThrust += calibration.PointAppliedBuffer[calibration.PointAppliedBuffer.Count - 1];
+                    // Eğer bir önceki işlemin yönü ile şu anki yön farklıysa ekleme işlemini yapma
+                    string previousDirection = calibration.PointDirectionBuffer[calibration.PointDirectionBuffer.Count - 1];
+                    if (previousDirection != AppliedDirection)
+                    {
+                        // Önceki yön ve şu anki yön farklı olduğunda ekleme işlemi yapılmaz
+
+                    }
+                    else
+                    {
+                        // Uygulanan değeri üzerine ekle
+                        AppliedThrust += calibration.PointAppliedBuffer[calibration.PointAppliedBuffer.Count - 1];
+                    }
                 }
 
-                          
+
 
                 List<double> Values = new List<double>();
                 List<double> ErrorValues = new List<double>();
@@ -537,6 +549,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 if (Values.Any())
                 {
                     calibration.PointRawBuffer.Add(Math.Round(AverageValue, 3));
+                    calibration.PointDirectionBuffer.Add(AppliedDirection);
                     calibration.PointAppliedBuffer.Add(Math.Round(AppliedThrust, 3));
                     calibration.PointErrorBuffer.Add(Math.Round(AverageErrorValue, 3));
                 }
@@ -559,6 +572,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             {
                 // Uygulanan değeri ata
                 double AppliedTorque = appliedValue;
+                // Uygulanan yön bilgisini ata
+                string AppliedDirection = calibration.AppliedDirection;
                 // Değere birim uygulaması
                 if (torque.calculated.UnitName == "Newton")
                 {
@@ -577,14 +592,24 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 {
                     AppliedTorque = AppliedTorque;
                 }
+              
+
                 // Uygulanan değeri eklenecekse durum sorgulanır
                 if (calibration.AddingOn && calibration.PointAppliedBuffer.Count > 0)
                 {
-                    // Uygulanan değeri üzerine ekle
-                    AppliedTorque += calibration.PointAppliedBuffer[calibration.PointAppliedBuffer.Count - 1];
+                    // Eğer bir önceki işlemin yönü ile şu anki yön farklıysa ekleme işlemini yapma
+                    string previousDirection = calibration.PointDirectionBuffer[calibration.PointDirectionBuffer.Count - 1];
+                    if (previousDirection != AppliedDirection)
+                    {
+                        // Önceki yön ve şu anki yön farklı olduğunda ekleme işlemi yapılmaz
+
+                    }
+                    else
+                    {
+                        // Uygulanan değeri üzerine ekle
+                        AppliedTorque += calibration.PointAppliedBuffer[calibration.PointAppliedBuffer.Count - 1];
+                    }
                 }
-
-
 
                 List<double> Values = new List<double>();
                 List<double> ErrorValues = new List<double>();
@@ -616,6 +641,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 if (Values.Any())
                 {
                     calibration.PointRawBuffer.Add(Math.Round(AverageValue, 3));
+                    calibration.PointDirectionBuffer.Add(AppliedDirection);
                     calibration.PointAppliedBuffer.Add(Math.Round(AppliedTorque, 3));
                     calibration.PointErrorBuffer.Add(Math.Round(AverageErrorValue, 3));
                 }
@@ -1138,6 +1164,17 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
             try
             {
+                // ThrustData'yı Applied_Thrust'a göre büyükten küçüğe sırala
+                Interface.ThrustData = new ObservableCollection<ThrustDataGrid>(
+                    Interface.ThrustData.OrderByDescending(data => data.Applied_Thrust)
+                );
+                // Interface.ThrustData içindeki verileri kalibrasyon bufferlarına aktar
+
+                calibration.PointDirectionBuffer = Interface.ThrustData.Select(data => data.AppliedDirection_Thrust).ToList();
+                calibration.PointAppliedBuffer = Interface.ThrustData.Select(data => data.Applied_Thrust).ToList();
+                calibration.PointRawBuffer = Interface.ThrustData.Select(data => data.ADC_Thrust).ToList();
+                calibration.PointErrorBuffer = Interface.ThrustData.Select(data => data.ADC_Torque).ToList();
+
                 // Polinom katsayılarını hesapla
                 var coefficients = Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointAppliedBuffer.ToArray(), degree);
 
@@ -1191,6 +1228,16 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
             try
             {
+                // TorqueData'yı Applied_Torque'a göre büyükten küçüğe sırala
+                Interface.TorqueData = new ObservableCollection<TorqueDataGrid>(
+                    Interface.TorqueData.OrderByDescending(data => data.Applied_Torque)
+                );
+                // Interface.TorqueData içindeki verileri kalibrasyon bufferlarına aktar
+                calibration.PointDirectionBuffer = Interface.TorqueData.Select(data => data.AppliedDirection_Torque).ToList();
+                calibration.PointAppliedBuffer = Interface.TorqueData.Select(data => data.Applied_Torque).ToList();
+                calibration.PointRawBuffer = Interface.TorqueData.Select(data => data.ADC_Torque).ToList();
+                calibration.PointErrorBuffer = Interface.TorqueData.Select(data => data.ADC_Thrust).ToList();
+
                 // Polinom katsayılarını hesapla
                 var coefficients = Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointAppliedBuffer.ToArray(), degree);
 
@@ -1243,6 +1290,14 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
             try
             {
+                // CurrentData'yı Applied_Current'a göre büyükten küçüğe sırala
+                Interface.CurrentData = new ObservableCollection<CurrentDataGrid>(
+                    Interface.CurrentData.OrderByDescending(data => data.Applied_Current)
+                );
+                // Interface.CurrentData içindeki verileri kalibrasyon bufferlarına aktar
+                calibration.PointAppliedBuffer = Interface.CurrentData.Select(data => data.Applied_Current).ToList();
+                calibration.PointRawBuffer = Interface.CurrentData.Select(data => data.ADC_Current).ToList();
+
                 // Polinom katsayılarını hesapla
                 var coefficients = Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointAppliedBuffer.ToArray(), degree);
 
@@ -1287,6 +1342,14 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
             try
             {
+                // VoltageData'yı Applied_Current'a göre büyükten küçüğe sırala
+                Interface.VoltageData = new ObservableCollection<VoltageDataGrid>(
+                    Interface.VoltageData.OrderByDescending(data => data.Applied_Voltage)
+                );
+                // Interface.CurrentData içindeki verileri kalibrasyon bufferlarına aktar
+                calibration.PointAppliedBuffer = Interface.VoltageData.Select(data => data.Applied_Voltage).ToList();
+                calibration.PointRawBuffer = Interface.VoltageData.Select(data => data.ADC_Voltage).ToList();
+
                 // Polinom katsayılarını hesapla
                 var coefficients = Fit.Polynomial(calibration.PointRawBuffer.ToArray(), calibration.PointAppliedBuffer.ToArray(), degree);
 
@@ -2160,9 +2223,25 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                             torque.calibration.DirectionL = Interface.Torque.calibration.DirectionL;
                             torque.calibration.DirectionR = Interface.Torque.calibration.DirectionR;
+                            if(torque.calibration.DirectionL)
+                            {
+                                torque.calibration.AppliedDirection = "Sol";
+                            }
+                            else if(torque.calibration.DirectionR)
+                            {
+                                torque.calibration.AppliedDirection = "Sağ";
+                            }
 
                             thrust.calibration.DirectionC = Interface.Thrust.calibration.DirectionC;
                             thrust.calibration.DirectionT = Interface.Thrust.calibration.DirectionT;
+                            if (thrust.calibration.DirectionC)
+                            {
+                                thrust.calibration.AppliedDirection = "Basma";
+                            }
+                            else if (thrust.calibration.DirectionT)
+                            {
+                                thrust.calibration.AppliedDirection = "Çekme";
+                            }
 
                             Interface.Current.raw.Value = current.raw.Value;
                             Interface.Current.raw.NoiseValue = current.raw.NoiseValue;
