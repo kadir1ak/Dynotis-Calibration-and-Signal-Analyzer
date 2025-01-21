@@ -20,6 +20,7 @@ using OxyPlot.Legends;
 using System.Windows.Input;
 using System.Collections.ObjectModel;
 using Microsoft.VisualBasic;
+using System.Windows.Controls;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 {
@@ -1672,7 +1673,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         private void FillThrustWorksheet(OfficeOpenXml.ExcelWorksheet worksheet, InterfaceData DataGrid)
         {
             // Başlıkları ekle
-            string[] headers = new[] { "No", Interface.Applied_ThrustColumn, "Okunan İtki (ADC)", "Okunan Tork (ADC)" };
+            string[] headers = new[] { "No", "Yön", Interface.Applied_ThrustColumn, "Okunan İtki (ADC)", "Okunan Tork (ADC)" };
             for (int i = 0; i < headers.Length; i++)
             {
                 worksheet.Cells[1, i + 1].Value = headers[i];
@@ -1680,14 +1681,20 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 worksheet.Cells[1, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
             }
 
+            // ThrustData'yı Applied_Thrust'a göre büyükten küçüğe sırala
+            DataGrid.ThrustData = new ObservableCollection<ThrustDataGrid>(
+                DataGrid.ThrustData.OrderByDescending(data => data.Applied_Thrust)
+            );
+
             // Verileri ekle
             int row = 2; // Veriler 2. satırdan itibaren başlıyor
             foreach (var thrustDataGrid in DataGrid.ThrustData)
             {
-                worksheet.Cells[row, 1].Value = thrustDataGrid.No;                  // "No" sütunu
-                worksheet.Cells[row, 2].Value = thrustDataGrid.Applied_Thrust;      // "Uygulanan İtki (gr)" sütunu
-                worksheet.Cells[row, 3].Value = thrustDataGrid.ADC_Thrust;          // "Okunan İtki (ADC)" sütunu
-                worksheet.Cells[row, 4].Value = thrustDataGrid.ADC_Torque;          // "Okunan Tork (ADC)" sütunu
+                worksheet.Cells[row, 1].Value = thrustDataGrid.No;                      // "No" sütunu
+                worksheet.Cells[row, 2].Value = thrustDataGrid.AppliedDirection_Thrust; // "Uygulanan İtki Yön" sütunu
+                worksheet.Cells[row, 3].Value = thrustDataGrid.Applied_Thrust;          // "Uygulanan İtki (gr)" sütunu
+                worksheet.Cells[row, 4].Value = thrustDataGrid.ADC_Thrust;              // "Okunan İtki (ADC)" sütunu
+                worksheet.Cells[row, 5].Value = thrustDataGrid.ADC_Torque;              // "Okunan Tork (ADC)" sütunu
                 row++; // Bir sonraki satıra geç
             }
 
@@ -1697,7 +1704,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         private void FillTorqueWorksheet(OfficeOpenXml.ExcelWorksheet worksheet, InterfaceData DataGrid)
         {
             // Başlıkları ekle
-            string[] headers = new[] { "No", Interface.Applied_TorqueColumn, "Okunan Tork (ADC)", "Okunan İtki (ADC)" };
+            string[] headers = new[] { "No", "Yön", Interface.Applied_TorqueColumn, "Okunan Tork (ADC)", "Okunan İtki (ADC)" };
             for (int i = 0; i < headers.Length; i++)
             {
                 worksheet.Cells[1, i + 1].Value = headers[i];
@@ -1705,14 +1712,20 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 worksheet.Cells[1, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
             }
 
+            // TorqueData'yı Applied_Torque'a göre büyükten küçüğe sırala
+            DataGrid.TorqueData = new ObservableCollection<TorqueDataGrid>(
+                DataGrid.TorqueData.OrderByDescending(data => data.Applied_Torque)
+            );
+
             // Verileri ekle
             int row = 2; // Veriler 2. satırdan itibaren başlıyor
             foreach (var torqueDataGrid in DataGrid.TorqueData)
             {
-                worksheet.Cells[row, 1].Value = torqueDataGrid.No;                  // "No" sütunu
-                worksheet.Cells[row, 2].Value = torqueDataGrid.Applied_Torque;      // "Uygulanan Tork (Nmm)" sütunu
-                worksheet.Cells[row, 3].Value = torqueDataGrid.ADC_Torque;          // "Okunan Tork (ADC)" sütunu
-                worksheet.Cells[row, 4].Value = torqueDataGrid.ADC_Thrust;          // "Okunan İtki (ADC)" sütunu
+                worksheet.Cells[row, 1].Value = torqueDataGrid.No;                      // "No" sütunu
+                worksheet.Cells[row, 2].Value = torqueDataGrid.AppliedDirection_Torque; // "Uygulanan Tork Yön" sütunu
+                worksheet.Cells[row, 3].Value = torqueDataGrid.Applied_Torque;          // "Uygulanan Tork (Nmm)" sütunu
+                worksheet.Cells[row, 4].Value = torqueDataGrid.ADC_Torque;              // "Okunan Tork (ADC)" sütunu
+                worksheet.Cells[row, 5].Value = torqueDataGrid.ADC_Thrust;              // "Okunan İtki (ADC)" sütunu
                 row++; // Bir sonraki satıra geç
             }
 
@@ -1729,6 +1742,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 worksheet.Cells[1, i + 1].Style.Font.Bold = true;
                 worksheet.Cells[1, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
             }
+
+            // CurrentData'yı Applied_Current'a göre büyükten küçüğe sırala
+            DataGrid.CurrentData = new ObservableCollection<CurrentDataGrid>(
+                DataGrid.CurrentData.OrderByDescending(data => data.Applied_Current)
+            );
 
             // Verileri ekle
             int row = 2; // Veriler 2. satırdan itibaren başlıyor
@@ -1754,6 +1772,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 worksheet.Cells[1, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
             }
 
+            // VoltageData'yı Applied_Voltage'a göre büyükten küçüğe sırala
+            DataGrid.VoltageData = new ObservableCollection<VoltageDataGrid>(
+                DataGrid.VoltageData.OrderByDescending(data => data.Applied_Voltage)
+            );
+
             // Verileri ekle
             int row = 2; // Veriler 2. satırdan itibaren başlıyor
             foreach (var voltageDataGrid in DataGrid.VoltageData)
@@ -1773,7 +1796,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             int startRow1 = 1;
 
             // İlk tablo başlıklarını ekle
-            string[] headers1 = new[] { "No", Interface.Applied_ThrustColumn, Interface.Calculated_ThrustColumn, "Hata (%)", "FS Hata (%)" };
+            string[] headers1 = new[] { "No", "Yön", Interface.Applied_ThrustColumn, Interface.Calculated_ThrustColumn, "Hata (%)", "FS Hata (%)" };
             for (int i = 0; i < headers1.Length; i++)
             {
                 worksheet.Cells[startRow1, i + 1].Value = headers1[i];
@@ -1786,10 +1809,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             foreach (var thrustDataGrid in DataGrid.LoadCellTestData)
             {
                 worksheet.Cells[row1, 1].Value = thrustDataGrid.No;                     // "No" sütunu
-                worksheet.Cells[row1, 2].Value = thrustDataGrid.Applied_Thrust;         // "Uygulanan İtki (gr)" sütunu
-                worksheet.Cells[row1, 3].Value = thrustDataGrid.Calculated_Thrust;      // "Hesaplanan İtki (gr)" sütunu
-                worksheet.Cells[row1, 4].Value = thrustDataGrid.Error_Thrust;           // "Hata (%)" sütunu
-                worksheet.Cells[row1, 5].Value = thrustDataGrid.FSError_Thrust;         // "FS Hata (%)" sütunu
+                worksheet.Cells[row1, 2].Value = thrustDataGrid.AppliedDirection_Thrust;// "Uygulanan İtki Yön" sütunu
+                worksheet.Cells[row1, 3].Value = thrustDataGrid.Applied_Thrust;         // "Uygulanan İtki (gr)" sütunu
+                worksheet.Cells[row1, 4].Value = thrustDataGrid.Calculated_Thrust;      // "Hesaplanan İtki (gr)" sütunu
+                worksheet.Cells[row1, 5].Value = thrustDataGrid.Error_Thrust;           // "Hata (%)" sütunu
+                worksheet.Cells[row1, 6].Value = thrustDataGrid.FSError_Thrust;         // "FS Hata (%)" sütunu
                 row1++; // Bir sonraki satıra geç
             }
 
@@ -1797,7 +1821,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             int startRow2 = row1 + 2;
 
             // İkinci tablo başlıklarını ekle
-            string[] headers2 = new[] { "No", Interface.Applied_TorqueColumn, Interface.Calculated_TorqueColumn, "Hata (%)", "FS Hata (%)" };
+            string[] headers2 = new[] { "No", "Yön", Interface.Applied_TorqueColumn, Interface.Calculated_TorqueColumn, "Hata (%)", "FS Hata (%)" };
             for (int i = 0; i < headers2.Length; i++)
             {
                 worksheet.Cells[startRow2, i + 1].Value = headers2[i];
@@ -1810,10 +1834,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             foreach (var torqueDataGrid in DataGrid.LoadCellTestData)
             {
                 worksheet.Cells[row2, 1].Value = torqueDataGrid.No;                     // "No" sütunu
-                worksheet.Cells[row2, 2].Value = torqueDataGrid.Applied_Torque;         // "Uygulanan Tork (Nmm)" sütunu
-                worksheet.Cells[row2, 3].Value = torqueDataGrid.Calculated_Torque;      // "Hesaplanan Tork (Nmm)" sütunu
-                worksheet.Cells[row2, 4].Value = torqueDataGrid.Error_Torque;           // "Hata (%)" sütunu
-                worksheet.Cells[row2, 5].Value = torqueDataGrid.FSError_Torque;         // "FS Hata (%)" sütunu
+                worksheet.Cells[row2, 2].Value = torqueDataGrid.AppliedDirection_Torque;// "Uygulanan Tork Yön" sütunu
+                worksheet.Cells[row2, 3].Value = torqueDataGrid.Applied_Torque;         // "Uygulanan Tork (Nmm)" sütunu
+                worksheet.Cells[row2, 4].Value = torqueDataGrid.Calculated_Torque;      // "Hesaplanan Tork (Nmm)" sütunu
+                worksheet.Cells[row2, 5].Value = torqueDataGrid.Error_Torque;           // "Hata (%)" sütunu
+                worksheet.Cells[row2, 6].Value = torqueDataGrid.FSError_Torque;         // "FS Hata (%)" sütunu
                 row2++; // Bir sonraki satıra geç
             }
 
@@ -1932,9 +1957,10 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 var data = new ThrustDataGrid
                 {
                     No = SafeConvertToInt(worksheet.Cells[row, 1].Value),
-                    Applied_Thrust = SafeConvertToDouble(worksheet.Cells[row, 2].Value),
-                    ADC_Thrust = SafeConvertToDouble(worksheet.Cells[row, 3].Value),
-                    ADC_Torque = SafeConvertToDouble(worksheet.Cells[row, 4].Value)
+                    AppliedDirection_Thrust = SafeConvertToString(worksheet.Cells[row, 2].Value),
+                    Applied_Thrust = SafeConvertToDouble(worksheet.Cells[row, 3].Value),
+                    ADC_Thrust = SafeConvertToDouble(worksheet.Cells[row, 4].Value),
+                    ADC_Torque = SafeConvertToDouble(worksheet.Cells[row, 5].Value)
                 };
                 thrustData.Add(data);
                 row++;
@@ -1961,8 +1987,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 {
                     No = SafeConvertToInt(worksheet.Cells[row, 1].Value),
                     Applied_Torque = SafeConvertToDouble(worksheet.Cells[row, 2].Value),
-                    ADC_Torque = SafeConvertToDouble(worksheet.Cells[row, 3].Value),
-                    ADC_Thrust = SafeConvertToDouble(worksheet.Cells[row, 4].Value)
+                    AppliedDirection_Torque = SafeConvertToString(worksheet.Cells[row, 3].Value),
+                    ADC_Torque = SafeConvertToDouble(worksheet.Cells[row, 4].Value),
+                    ADC_Thrust = SafeConvertToDouble(worksheet.Cells[row, 5].Value)
                 };
                 torqueData.Add(data);
                 row++;
@@ -2040,11 +2067,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                 var data = new LoadCellTestDataGrid
                 {
-                    No = SafeConvertToInt(worksheet.Cells[startRow1, 1].Value),                     // "No" sütunu
-                    Applied_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 2].Value),        // "Uygulanan İtki (gr)" sütunu
-                    Calculated_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 3].Value),     // "Hesaplanan İtki (gr)" sütunu
-                    Error_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 4].Value),          // "Hata (%)" sütunu
-                    FSError_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 5].Value)         // "FS Hata (%)" sütunu
+                    No = SafeConvertToInt(worksheet.Cells[startRow1, 1].Value),                         // "No" sütunu
+                    AppliedDirection_Torque = SafeConvertToString(worksheet.Cells[startRow1, 2].Value), // "Uygulanan İtki Yön" sütunu
+                    Applied_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 3].Value),          // "Uygulanan İtki (gr)" sütunu
+                    Calculated_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 4].Value),       // "Hesaplanan İtki (gr)" sütunu
+                    Error_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 5].Value),            // "Hata (%)" sütunu
+                    FSError_Thrust = SafeConvertToDouble(worksheet.Cells[startRow1, 6].Value)           // "FS Hata (%)" sütunu
                 };
                 loadCellData.Add(data);
                 startRow1++; // Bir sonraki satıra geç
@@ -2063,11 +2091,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                 var data = new LoadCellTestDataGrid
                 {
-                    No = SafeConvertToInt(worksheet.Cells[startRow2, 1].Value),                     // "No" sütunu
-                    Applied_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 2].Value),        // "Uygulanan Tork (Nmm)" sütunu
-                    Calculated_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 3].Value),     // "Hesaplanan Tork (Nmm)" sütunu
-                    Error_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 4].Value),          // "Hata (%)" sütunu
-                    FSError_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 5].Value)         // "FS Hata (%)" sütunu
+                    No = SafeConvertToInt(worksheet.Cells[startRow2, 1].Value),                         // "No" sütunu
+                    AppliedDirection_Torque = SafeConvertToString(worksheet.Cells[startRow1, 2].Value), // "Uygulanan İtki Yön" sütunu
+                    Applied_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 3].Value),          // "Uygulanan Tork (Nmm)" sütunu
+                    Calculated_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 4].Value),       // "Hesaplanan Tork (Nmm)" sütunu
+                    Error_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 5].Value),            // "Hata (%)" sütunu
+                    FSError_Torque = SafeConvertToDouble(worksheet.Cells[startRow2, 6].Value)           // "FS Hata (%)" sütunu
                 };
                 loadCellData.Add(data);
                 startRow2++; // Bir sonraki satıra geç
@@ -2091,6 +2120,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             if (double.TryParse(value.ToString(), out double result))
                 return result;
             throw new FormatException($"Geçersiz double formatı: {value}");
+        }
+        private string SafeConvertToString(object value)
+        {
+            if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+                return string.Empty; // Varsayılan değer döndür (boş string)
+            return value.ToString();
         }
         #endregion
 
