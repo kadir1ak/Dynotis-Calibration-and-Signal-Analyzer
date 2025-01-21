@@ -711,7 +711,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         {
             try
             {
-                calibration.Applied = appliedValue; // Uygulanan değeri ata
+                calibration.Applied = appliedValue; // Uygulanan değeri ata                
                 List<double> Values = new List<double>();
                 List<double> ErrorValues = new List<double>();
 
@@ -761,6 +761,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             {
                 List<double> calculatedThrustValues = new List<double>();
                 List<double> calculatedTorqueValues = new List<double>();
+
+                string ThrustAppliedDirection = thrust.calibration.AppliedDirection;// Uygulanan yön bilgisini ata
+                string TorqueAppliedDirection = torque.calibration.AppliedDirection;// Uygulanan yön bilgisini ata
 
                 int duration = 5000; // 5 saniye (5000 ms)
                 int interval = 50; // 50 ms aralıklarla veri topla
@@ -842,10 +845,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
 
                 // Load Cell Data'ya ekle
+                loadCellTest.Thrust.AppliedDirectionBuffer.Add(ThrustAppliedDirection);
                 loadCellTest.Thrust.Buffer.Add(Math.Round(CalculatedThrustValue, 3));
                 loadCellTest.Thrust.AppliedBuffer.Add(Math.Round(AppliedThrust, 3));
                 loadCellTest.Thrust.ErrorBuffer.Add(Math.Round(ThrustErrorValue, 3));
                 loadCellTest.Thrust.FSErrorBuffer.Add(Math.Round(ThrustFSErrorValue, 3));
+                loadCellTest.Torque.AppliedDirectionBuffer.Add(TorqueAppliedDirection);
                 loadCellTest.Torque.Buffer.Add(Math.Round(CalculatedTorqueValue, 3));
                 loadCellTest.Torque.AppliedBuffer.Add(Math.Round(AppliedTorque, 3));     
                 loadCellTest.Torque.ErrorBuffer.Add(Math.Round(TorqueErrorValue, 3));
@@ -1986,8 +1991,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 var data = new TorqueDataGrid
                 {
                     No = SafeConvertToInt(worksheet.Cells[row, 1].Value),
-                    Applied_Torque = SafeConvertToDouble(worksheet.Cells[row, 2].Value),
-                    AppliedDirection_Torque = SafeConvertToString(worksheet.Cells[row, 3].Value),
+                    AppliedDirection_Torque = SafeConvertToString(worksheet.Cells[row, 2].Value),
+                    Applied_Torque = SafeConvertToDouble(worksheet.Cells[row, 3].Value),
                     ADC_Torque = SafeConvertToDouble(worksheet.Cells[row, 4].Value),
                     ADC_Thrust = SafeConvertToDouble(worksheet.Cells[row, 5].Value)
                 };

@@ -32,6 +32,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
         public class Calculated : BindableBase
         {
             private List<double> _buffer = new List<double>();
+            private List<string> _appliedDirectionBuffer = new List<string>();
             private List<double> _appliedBuffer = new List<double>();
             private List<double> _errorBuffer = new List<double>();
             private List<double> _fsErrorBuffer = new List<double>();
@@ -40,6 +41,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors
             {
                 get => _buffer;
                 set => SetProperty(ref _buffer, value);
+            }
+            public List<string> AppliedDirectionBuffer
+            {
+                get => _appliedDirectionBuffer;
+                set => SetProperty(ref _appliedDirectionBuffer, value);
             }
             public List<double> AppliedBuffer
             {

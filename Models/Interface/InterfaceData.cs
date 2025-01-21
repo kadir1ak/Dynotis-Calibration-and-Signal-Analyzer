@@ -304,11 +304,13 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
                 {
                     No = i + 1,
 
+                    AppliedDirection_Thrust = loadCellTest.Thrust.AppliedDirectionBuffer[i],
                     Applied_Thrust = loadCellTest.Thrust.AppliedBuffer[i],
                     Calculated_Thrust = loadCellTest.Thrust.Buffer[i],
                     Error_Thrust = loadCellTest.Thrust.ErrorBuffer[i],
                     FSError_Thrust = loadCellTest.Thrust.FSErrorBuffer[i],
 
+                    AppliedDirection_Torque = loadCellTest.Torque.AppliedDirectionBuffer[i],
                     Applied_Torque = loadCellTest.Torque.AppliedBuffer[i],
                     Calculated_Torque = loadCellTest.Torque.Buffer[i],
                     Error_Torque = loadCellTest.Torque.ErrorBuffer[i],
