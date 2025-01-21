@@ -18,7 +18,6 @@ using Dynotis_Calibration_and_Signal_Analyzer.Models.Serial;
 using Dynotis_Calibration_and_Signal_Analyzer.Services;
 using OxyPlot.Legends;
 using System.Windows.Input;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Collections.ObjectModel;
 using Microsoft.VisualBasic;
 
@@ -725,8 +724,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 while (elapsed < duration)
                 {
                     await Task.Delay(interval);
-                    calculatedThrustValues.Add(thrust.calculated.Value);
-                    calculatedTorqueValues.Add(torque.calculated.Value);
+                    calculatedThrustValues.Add(thrust.calculated.Value - thrust.calculated.TareValue);
+                    calculatedTorqueValues.Add(torque.calculated.Value - torque.calculated.TareValue);
                     elapsed += interval;
 
                     // Progress güncellemesi
@@ -1331,7 +1330,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 await Task.Delay(10); // Simülasyon için kısa bir gecikme
 
                 // Hesaplanan değerleri güncelle
-                thrust.calculated.Value = Math.Round(calculatedValue, 3); 
+                thrust.calculated.Value = Math.Round(calculatedValue, 3);
+                thrust.calculated.NetValue = Math.Round(calculatedValue - thrust.calculated.TareValue, 3);
                 thrust.calculated.RawValue = Math.Round(rawValue, 3); 
                 thrust.calculated.ErrorValue = Math.Round(calculatedErrorValue, 3); 
                 thrust.raw.ErrorValue = Math.Round(calculatedErrorRawValue, 3); 
@@ -1386,6 +1386,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                 // Hesaplanan değerleri güncelle
                 torque.calculated.Value = Math.Round(calculatedValue, 3);
+                torque.calculated.NetValue = Math.Round(calculatedValue - torque.calculated.TareValue, 3);
                 torque.calculated.RawValue = Math.Round(rawValue, 3);
                 torque.calculated.ErrorValue = Math.Round(calculatedErrorValue, 3);
                 torque.raw.ErrorValue = Math.Round(calculatedErrorRawValue, 3);
@@ -1471,6 +1472,31 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             {
                 // Hata yönetimi
                 MessageBox.Show($"Error in calculation: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
+        #region Tare
+        public async Task ThrustTareAsync()
+        {
+            try
+            {
+                thrust.calculated.TareValue = thrust.calculated.Value;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Thrust tare error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        public async Task TorqueTareAsync()
+        {
+            try
+            {
+                torque.calculated.TareValue = torque.calculated.Value;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Torque tare error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         #endregion
@@ -2121,6 +2147,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             Interface.Thrust.calculated.NoiseValue = thrust.calculated.NoiseValue;
                             Interface.Thrust.calculated.Value = thrust.calculated.Value;
                             Interface.Thrust.calculated.NetValue = thrust.calculated.NetValue;
+                            Interface.Thrust.calculated.TareValue = thrust.calculated.TareValue;
 
                             Interface.Torque.raw.Value = torque.raw.Value;
                             Interface.Torque.raw.NoiseValue = torque.raw.NoiseValue;
@@ -2130,6 +2157,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             Interface.Torque.calculated.NoiseValue = torque.calculated.NoiseValue;
                             Interface.Torque.calculated.Value = torque.calculated.Value;
                             Interface.Torque.calculated.NetValue = torque.calculated.NetValue;
+                            Interface.Torque.calculated.TareValue = torque.calculated.TareValue;
 
 
                             Interface.Thrust.calibration.Coefficient.Equation = "İtki (" + (thrust.calculated.UnitSymbol) + ") = " + thrust.calibration.Coefficient.Equation;

@@ -374,14 +374,34 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
         #endregion
 
         #region Tare
-        private void Tork_Dara_Button_Click(object sender, RoutedEventArgs e)
+        private async void Tork_Dara_Button_Click(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                if (dynotis != null)
+                {
+                    await dynotis.TorqueTareAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }           
         }
 
-        private void Itki_Dara_Button_Click(object sender, RoutedEventArgs e)
+        private async void Itki_Dara_Button_Click(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                if (dynotis != null)
+                {
+                    await dynotis.ThrustTareAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bir hata oluştu: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         #endregion
 

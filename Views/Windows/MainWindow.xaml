@@ -640,9 +640,9 @@
                     <Label x:Name="Itki_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="{Binding dynotis.Interface.Thrust.calculated.RawValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Button x:Name="Itki_Dara_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Itki_Dara_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
                     <Label x:Name="Uygulanan_Itki_Birim_Tablo" Grid.Row="0" Grid.Column="3" Content="{Binding dynotis.Interface.Thrust.calculated.UnitSymbol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="24" Foreground="DarkOrange" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
-                    <Label x:Name="Itki_GRAM_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_GRAM_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_GRAM_Noise_Label" Grid.Row="2" Grid.Column="2" Content="{Binding dynotis.Interface.Thrust.calculated.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="Itki_GRAM_Error_Label" Grid.Row="3" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Itki_GRAM_Error_Label" Grid.Row="3" Grid.Column="2" Content="" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_GRAM_Hesaplanan_Label" Grid.Row="4" Grid.Column="2" Content="{Binding dynotis.Interface.Thrust.calculated.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="20" Foreground="DarkOrange" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Itki_GRAM_Sonuc_Label" Grid.Row="5" Grid.Column="2" Content="{Binding dynotis.Interface.Thrust.calculated.NetValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="20" Foreground="#FFFF5D00" HorizontalAlignment="Right"></Label>
                 </Grid>
@@ -689,9 +689,9 @@
                     <Label x:Name="Tork_ADC_Hesaplanan_Label" Grid.Row="4" Grid.Column="1" Content="{Binding dynotis.Interface.Torque.calculated.RawValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Button x:Name="Tork_Dara_Button" Content="Dara Al" Grid.Row="5" Grid.Column="1" Click="Tork_Dara_Button_Click" Height="28" Width="100" FontSize="18" Margin="5" BorderBrush="White" Foreground="#FF081D73" Background="#FFBBDEBF"></Button>
                     <Label x:Name="Uygulanan_Tork_Birim_Tablo" Grid.Row="0" Grid.Column="2" Content="{Binding dynotis.Interface.Torque.calculated.UnitSymbol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="24" Foreground="Green" FontWeight="Bold" HorizontalAlignment="Center" ></Label>
-                    <Label x:Name="Tork_Nmm_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_Nmm_Okunan_Label" Grid.Row="1" Grid.Column="2" Content="" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Tork_Nmm_Noise_Label" Grid.Row="2" Grid.Column="2" Content="{Binding dynotis.Interface.Torque.calculated.NoiseValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="16" HorizontalAlignment="Right"></Label>
-                    <Label x:Name="Tork_Nmm_Error_Label" Grid.Row="3" Grid.Column="2" Content="0" FontSize="16" HorizontalAlignment="Right"></Label>
+                    <Label x:Name="Tork_Nmm_Error_Label" Grid.Row="3" Grid.Column="2" Content="" FontSize="16" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Tork_Nmm_Hesaplanan_Label" Grid.Row="4" Grid.Column="2" Content="{Binding dynotis.Interface.Torque.calculated.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="20" Foreground="Green" HorizontalAlignment="Right"></Label>
                     <Label x:Name="Tork_Nmm_Sonuc_Label" Grid.Row="5" Grid.Column="2" Content="{Binding dynotis.Interface.Torque.calculated.NetValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.000}}" FontSize="20" Foreground="#FFFF5D00" HorizontalAlignment="Right"></Label>
 
