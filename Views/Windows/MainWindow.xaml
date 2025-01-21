@@ -394,7 +394,7 @@
                 <GroupBox.Header >
                     <TextBlock Text="Uygulanan İtki Yönü" FontSize="20" FontWeight="Bold"/>
                 </GroupBox.Header>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}">
                     <!-- Basma RadioButton -->
                     <RadioButton IsChecked="{Binding dynotis.Interface.Thrust.calibration.DirectionC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="10 10 20 0" GroupName="ThrustDirection">
                         <StackPanel Orientation="Horizontal">
@@ -452,7 +452,7 @@
                 <GroupBox.Header >
                     <TextBlock Text="Uygulanan Tork Yönü" FontSize="20" FontWeight="Bold"/>
                 </GroupBox.Header>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" IsEnabled="{Binding dynotis.Interface.TextboxIsEnabled}">
                     <!-- Sol RadioButton -->
                     <RadioButton IsChecked="{Binding dynotis.Interface.Torque.calibration.DirectionL, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="10 10 20 0" GroupName="TorqueDirection">
                         <StackPanel Orientation="Horizontal">

@@ -489,12 +489,22 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 {
                     AppliedThrust *= 1;
                 }
+                // Uygulanan itki yönüne göre işlem yapılır
+                if (calibration.DirectionC)
+                {
+                    AppliedThrust = -AppliedThrust;
+                }
+                else if (calibration.DirectionT)
+                {
+                    AppliedThrust = AppliedThrust;
+                }
                 // Uygulanan değeri eklenecekse durum sorgulanır
                 if (calibration.AddingOn && calibration.PointAppliedBuffer.Count > 0)
                 {
                     // Uygulanan değeri üzerine ekle
                     AppliedThrust += calibration.PointAppliedBuffer[calibration.PointAppliedBuffer.Count - 1];
                 }
+
                           
 
                 List<double> Values = new List<double>();
@@ -558,12 +568,23 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 {
                     AppliedTorque = AppliedTorque * 0.00981 * torque.calibration.AppliedDistance;
                 }
+                // Uygulanan tork yönüne göre işlem yapılır
+                if (calibration.DirectionL)
+                {
+                    AppliedTorque = -AppliedTorque;
+                }
+                else if (calibration.DirectionR)
+                {
+                    AppliedTorque = AppliedTorque;
+                }
                 // Uygulanan değeri eklenecekse durum sorgulanır
                 if (calibration.AddingOn && calibration.PointAppliedBuffer.Count > 0)
                 {
                     // Uygulanan değeri üzerine ekle
                     AppliedTorque += calibration.PointAppliedBuffer[calibration.PointAppliedBuffer.Count - 1];
                 }
+
+
 
                 List<double> Values = new List<double>();
                 List<double> ErrorValues = new List<double>();
@@ -747,7 +768,15 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 {
                     AppliedThrust *= 1;
                 }
-
+                // Uygulanan itki yönüne göre işlem yapılır
+                if (thrust.calibration.DirectionC)
+                {
+                    AppliedThrust = -AppliedThrust;
+                }
+                else if (thrust.calibration.DirectionT)
+                {
+                    AppliedThrust = AppliedThrust;
+                }
                 // Değere birim uygulaması
                 if (torque.calculated.UnitName == "Newton")
                 {
@@ -756,6 +785,15 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 else if (torque.calculated.UnitName == "Nmm")
                 {
                     AppliedTorque = AppliedTorque * 0.00981 * torque.calibration.AppliedDistance;
+                }
+                // Uygulanan tork yönüne göre işlem yapılır
+                if (torque.calibration.DirectionL)
+                {
+                    AppliedTorque = -AppliedTorque;
+                }
+                else if (torque.calibration.DirectionR)
+                {
+                    AppliedTorque = AppliedTorque;
                 }
 
 
