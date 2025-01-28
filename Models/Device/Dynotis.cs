@@ -151,8 +151,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             }
         }
 
-        private DateTime _manufactureDate;
-        public DateTime ManufactureDate
+        private string _manufactureDate;
+        public string ManufactureDate
         {
             get => _manufactureDate;
             set
@@ -192,27 +192,33 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 }
             }
         }
-
         private void ParseDeviceInfo(string deviceInfo)
         {
             try
             {
                 string[] parts = deviceInfo.Split(';');
-                if (parts.Length == 6)
+                if (parts.Length == 6 &&
+                    !string.IsNullOrWhiteSpace(parts[0]) && // CompanyName
+                    !string.IsNullOrWhiteSpace(parts[1]) && // ProductName
+                    !string.IsNullOrWhiteSpace(parts[2]) && // ProductModel
+                    !string.IsNullOrWhiteSpace(parts[3]) && // ManufactureDate
+                    !string.IsNullOrWhiteSpace(parts[4]) && // ProductId
+                    !string.IsNullOrWhiteSpace(parts[5])) // FirmwareVersion
                 {
-
-                    CompanyName = parts[0];
-                    ProductName = parts[1];
-                    ProductModel = parts[2];
-                    ManufactureDate = DateTime.Parse(parts[3]);
-                    ProductId = parts[4];
-                    FirmwareVersion = parts[5];                  
+                    // UI iş parçacığında çalıştır
+                    if (Application.Current?.Dispatcher.CheckAccess() == true)
+                    {
+                        AssignDeviceProperties(parts);
+                    }
+                    else
+                    {
+                        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            AssignDeviceProperties(parts);
+                        }));
+                    }
 
                     MessageBox.Show("Device identified successfully!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    MessageBox.Show("Invalid device info format!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
@@ -220,6 +226,16 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Error parsing device info: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void AssignDeviceProperties(string[] parts)
+        {
+            CompanyName = parts[0];
+            ProductName = parts[1];
+            ProductModel = parts[2];
+            ManufactureDate = parts[3]; 
+            ProductId = parts[4];
+            FirmwareVersion = parts[5];
+        }        
         #endregion
 
         #region Serial Port
@@ -318,10 +334,17 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 if (string.IsNullOrEmpty(indata)) return;
 
                 // Cihaz tanımlama mesajını kontrol et
-                if (indata.StartsWith("Semai Aviation Ltd.;"))
+                if (indata.StartsWith("Semai Aviation Ltd.;Dynotis;"))
                 {
                     ParseDeviceInfo(indata); // Cihaz bilgilerini ayrıştır
-                    StartSendMessageLoop(); // Cihaz durum mesajını gönder
+                    if (ProductName == "Dynotis")
+                    {
+                        StartSendMessageLoop(); // Cihaz durum mesajını gönder
+                    }
+                    else
+                    {
+                        StopSendMessageLoop();
+                    }
                     return;
                 }
 
@@ -2438,7 +2461,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             await CalculateCurrentValueAsync(current);
                             await CalculateVoltageValueAsync(voltage);
 
-                            Interface.PortReadData = $"Port Message: {portReadData}";
+                            Interface.PortReadData = $"{ProductModel} Model Device Message: {portReadData}";
                             Interface.PortReadTime = portReadTime;
 
                             thrust.calibration.AddingOn = Interface.Thrust.calibration.AddingOn;

@@ -805,10 +805,10 @@
             </TabControl>
 
             <!-- Debug Paneli -->
-            <Grid Grid.Row="1" Grid.ColumnSpan="5" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Margin="250 0 0 0">
+            <Grid Grid.Row="1" Grid.ColumnSpan="5" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Margin="100 0 0 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="2*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Label  Grid.Column="0" Content="{Binding dynotis.SampleCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Left" Margin="0 0 0 0"></Label>
                 <Label  Grid.Column="1" Content="{Binding dynotis.Interface.PortReadData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Left" Margin="0 0 0 0"></Label>
