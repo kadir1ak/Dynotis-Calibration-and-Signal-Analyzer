@@ -47,6 +47,181 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
         #endregion
 
+        #region Send Message
+        private CancellationTokenSource _sendMessageLoopCancellationTokenSource;
+        private int SendMessageTimeMillisecond = 10; // 100 Hz (10ms)
+        private readonly object _messageLock = new();
+
+        private async Task SendMessageLoop(CancellationToken token)
+        {
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    await Task.Delay(SendMessageTimeMillisecond, token); // 10ms bekle
+
+                    string message;
+                    lock (_messageLock)
+                    {
+                        message = $"Device_Status:4;ESC:800;";
+                    }
+
+                    if (serialPort != null && serialPort.IsOpen)
+                    {
+                        try
+                        {
+                            serialPort.WriteLine(message);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error sending message: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // Döngü iptal edildiğinde hata göstermeden çık
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Send message loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void StartSendMessageLoop()
+        {
+            StopSendMessageLoop(); // Eski döngüyü durdur
+            _sendMessageLoopCancellationTokenSource = new CancellationTokenSource();
+            var token = _sendMessageLoopCancellationTokenSource.Token;
+            _ = SendMessageLoop(token);
+        }
+
+        public void StopSendMessageLoop()
+        {
+            if (_sendMessageLoopCancellationTokenSource != null && !_sendMessageLoopCancellationTokenSource.IsCancellationRequested)
+            {
+                _sendMessageLoopCancellationTokenSource.Cancel();
+                _sendMessageLoopCancellationTokenSource.Dispose();
+                _sendMessageLoopCancellationTokenSource = null;
+            }
+        }
+        #endregion
+
+        #region Device Info
+        private string _companyName;
+        public string CompanyName
+        {
+            get => _companyName;
+            set
+            {
+                if (_companyName != value)
+                {
+                    _companyName = value;
+                    OnPropertyChanged(nameof(CompanyName));
+                }
+            }
+        }
+
+        private string _productName;
+        public string ProductName
+        {
+            get => _productName;
+            set
+            {
+                if (_productName != value)
+                {
+                    _productName = value;
+                    OnPropertyChanged(nameof(ProductName));
+                }
+            }
+        }
+
+        private string _productModel;
+        public string ProductModel
+        {
+            get => _productModel;
+            set
+            {
+                if (_productModel != value)
+                {
+                    _productModel = value;
+                    OnPropertyChanged(nameof(ProductModel));
+                }
+            }
+        }
+
+        private DateTime _manufactureDate;
+        public DateTime ManufactureDate
+        {
+            get => _manufactureDate;
+            set
+            {
+                if (_manufactureDate != value)
+                {
+                    _manufactureDate = value;
+                    OnPropertyChanged(nameof(ManufactureDate));
+                }
+            }
+        }
+
+        private string _productId;
+        public string ProductId
+        {
+            get => _productId;
+            set
+            {
+                if (_productId != value)
+                {
+                    _productId = value;
+                    OnPropertyChanged(nameof(ProductId));
+                }
+            }
+        }
+
+        private string _firmwareVersion;
+        public string FirmwareVersion
+        {
+            get => _firmwareVersion;
+            set
+            {
+                if (_firmwareVersion != value)
+                {
+                    _firmwareVersion = value;
+                    OnPropertyChanged(nameof(FirmwareVersion));
+                }
+            }
+        }
+
+        private void ParseDeviceInfo(string deviceInfo)
+        {
+            try
+            {
+                string[] parts = deviceInfo.Split(';');
+                if (parts.Length == 6)
+                {
+
+                    CompanyName = parts[0];
+                    ProductName = parts[1];
+                    ProductModel = parts[2];
+                    ManufactureDate = DateTime.Parse(parts[3]);
+                    ProductId = parts[4];
+                    FirmwareVersion = parts[5];                  
+
+                    MessageBox.Show("Device identified successfully!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Invalid device info format!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error parsing device info: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion
+
         #region Serial Port
 
         private string _sampleCount;
@@ -141,6 +316,14 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                 string indata = serialPort.ReadExisting();
                 if (string.IsNullOrEmpty(indata)) return;
+
+                // Cihaz tanımlama mesajını kontrol et
+                if (indata.StartsWith("Semai Aviation Ltd.;"))
+                {
+                    ParseDeviceInfo(indata); // Cihaz bilgilerini ayrıştır
+                    StartSendMessageLoop(); // Cihaz durum mesajını gönder
+                    return;
+                }
 
                 string[] dataParts = indata.Split(',');
                 if (dataParts.Length == 5 &&
