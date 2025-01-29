@@ -5,6 +5,8 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dynotis Calibration and Signal Analyzer", "Dynotis Calibration and Signal Analyzer.csproj", "{2E2B4D32-4674-48D1-8E88-D610092C81F6}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Dynotis_Calibration_and_Signal_Analyzer_Setup", "..\Dynotis_Calibration_and_Signal_Analyzer_Setup\Dynotis_Calibration_and_Signal_Analyzer_Setup.vdproj", "{A904D912-A6C3-4576-A83A-101E364A0DB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,12 @@ Global
 		{2E2B4D32-4674-48D1-8E88-D610092C81F6}.Release|x64.Build.0 = Release|x64
 		{2E2B4D32-4674-48D1-8E88-D610092C81F6}.Release|x86.ActiveCfg = Release|x86
 		{2E2B4D32-4674-48D1-8E88-D610092C81F6}.Release|x86.Build.0 = Release|x86
+		{A904D912-A6C3-4576-A83A-101E364A0DB8}.Debug|Any CPU.ActiveCfg = Debug
+		{A904D912-A6C3-4576-A83A-101E364A0DB8}.Debug|x64.ActiveCfg = Debug
+		{A904D912-A6C3-4576-A83A-101E364A0DB8}.Debug|x86.ActiveCfg = Debug
+		{A904D912-A6C3-4576-A83A-101E364A0DB8}.Release|Any CPU.ActiveCfg = Release
+		{A904D912-A6C3-4576-A83A-101E364A0DB8}.Release|x64.ActiveCfg = Release
+		{A904D912-A6C3-4576-A83A-101E364A0DB8}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
