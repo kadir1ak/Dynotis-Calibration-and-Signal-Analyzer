@@ -394,6 +394,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             current.raw.Value = akım;
             voltage.raw.Value = voltaj;
 
+            /*
             UpdateRawBuffer(thrust.raw.Buffer, itki);
             UpdateRawBuffer(torque.raw.Buffer, tork);
             UpdateRawBuffer(current.raw.Buffer, akım);
@@ -403,6 +404,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             torque.raw.NoiseValue = CalculateNoise(torque.raw.Buffer);
             current.raw.NoiseValue = CalculateNoise(current.raw.Buffer);
             voltage.raw.NoiseValue = CalculateNoise(voltage.raw.Buffer);
+            */
         }
 
         private void CalculateSampleRate()
@@ -585,6 +587,30 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             double average = rawBuffer.Average();
             double sumSquaredDiff = rawBuffer.Select(x => Math.Pow(x - average, 2)).Sum();
             return Math.Round(Math.Sqrt(sumSquaredDiff / rawBuffer.Count), 3);
+        }
+
+        private double CalculateSeriesStatistics(LineSeries series)
+        {
+            if (series.Points == null || series.Points.Count == 0)
+                throw new InvalidOperationException("Series does not contain any points.");
+
+            // Y değerlerini al
+            var values = series.Points.Select(p => p.Y).ToArray();
+
+            // Ortalama hesapla
+            double average = values.Average();
+
+            // Standart sapma hesapla
+            double stdDev = Math.Sqrt(values.Average(v => Math.Pow(v - average, 2)));
+
+            // Minimum ve maksimum değerler
+            double min = values.Min();
+            double max = values.Max();
+
+            // Min-Max farkı (Delta)
+            double delta = max - min;
+
+            return Math.Round(delta, 3);
         }
         #endregion
 
@@ -2658,6 +2684,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             {
                                 thrustSeries.Points.Add(new DataPoint(latestTime, thrustValue));
                                 while (thrustSeries.Points.Count > Interface.Dividing) thrustSeries.Points.RemoveAt(0);
+                                thrust.raw.NoiseValue = CalculateSeriesStatistics(thrustSeries);
                             }
                             catch (Exception ex)
                             {
@@ -2671,6 +2698,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             {
                                 torqueSeries.Points.Add(new DataPoint(latestTime, torqueValue));
                                 while (torqueSeries.Points.Count > Interface.Dividing) torqueSeries.Points.RemoveAt(0);
+                                torque.raw.NoiseValue = CalculateSeriesStatistics(torqueSeries);
                             }
                             catch (Exception ex)
                             {
@@ -2684,6 +2712,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             {
                                 currentSeries.Points.Add(new DataPoint(latestTime, currentValue));
                                 while (currentSeries.Points.Count > Interface.Dividing) currentSeries.Points.RemoveAt(0);
+                                current.raw.NoiseValue = CalculateSeriesStatistics(currentSeries);
                             }
                             catch (Exception ex)
                             {
@@ -2697,6 +2726,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             {
                                 voltageSeries.Points.Add(new DataPoint(latestTime, voltageValue));
                                 while (voltageSeries.Points.Count > Interface.Dividing) voltageSeries.Points.RemoveAt(0);
+                                voltage.raw.NoiseValue = CalculateSeriesStatistics(voltageSeries);
                             }
                             catch (Exception ex)
                             {
