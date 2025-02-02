@@ -536,13 +536,13 @@
                 <ColumnDefinition Width="30*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="250"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0" Grid.Column="0"  >
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"></RowDefinition>
-                    <RowDefinition Height="2*"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
 
                 <!-- Port ComboBox -->
@@ -551,7 +551,22 @@
                         <TextBlock Text="Port Seç" FontSize="16" FontWeight="Bold"/>
                     </GroupBox.Header>
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5">
-                        <ComboBox x:Name="portComboBox" FontSize="20" Grid.Row="0" Grid.Column="0" SelectionChanged="Port_SelectionChanged" Margin="10"></ComboBox>
+                        <ComboBox x:Name="portComboBox" FontSize="20" SelectionChanged="Port_SelectionChanged" Margin="10"></ComboBox>
+                        <Button x:Name="portButton" Content="{Binding dynotis.ConnectStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontWeight="Bold" FontSize="20" Click="Port_ConnectClick" Margin="10" Height="35">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Foreground" Value="Gray" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Content, RelativeSource={RelativeSource Self}}" Value="Bağlı">
+                                            <Setter Property="Foreground" Value="#FF24BF6D" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Content, RelativeSource={RelativeSource Self}}" Value="Bağlı Değil">
+                                            <Setter Property="Foreground" Value="#FFF35A37" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                     </StackPanel>
                 </GroupBox>
 
@@ -574,24 +589,24 @@
 
                         <!-- İtki ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="0" Text="İtki: " VerticalAlignment="Center" FontSize="16" Margin="0,0,10,0" />
-                        <ComboBox Grid.Column="1" Grid.Row="0" Height="24" FontSize="14" x:Name="ItkiComboBox" IsEnabled="{Binding dynotis.Interface.ThrustUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Thrust.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectionChanged="ThrustUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="0" Height="24" FontSize="14" x:Name="ItkiComboBox" Margin="0 5 0 0" IsEnabled="{Binding dynotis.Interface.ThrustUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Thrust.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectionChanged="ThrustUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="Gram" />
                             <ComboBoxItem Content="Newton" />
                         </ComboBox>
                         <!-- Tork ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="1" Text="Tork: " VerticalAlignment="Center" FontSize="16" Margin="0,0,10,0" />
-                        <ComboBox Grid.Column="1" Grid.Row="1" Height="24" FontSize="14" x:Name="TorkComboBox" IsEnabled="{Binding dynotis.Interface.TorqueUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Torque.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectionChanged="TorqueUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="1" Height="24" FontSize="14" x:Name="TorkComboBox" Margin="0 5 0 0" IsEnabled="{Binding dynotis.Interface.TorqueUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Torque.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectionChanged="TorqueUnit_SelectionChanged" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="Newton*mm" />
                             <ComboBoxItem Content="Newton" />
                         </ComboBox>
                         <!-- Akım ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="2" Text="Akım: " VerticalAlignment="Center" Margin="0,0,10,0" FontSize="16" />
-                        <ComboBox Grid.Column="1" Grid.Row="2" Height="24" FontSize="14" x:Name="AkimComboBox" IsEnabled="{Binding dynotis.Interface.CurrentUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Current.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="2" Height="24" FontSize="14" x:Name="AkimComboBox" Margin="0 5 0 0" IsEnabled="{Binding dynotis.Interface.CurrentUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Current.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="mAmper" />
                         </ComboBox>
                         <!-- Voltaj ComboBox -->
                         <TextBlock Grid.Column="0" Grid.Row="3" Text="Voltaj: " VerticalAlignment="Center" Margin="0,0,10,0" FontSize="16" />
-                        <ComboBox Grid.Column="1" Grid.Row="3" Height="24" FontSize="14" x:Name="VoltajComboBox" IsEnabled="{Binding dynotis.Interface.VoltageUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Voltage.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectedIndex="0" HorizontalAlignment="Stretch">
+                        <ComboBox Grid.Column="1" Grid.Row="3" Height="24" FontSize="14" x:Name="VoltajComboBox" Margin="0 5 0 0" IsEnabled="{Binding dynotis.Interface.VoltageUnitsIsEnabled}" SelectedItem="{Binding dynotis.Interface.Voltage.calculated.UnitName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" SelectedIndex="0" HorizontalAlignment="Stretch">
                             <ComboBoxItem Content="mVolt" />
                         </ComboBox>
                     </Grid>

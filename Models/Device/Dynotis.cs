@@ -192,6 +192,20 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 }
             }
         }
+
+        private string _connectStatus;
+        public string ConnectStatus
+        {
+            get => _connectStatus;
+            set
+            {
+                if (_connectStatus != value)
+                {
+                    _connectStatus = value;
+                    OnPropertyChanged(nameof(ConnectStatus));
+                }
+            }
+        }
         private void ParseDeviceInfo(string deviceInfo)
         {
             try
@@ -284,8 +298,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 // Mevcut seri port açıksa kapat
                 if (serialPort?.IsOpen == true)
                 {
-                    serialPort.DataReceived -= SerialPort_DataReceived;
-                    serialPort.Close();
+                    StopSerialPort();
                 }
 
                 // Yeni SerialPort nesnesi oluştur ve ayarlarını yap
@@ -305,6 +318,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 serialPort.DataReceived += SerialPort_DataReceived;
                 // Seri portu aç
                 serialPort.Open();
+                ConnectStatus = "Bağlı";
                 // Seri port başarıyla açıldıysa ara yüz verilerini güncelleme döngüsünü başlat
                 StartUpdateInterfaceDataLoop();
                 // Grafik güncelleme döngüsünü başlat
@@ -322,8 +336,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             {
                 MessageBox.Show($"Error connecting to port: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+      
         }
-        private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        public void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
 
             try
@@ -393,18 +408,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             torque.raw.Value = tork;
             current.raw.Value = akım;
             voltage.raw.Value = voltaj;
-
-            /*
-            UpdateRawBuffer(thrust.raw.Buffer, itki);
-            UpdateRawBuffer(torque.raw.Buffer, tork);
-            UpdateRawBuffer(current.raw.Buffer, akım);
-            UpdateRawBuffer(voltage.raw.Buffer, voltaj);
-
-            thrust.raw.NoiseValue = CalculateNoise(thrust.raw.Buffer);
-            torque.raw.NoiseValue = CalculateNoise(torque.raw.Buffer);
-            current.raw.NoiseValue = CalculateNoise(current.raw.Buffer);
-            voltage.raw.NoiseValue = CalculateNoise(voltage.raw.Buffer);
-            */
         }
 
         private void CalculateSampleRate()
@@ -427,9 +430,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             {
                 serialPort.Close();
                 serialPort.DataReceived -= SerialPort_DataReceived;
+                ConnectStatus = "Bağlı Değil";
             }
         }
-
         #endregion
 
         #region Sensors
@@ -2513,6 +2516,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             else if (thrust.calibration.DirectionT)
                             {
                                 thrust.calibration.AppliedDirection = "Çekme";
+                            }
+
+                            if (serialPort?.IsOpen == false)
+                            {
+                                ConnectStatus = "Bağlı Değil";
                             }
 
                             Interface.Current.raw.Value = current.raw.Value;

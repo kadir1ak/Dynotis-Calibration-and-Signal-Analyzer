@@ -69,6 +69,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             #endregion
 
             #region Serial Port Yönetimi
+            // Bağlantı durumu
+            dynotis.ConnectStatus = "Bağlı Değil";
+
             // Serial port yöneticisi oluşturuldu
             serialPortsManager = new SerialPortsManager();
 
@@ -128,8 +131,13 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             {
                 try
                 {
-                    // Seçilen portu bağla
-                    await dynotis.SerialPortConnect(selectedPort);
+                    // Mevcut bağlantıyı kapat
+                    if (dynotis.serialPort?.IsOpen == true)
+                    {
+                        dynotis.StopSerialPort();
+                    }
+                    // Seçilen portu ata
+                    dynotis.serialPort.PortName = selectedPort;
                 }
                 catch (Exception ex)
                 {
@@ -138,6 +146,22 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
                                     MessageBoxButton.OK,
                                     MessageBoxImage.Error);
                 }
+            }
+        }
+        private async void Port_ConnectClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Seçilen portu bağla
+                await dynotis.SerialPortConnect(dynotis.serialPort.PortName);
+            }
+            catch (Exception ex)
+            {
+                dynotis.ConnectStatus = "Bağlı Değil";
+                MessageBox.Show($"Failed to connect to port {dynotis.serialPort.PortName}: {ex.Message}",
+                                "Connection Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
             }
         }
         #endregion
@@ -490,6 +514,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
             }
         }
         #endregion
+
     }
 }
 
