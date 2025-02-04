@@ -1434,9 +1434,18 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 error.Coefficient.ErrorC = errorCoefficients.Length > 1 ? errorCoefficients[1] : 0;
                 error.Coefficient.ErrorD = errorCoefficients.Length > 0 ? errorCoefficients[0] : 0;
 
-                // Denklemleri oluştur
-                string equation = GeneratePolynomialEquation(coefficients, "x");
-                string errorEquation = GeneratePolynomialEquation(errorCoefficients, "e");
+               
+                // Katsayıları göster - Denklemleri oluştur
+                string equation = calibration.Coefficient.A.ToString() + "x³ +" +
+                                   calibration.Coefficient.B.ToString() + "x² +" +
+                                   calibration.Coefficient.C.ToString() + "x +" +
+                                   calibration.Coefficient.D.ToString();
+
+                // Katsayıları göster - Denklemleri oluştur
+                string errorEquation = error.Coefficient.ErrorA.ToString() + "x³ +" +
+                                       error.Coefficient.ErrorA.ToString() + "x² +" +
+                                       error.Coefficient.ErrorA.ToString() + "x +" +
+                                       error.Coefficient.ErrorA.ToString();
 
                 calibration.Coefficient.Equation = equation;
                 error.Coefficient.ErrorEquation = errorEquation;
@@ -1496,9 +1505,17 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 error.Coefficient.ErrorC = errorCoefficients.Length > 1 ? errorCoefficients[1] : 0;
                 error.Coefficient.ErrorD = errorCoefficients.Length > 0 ? errorCoefficients[0] : 0;
 
-                // Denklemleri oluştur
-                string equation = GeneratePolynomialEquation(coefficients, "x");
-                string errorEquation = GeneratePolynomialEquation(errorCoefficients, "e");
+                // Katsayıları göster - Denklemleri oluştur
+                string equation = calibration.Coefficient.A.ToString() + "x³ +" +
+                                   calibration.Coefficient.B.ToString() + "x² +" +
+                                   calibration.Coefficient.C.ToString() + "x +" +
+                                   calibration.Coefficient.D.ToString();
+
+                // Katsayıları göster - Denklemleri oluştur
+                string errorEquation = error.Coefficient.ErrorA.ToString() + "x³ +" +
+                                       error.Coefficient.ErrorA.ToString() + "x² +" +
+                                       error.Coefficient.ErrorA.ToString() + "x +" +
+                                       error.Coefficient.ErrorA.ToString();
 
                 calibration.Coefficient.Equation = equation;
                 error.Coefficient.ErrorEquation = errorEquation;
@@ -1551,8 +1568,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     D = coefficients.Length > 0 ? coefficients[0] : 0
                 };
 
-                // Denklemleri oluştur
-                string equation = GeneratePolynomialEquation(coefficients, "x");
+                // Katsayıları göster - Denklemleri oluştur
+                string equation = calibration.Coefficient.A.ToString() + "x³ +" +
+                                   calibration.Coefficient.B.ToString() + "x² +" +
+                                   calibration.Coefficient.C.ToString() + "x +" +
+                                   calibration.Coefficient.D.ToString();
 
                 calibration.Coefficient.Equation = equation;
 
@@ -1603,8 +1623,11 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     D = coefficients.Length > 0 ? coefficients[0] : 0
                 };
 
-                // Denklemleri oluştur
-                string equation = GeneratePolynomialEquation(coefficients, "x");
+                // Katsayıları göster - Denklemleri oluştur
+                string equation =  calibration.Coefficient.A.ToString() + "x³ +" +
+                                   calibration.Coefficient.B.ToString() + "x² +" +
+                                   calibration.Coefficient.C.ToString() + "x +" +
+                                   calibration.Coefficient.D.ToString();
 
                 calibration.Coefficient.Equation = equation;
 
@@ -1618,15 +1641,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Error during {modeName} calibration: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }      
-        private string GeneratePolynomialEquation(double[] coefficients, string variable)
-        {
-            var terms = coefficients
-                .Select((c, i) => c != 0 ? $"{c:F6}*{variable}^{i}" : null)
-                .Where(t => t != null)
-                .Reverse()
-                .ToList();
-            return string.Join(" + ", terms);
-        }
         #endregion
 
         #region Calculation
