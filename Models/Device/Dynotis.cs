@@ -21,6 +21,7 @@ using System.Windows.Input;
 using System.Collections.ObjectModel;
 using Microsoft.VisualBasic;
 using System.Windows.Controls;
+using OxyPlot.Axes;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 {
@@ -231,8 +232,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             AssignDeviceProperties(parts);
                         }));
                     }
-
-                    MessageBox.Show("Device identified successfully!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
@@ -345,7 +344,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             {
                 if (serialPort == null || !serialPort.IsOpen) return;
 
-                string indata = serialPort.ReadExisting();
+                //string indata = serialPort.ReadExisting();
+                string indata = serialPort.ReadLine();
                 if (string.IsNullOrEmpty(indata)) return;
 
                 // Cihaz tanımlama mesajını kontrol et
@@ -2611,7 +2611,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         public void InitializeInterface()
         {
-            Interface.Dividing = 100;
+            Interface.TimeDividing = 1000.0;
+            Interface.ValueDividing = 100.0;
 
             thrust.calibration.AddingOn = true;
             torque.calibration.AddingOn = true;
@@ -2690,11 +2691,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                     lock (_PlotDataLock)
                     {
-                        latestTime = portReadTime;
-                        thrustValue = thrust.raw.Value;
-                        torqueValue = torque.raw.Value;
-                        currentValue = current.raw.Value;
-                        voltageValue = voltage.raw.Value;
+                        // Verileri kilitleyerek al
+                        latestTime = portReadTime; // Zaman değeri
+                        thrustValue = thrust.raw.Value; // Thrust (itme gücü) değeri
+                        torqueValue = torque.raw.Value; // Torque (tork) değeri
+                        currentValue = current.raw.Value; // Akım değeri
+                        voltageValue = voltage.raw.Value; // Voltaj değeri
                     }
 
                     // Grafiği güncelle
@@ -2702,58 +2704,22 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     {
                         if (PlotModel.Series[0] is LineSeries thrustSeries)
                         {
-                            try
-                            {
-                                thrustSeries.Points.Add(new DataPoint(latestTime, thrustValue));
-                                while (thrustSeries.Points.Count > Interface.Dividing) thrustSeries.Points.RemoveAt(0);
-                                thrust.raw.NoiseValue = CalculateSeriesStatistics(thrustSeries);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            }  
+                            UpdateSeries(thrustSeries, latestTime, thrustValue, thrust.raw.NoiseValue);
                         }
 
                         if (PlotModel.Series[1] is LineSeries torqueSeries)
                         {
-                            try
-                            {
-                                torqueSeries.Points.Add(new DataPoint(latestTime, torqueValue));
-                                while (torqueSeries.Points.Count > Interface.Dividing) torqueSeries.Points.RemoveAt(0);
-                                torque.raw.NoiseValue = CalculateSeriesStatistics(torqueSeries);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            }
+                            UpdateSeries(torqueSeries, latestTime, torqueValue, torque.raw.NoiseValue);
                         }
 
                         if (PlotModel.Series[2] is LineSeries currentSeries)
                         {
-                            try
-                            {
-                                currentSeries.Points.Add(new DataPoint(latestTime, currentValue));
-                                while (currentSeries.Points.Count > Interface.Dividing) currentSeries.Points.RemoveAt(0);
-                                current.raw.NoiseValue = CalculateSeriesStatistics(currentSeries);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            }
+                            UpdateSeries(currentSeries, latestTime, currentValue, current.raw.NoiseValue);
                         }
 
                         if (PlotModel.Series[3] is LineSeries voltageSeries)
                         {
-                            try
-                            {
-                                voltageSeries.Points.Add(new DataPoint(latestTime, voltageValue));
-                                while (voltageSeries.Points.Count > Interface.Dividing) voltageSeries.Points.RemoveAt(0);
-                                voltage.raw.NoiseValue = CalculateSeriesStatistics(voltageSeries);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            }
+                            UpdateSeries(voltageSeries, latestTime, voltageValue, voltage.raw.NoiseValue);
                         }
 
                         PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
@@ -2763,7 +2729,42 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             catch (Exception ex)
             {
                 MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }         
+            }
+        }
+        private void UpdateSeries(LineSeries series, double latestTime, double value, double noiseValue)
+        {
+            try
+            {
+                // Yeni veri noktasını ekle
+                series.Points.Add(new DataPoint(latestTime, value));
+
+                // Eski veri noktalarını kaldır
+                series.Points.RemoveAll(p => p.X < latestTime - Interface.TimeDividing / 1000.0);
+
+                // Gürültü değerini hesapla
+                noiseValue = CalculateSeriesStatistics(series);
+
+                // Zaman eksenini (X ekseni) yeniden ölçekle
+                if (series.PlotModel?.Axes.FirstOrDefault(a => a.Position == AxisPosition.Bottom) is LinearAxis xAxis)
+                {
+                    xAxis.Minimum = latestTime - Interface.TimeDividing / 1000.0;
+                    xAxis.Maximum = latestTime;
+                }
+
+                // Değer eksenini (Y ekseni) yeniden ölçekle
+                if (series.PlotModel?.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) is LinearAxis yAxis)
+                {
+                    // Y eksenini dinamik olarak ayarla (örneğin, min ve max değerler arasında bir tampon bırakabilirsiniz)
+                    double minValue = series.Points.Min(p => p.Y);
+                    double maxValue = series.Points.Max(p => p.Y);
+                    yAxis.Minimum = minValue - Interface.ValueDividing; // Alt sınır
+                    yAxis.Maximum = maxValue + Interface.ValueDividing; // Üst sınır
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public void StartUpdatePlotDataLoop()
@@ -2781,6 +2782,145 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 _updatePlotDataLoopCancellationTokenSource.Cancel();
                 _updatePlotDataLoopCancellationTokenSource.Dispose();
                 _updatePlotDataLoopCancellationTokenSource = null;
+            }
+        }
+        #endregion
+
+        #region FFT
+        private PlotModel _fftPlotModel;
+        public PlotModel FFTPlotModel
+        {
+            get => _fftPlotModel;
+            set
+            {
+                if (_fftPlotModel != value)
+                {
+                    _fftPlotModel = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private void InitializeFFTPlotModel()
+        {
+            FFTPlotModel = new PlotModel { };
+
+            // FFT Serileri Ekle
+            AddFFTSeries("Thrust FFT", OxyColors.Red);
+            AddFFTSeries("Torque FFT", OxyColors.Green);
+            AddFFTSeries("Current FFT", OxyColors.Blue);
+            AddFFTSeries("Voltage FFT", OxyColors.Purple);
+
+            // FFT Legend Ekle
+            FFTPlotModel.Legends.Add(new OxyPlot.Legends.Legend
+            {
+                LegendTitle = "FFT Legend",
+                LegendPosition = LegendPosition.RightTop,
+                LegendTextColor = OxyColors.Black
+            });
+        }
+
+        // FFT Serisi Eklemek için Yardımcı Metot
+        private void AddFFTSeries(string title, OxyColor color)
+        {
+            var series = new LineSeries
+            {
+                Title = title,
+                Color = color,
+                StrokeThickness = 2,
+                LineStyle = LineStyle.Solid
+            };
+            FFTPlotModel.Series.Add(series);
+        }
+        #endregion
+
+        #region Update FFT Plot Data
+        private CancellationTokenSource _updateFFTPlotDataLoopCancellationTokenSource;
+
+        private int FFTPlotUpdateTimeMillisecond = 10; // 100 Hz (10ms)
+
+        private readonly object _FFTPlotDataLock = new();
+        private async Task UpdateFFTPlotDataLoop(CancellationToken token)
+        {
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    await Task.Delay(PlotUpdateTimeMillisecond, token);
+
+                    double[] thrustFFTValues, torqueFFTValues, currentFFTValues, voltageFFTValues;
+
+                    lock (_PlotDataLock)
+                    {
+                        // FFT için Series.Points verilerini kullan
+                        thrustFFTValues = CalculateFFT(GetYValuesFromSeries(PlotModel.Series[0] as LineSeries));
+                        torqueFFTValues = CalculateFFT(GetYValuesFromSeries(PlotModel.Series[1] as LineSeries));
+                        currentFFTValues = CalculateFFT(GetYValuesFromSeries(PlotModel.Series[2] as LineSeries));
+                        voltageFFTValues = CalculateFFT(GetYValuesFromSeries(PlotModel.Series[3] as LineSeries));
+                    }
+
+                    // FFT sonuçlarını grafiğe yansıt
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        UpdateFFTSeries(FFTPlotModel.Series[0] as LineSeries, thrustFFTValues);
+                        UpdateFFTSeries(FFTPlotModel.Series[1] as LineSeries, torqueFFTValues);
+                        UpdateFFTSeries(FFTPlotModel.Series[2] as LineSeries, currentFFTValues);
+                        UpdateFFTSeries(FFTPlotModel.Series[3] as LineSeries, voltageFFTValues);
+
+                        FFTPlotModel.InvalidatePlot(true); // FFT grafiğini yeniden çiz
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"FFT update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void StartUpdateFFTPlotDataLoop()
+        {
+            StopUpdateFFTPlotDataLoop(); // Eski döngüyü durdur
+            _updateFFTPlotDataLoopCancellationTokenSource = new CancellationTokenSource();
+            var token = _updateFFTPlotDataLoopCancellationTokenSource.Token;
+            _ = UpdateFFTPlotDataLoop(token);
+        }
+
+        public void StopUpdateFFTPlotDataLoop()
+        {
+            if (_updateFFTPlotDataLoopCancellationTokenSource != null && !_updateFFTPlotDataLoopCancellationTokenSource.IsCancellationRequested)
+            {
+                _updateFFTPlotDataLoopCancellationTokenSource.Cancel();
+                _updateFFTPlotDataLoopCancellationTokenSource.Dispose();
+                _updateFFTPlotDataLoopCancellationTokenSource = null;
+            }
+        }
+        private double[] GetYValuesFromSeries(LineSeries series)
+        {
+            if (series == null || series.Points.Count == 0)
+                return Array.Empty<double>();
+
+            return series.Points.Select(point => point.Y).ToArray();
+        }
+
+        private double[] CalculateFFT(double[] data)
+        {
+            if (data.Length == 0) return Array.Empty<double>();
+
+            // Math.NET Numerics kullanarak FFT hesapla
+            var complexData = data.Select(value => new System.Numerics.Complex(value, 0)).ToArray();
+            MathNet.Numerics.IntegralTransforms.Fourier.Forward(complexData, MathNet.Numerics.IntegralTransforms.FourierOptions.Matlab);
+
+            // FFT sonuçlarının genliklerini al
+            return complexData.Select(c => c.Magnitude).ToArray();
+        }
+        private void UpdateFFTSeries(LineSeries series, double[] fftValues)
+        {
+            if (series == null) return;
+
+            series.Points.Clear();
+            for (int i = 0; i < fftValues.Length; i++)
+            {
+                series.Points.Add(new DataPoint(i, fftValues[i]));
             }
         }
         #endregion

@@ -130,11 +130,18 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Interface
             set => SetProperty(ref _applied_VoltageColumn, value);
         }
 
-        private double _dividing = 0;
-        public double Dividing
+        private double _timeDividing = 0;
+        public double TimeDividing
         {
-            get => _dividing;
-            set => SetProperty(ref _dividing, value);
+            get => _timeDividing;
+            set => SetProperty(ref _timeDividing, value);
+        }
+
+        private double _valueDividing = 0;
+        public double ValueDividing
+        {
+            get => _valueDividing;
+            set => SetProperty(ref _valueDividing, value);
         }
 
         private Mode _mode;
