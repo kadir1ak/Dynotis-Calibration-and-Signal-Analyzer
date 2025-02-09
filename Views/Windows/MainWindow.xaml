@@ -360,6 +360,25 @@
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>
+                <TabItem x:Name="TabItem_FFT" Header="FFT" FontSize="24">
+                    <!-- Sayfa içeriği buraya gelecek -->
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <!-- Ayarlar -->
+                        </Grid>
+
+                        <oxy:PlotView x:Name="FFTPlot_Area" Grid.Row="1" FontSize="16" Model="{Binding dynotis.FFTPlotModel}"/>
+                    </Grid>
+                </TabItem>
             </TabControl>
 
             <!-- İtki -->
@@ -847,7 +866,7 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                     <ColumnDefinition Width="2*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <Label  Grid.Column="0" Content="{Binding dynotis.SampleCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Left" Margin="0 0 0 0"></Label>
+                <Label  Grid.Column="0" Content="{Binding dynotis.SampleCountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Left" Margin="0 0 0 0"></Label>
                 <Label  Grid.Column="1" Content="{Binding dynotis.Interface.PortReadData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" HorizontalAlignment="Left" Margin="0 0 0 0"></Label>
             </Grid>
         </Grid>

@@ -21,7 +21,10 @@ using System.Windows.Input;
 using System.Collections.ObjectModel;
 using Microsoft.VisualBasic;
 using System.Windows.Controls;
+using MathNet.Numerics.IntegralTransforms;
 using OxyPlot.Axes;
+using MathNet.Numerics.IntegralTransforms;
+using MathNet.Numerics.Distributions;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 {
@@ -41,7 +44,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             serialPort = new SerialPort();
 
             InitializeInterface();
-            InitializePlotModel();
+            InitializePlotModel();       // Zaman Domeni Plot
+            InitializeFFTPlotModel();    // Frekans Domeni (FFT) Plot
         }
 
         #region Taslak
@@ -253,8 +257,15 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
         #region Serial Port
 
-        private string _sampleCount;
-        public string SampleCount
+        private string _sampleCountText;
+        public string SampleCountText
+        {
+            get => _sampleCountText;
+            set => SetProperty(ref _sampleCountText, value);
+        }
+
+        private double _sampleCount;
+        public double SampleCount
         {
             get => _sampleCount;
             set => SetProperty(ref _sampleCount, value);
@@ -309,8 +320,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     Parity = Parity.None,      // Parite
                     StopBits = StopBits.One,   // Stop bit
                     Handshake = Handshake.None, // Donanım kontrolü yok
-                    ReadTimeout = 1000,        // Okuma zaman aşımı (ms)
-                    WriteTimeout = 1000        // Yazma zaman aşımı (ms)
+                    ReadTimeout = 5000,        // Okuma zaman aşımı (ms)
+                    WriteTimeout = 5000        // Yazma zaman aşımı (ms)
                 };
 
                 // Veri alımı için olay işleyicisini bağla
@@ -322,6 +333,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 StartUpdateInterfaceDataLoop();
                 // Grafik güncelleme döngüsünü başlat
                 StartUpdatePlotDataLoop();
+                // FFT plot döngüsü
+                await Task.Delay(5000);
+                StartUpdateFFTPlotDataLoop();
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -339,7 +353,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         public void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-
             try
             {
                 if (serialPort == null || !serialPort.IsOpen) return;
@@ -391,11 +404,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             }
             catch (IOException ex)
             {
-                MessageBox.Show($"I/O Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 StopSerialPort();
+                MessageBox.Show($"I/O Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);              
             }
             catch (Exception ex)
             {
+                StopSerialPort();
                 MessageBox.Show($"Unexpected Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -408,6 +422,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             torque.raw.Value = tork;
             current.raw.Value = akım;
             voltage.raw.Value = voltaj;
+
+            UpdateRawBuffer(thrust.raw.Buffer, itki);
+            UpdateRawBuffer(torque.raw.Buffer, tork);
+            UpdateRawBuffer(current.raw.Buffer, akım);
+            UpdateRawBuffer(voltage.raw.Buffer, voltaj);
+
         }
 
         private void CalculateSampleRate()
@@ -418,7 +438,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
             if (elapsed.TotalSeconds >= 1) // Her saniyede bir hesapla
             {
-                SampleCount = $"Saniyedeki veri örnekleme hızı: {sampleCount} Hz";
+                SampleCountText = $"Veri Örnekleme Hızı: {sampleCount} Hz";
+                SampleCount = sampleCount;
                 sampleCount = 0;
                 lastUpdate = now;
             }
@@ -431,6 +452,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 serialPort.Close();
                 serialPort.DataReceived -= SerialPort_DataReceived;
                 ConnectStatus = "Bağlı Değil";
+                // InterfaceData loop durdurma
+                StopUpdateInterfaceDataLoop();
+                // Zaman domain loop durdurma
+                StopUpdatePlotDataLoop();
+                // FFT loop durdurma
+                StopUpdateFFTPlotDataLoop();
             }
         }
         #endregion
@@ -577,7 +604,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         private void UpdateRawBuffer(List<double> rawBuffer, double newValue)
         {
             rawBuffer.Add(newValue);
-            if (rawBuffer.Count > 100)
+            if (rawBuffer.Count >= (1024+1))
             {
                 rawBuffer.RemoveAt(0);
             }
@@ -2421,6 +2448,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             PlotModel.Series.Add(new LineSeries
             {
                 Title = title,
+                TrackerFormatString = "{0}\nTime: {2:0.000}\nValue: {4:0.000}",
                 Color = color
             });
         }
@@ -2612,7 +2640,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         public void InitializeInterface()
         {
             Interface.TimeDividing = 1000.0;
-            Interface.ValueDividing = 1.0;
+            Interface.ValueDividing = 10.0;
 
             thrust.calibration.AddingOn = true;
             torque.calibration.AddingOn = true;
@@ -2704,22 +2732,26 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     {
                         if (PlotModel.Series[0] is LineSeries thrustSeries)
                         {
-                            UpdateSeries(thrustSeries, latestTime, thrustValue, thrust.raw.NoiseValue);
+                            UpdateSeries(thrustSeries, latestTime, thrustValue);
+                            thrust.raw.NoiseValue = CalculateSeriesStatistics(thrustSeries);
                         }
 
                         if (PlotModel.Series[1] is LineSeries torqueSeries)
                         {
-                            UpdateSeries(torqueSeries, latestTime, torqueValue, torque.raw.NoiseValue);
+                            UpdateSeries(torqueSeries, latestTime, torqueValue);
+                            torque.raw.NoiseValue = CalculateSeriesStatistics(torqueSeries);
                         }
 
                         if (PlotModel.Series[2] is LineSeries currentSeries)
                         {
-                            UpdateSeries(currentSeries, latestTime, currentValue, current.raw.NoiseValue);
+                            UpdateSeries(currentSeries, latestTime, currentValue);
+                            current.raw.NoiseValue = CalculateSeriesStatistics(currentSeries);
                         }
 
                         if (PlotModel.Series[3] is LineSeries voltageSeries)
                         {
-                            UpdateSeries(voltageSeries, latestTime, voltageValue, voltage.raw.NoiseValue);
+                            UpdateSeries(voltageSeries, latestTime, voltageValue);
+                            voltage.raw.NoiseValue = CalculateSeriesStatistics(voltageSeries);
                         }
 
                         PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
@@ -2731,7 +2763,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private void UpdateSeries(LineSeries series, double latestTime, double value, double noiseValue)
+        private void UpdateSeries(LineSeries series, double latestTime, double value)
         {
             try
             {
@@ -2740,9 +2772,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                 // Eski veri noktalarını kaldır
                 series.Points.RemoveAll(p => p.X < latestTime - Interface.TimeDividing / 1000.0);
-
-                // Gürültü değerini hesapla
-                noiseValue = CalculateSeriesStatistics(series);
 
                 // Zaman eksenini (X ekseni) yeniden ölçekle
                 if (series.PlotModel?.Axes.FirstOrDefault(a => a.Position == AxisPosition.Bottom) is LinearAxis xAxis)
@@ -2786,100 +2815,205 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         #endregion
 
-        #region FFT
+        #region FFT Plot
+
         private PlotModel _fftPlotModel;
         public PlotModel FFTPlotModel
         {
             get => _fftPlotModel;
-            set
-            {
-                if (_fftPlotModel != value)
-                {
-                    _fftPlotModel = value;
-                    OnPropertyChanged();
-                }
-            }
+            set => SetProperty(ref _fftPlotModel, value);
         }
+
+        // FFT güncelleme döngüsü için CancellationTokenSource
+        private CancellationTokenSource _updateFFTPlotDataLoopCancellationTokenSource;
 
         private void InitializeFFTPlotModel()
         {
-            FFTPlotModel = new PlotModel { };
+            FFTPlotModel = new PlotModel
+            {
+                Title = "FFT Görünümü",
+                Subtitle = "Spektrum Analizi"
+            };
 
-            // FFT Serileri Ekle
-            AddFFTSeries("Thrust FFT", OxyColors.Red);
-            AddFFTSeries("Torque FFT", OxyColors.Green);
-            AddFFTSeries("Current FFT", OxyColors.Blue);
-            AddFFTSeries("Voltage FFT", OxyColors.Purple);
+            // Thrust için seri
+            FFTPlotModel.Series.Add(new LineSeries
+            {
+                Title = "FFT-Thrust",
+                TrackerFormatString = "{0}\nFrekans (Hz): {2:0.000}\nGenlik (Amplitude): {4:0.000}",
+                Color = OxyColors.Red,
+                StrokeThickness = 2
+            });
 
-            // FFT Legend Ekle
-            FFTPlotModel.Legends.Add(new OxyPlot.Legends.Legend
+            // Torque için seri
+            FFTPlotModel.Series.Add(new LineSeries
+            {
+                Title = "FFT-Torque",
+                TrackerFormatString = "{0}\nFrekans (Hz): {2:0.000}\nGenlik (Amplitude): {4:0.000}",
+                Color = OxyColors.Blue,
+                StrokeThickness = 2
+            });
+
+            // Current için seri
+            FFTPlotModel.Series.Add(new LineSeries
+            {
+                Title = "FFT-Current",
+                TrackerFormatString = "{0}\nFrekans (Hz): {2:0.000}\nGenlik (Amplitude): {4:0.000}",
+                Color = OxyColors.Green,
+                StrokeThickness = 2
+            });
+
+            // Voltage için seri
+            FFTPlotModel.Series.Add(new LineSeries
+            {
+                Title = "FFT-Voltage",
+                TrackerFormatString = "{0}\nFrekans (Hz): {2:0.000}\nGenlik (Amplitude): {4:0.000}",
+                Color = OxyColors.Purple,
+                StrokeThickness = 2
+            });
+
+            // Eğer tek bir sensörün FFT'sini çizecekseniz, Series'i tek ekleyebilirsiniz.
+            // İsteğe bağlı olarak Legend ekleyebilirsiniz
+            FFTPlotModel.Legends.Add(new Legend
             {
                 LegendTitle = "FFT Legend",
-                LegendPosition = LegendPosition.RightTop,
-                LegendTextColor = OxyColors.Black
+                LegendPosition = LegendPosition.TopRight
             });
-        }
 
-        // FFT Serisi Eklemek için Yardımcı Metot
-        private void AddFFTSeries(string title, OxyColor color)
-        {
-            var series = new LineSeries
+            // X Ekseni (Frekans ekseni)
+            FFTPlotModel.Axes.Add(new LinearAxis
             {
-                Title = title,
-                Color = color,
-                StrokeThickness = 2,
-                LineStyle = LineStyle.Solid
-            };
-            FFTPlotModel.Series.Add(series);
+                Position = AxisPosition.Bottom,
+                Title = "Frekans (Hz)",
+                Minimum = 0
+            });
+
+            // Y Ekseni (Genlik / Magnitüd ekseni)
+            FFTPlotModel.Axes.Add(new LinearAxis
+            {
+                Position = AxisPosition.Left,
+                Title = "Genlik (Amplitude)",
+                Minimum = 0
+            });
         }
         #endregion
 
         #region Update FFT Plot Data
-        private CancellationTokenSource _updateFFTPlotDataLoopCancellationTokenSource;
 
-        private int FFTPlotUpdateTimeMillisecond = 10; // 100 Hz (10ms)
-
-        private readonly object _FFTPlotDataLock = new();
         private async Task UpdateFFTPlotDataLoop(CancellationToken token)
         {
             try
             {
+                double sampleRate = SampleCount;        // Örnekleme hızınız (Hz) - projenizdeki gerçek değere uyarlayın
+                int updateIntervalMs = 500;             // 0.5 sn'de bir FFT grafiğini güncelle
+
                 while (!token.IsCancellationRequested)
                 {
-                    await Task.Delay(PlotUpdateTimeMillisecond, token);
+                    await Task.Delay(updateIntervalMs, token);
 
-                    double[] thrustFFTValues, torqueFFTValues, currentFFTValues, voltageFFTValues;
-
-                    lock (_PlotDataLock)
+                    try
                     {
-                        // FFT için Series.Points verilerini kullan
-                        thrustFFTValues = CalculateFFT(GetYValuesFromSeries(PlotModel.Series[0] as LineSeries));
-                        torqueFFTValues = CalculateFFT(GetYValuesFromSeries(PlotModel.Series[1] as LineSeries));
-                        currentFFTValues = CalculateFFT(GetYValuesFromSeries(PlotModel.Series[2] as LineSeries));
-                        voltageFFTValues = CalculateFFT(GetYValuesFromSeries(PlotModel.Series[3] as LineSeries));
+                        // 1) Thrust FFT hesapla
+                        // raw.Buffer 1024 eleman biriktiriyorsa tam FFT yapabilirsiniz;
+                        // yoksa zero-padding yapabilir veya 1024'e ulaşana kadar bekleyebilirsiniz.
+                        if (thrust.raw.Buffer.Count >= 1024)
+                        {
+                            var (freqsThrust, magsThrust) = ComputeFFT(thrust.raw.Buffer, sampleRate);
+
+                            // UI Thread üstünde grafiği güncelle
+                            await Application.Current.Dispatcher.InvokeAsync(() =>
+                            {
+                                var thrustSeries = FFTPlotModel.Series[0] as LineSeries;
+                                if (thrustSeries != null)
+                                {
+                                    thrustSeries.Points.Clear();
+                                    for (int i = 0; i < freqsThrust.Length; i++)
+                                    {
+                                        thrustSeries.Points.Add(new DataPoint(freqsThrust[i], magsThrust[i]));
+                                    }
+                                }
+                            });
+                        }
+
+                        // 2) Torque FFT hesapla
+                        if (torque.raw.Buffer.Count >= 1024)
+                        {
+                            var (freqsTorque, magsTorque) = ComputeFFT(torque.raw.Buffer, sampleRate);
+
+                            await Application.Current.Dispatcher.InvokeAsync(() =>
+                            {
+                                var torqueSeries = FFTPlotModel.Series[1] as LineSeries;
+                                if (torqueSeries != null)
+                                {
+                                    torqueSeries.Points.Clear();
+                                    for (int i = 0; i < freqsTorque.Length; i++)
+                                    {
+                                        torqueSeries.Points.Add(new DataPoint(freqsTorque[i], magsTorque[i]));
+                                    }
+                                }
+                            });
+                        }
+
+                        // 3) Current FFT
+                        if (current.raw.Buffer.Count >= 1024)
+                        {
+                            var (freqsCurrent, magsCurrent) = ComputeFFT(current.raw.Buffer, sampleRate);
+
+                            await Application.Current.Dispatcher.InvokeAsync(() =>
+                            {
+                                var currentSeries = FFTPlotModel.Series[2] as LineSeries;
+                                if (currentSeries != null)
+                                {
+                                    currentSeries.Points.Clear();
+                                    for (int i = 0; i < freqsCurrent.Length; i++)
+                                    {
+                                        currentSeries.Points.Add(new DataPoint(freqsCurrent[i], magsCurrent[i]));
+                                    }
+                                }
+                            });
+                        }
+
+                        // 4) Voltage FFT
+                        if (voltage.raw.Buffer.Count >= 1024)
+                        {
+                            var (freqsVoltage, magsVoltage) = ComputeFFT(voltage.raw.Buffer, sampleRate);
+
+                            await Application.Current.Dispatcher.InvokeAsync(() =>
+                            {
+                                var voltageSeries = FFTPlotModel.Series[3] as LineSeries;
+                                if (voltageSeries != null)
+                                {
+                                    voltageSeries.Points.Clear();
+                                    for (int i = 0; i < freqsVoltage.Length; i++)
+                                    {
+                                        voltageSeries.Points.Add(new DataPoint(freqsVoltage[i], magsVoltage[i]));
+                                    }
+                                }
+                            });
+                        }
+
+                        // 5) Grafiği (tek seferde) güncellemek isterseniz en son da yapabilirsiniz
+                        await Application.Current.Dispatcher.InvokeAsync(() =>
+                        {
+                            FFTPlotModel.InvalidatePlot(true);
+                        });
                     }
-
-                    // FFT sonuçlarını grafiğe yansıt
-                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    catch (Exception ex)
                     {
-                        UpdateFFTSeries(FFTPlotModel.Series[0] as LineSeries, thrustFFTValues);
-                        UpdateFFTSeries(FFTPlotModel.Series[1] as LineSeries, torqueFFTValues);
-                        UpdateFFTSeries(FFTPlotModel.Series[2] as LineSeries, currentFFTValues);
-                        UpdateFFTSeries(FFTPlotModel.Series[3] as LineSeries, voltageFFTValues);
-
-                        FFTPlotModel.InvalidatePlot(true); // FFT grafiğini yeniden çiz
-                    });
+                        // Yakalanamayan iptal hariç hataları yönetebilirsiniz
+                        MessageBox.Show($"FFT update error: {ex.Message}","Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"FFT update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            }         
         }
 
         public void StartUpdateFFTPlotDataLoop()
         {
-            StopUpdateFFTPlotDataLoop(); // Eski döngüyü durdur
+            StopUpdateFFTPlotDataLoop(); // Varsa eski döngüyü durdur
+
             _updateFFTPlotDataLoopCancellationTokenSource = new CancellationTokenSource();
             var token = _updateFFTPlotDataLoopCancellationTokenSource.Token;
             _ = UpdateFFTPlotDataLoop(token);
@@ -2887,43 +3021,115 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
         public void StopUpdateFFTPlotDataLoop()
         {
-            if (_updateFFTPlotDataLoopCancellationTokenSource != null && !_updateFFTPlotDataLoopCancellationTokenSource.IsCancellationRequested)
+            if (_updateFFTPlotDataLoopCancellationTokenSource != null
+                && !_updateFFTPlotDataLoopCancellationTokenSource.IsCancellationRequested)
             {
                 _updateFFTPlotDataLoopCancellationTokenSource.Cancel();
                 _updateFFTPlotDataLoopCancellationTokenSource.Dispose();
                 _updateFFTPlotDataLoopCancellationTokenSource = null;
             }
         }
-        private double[] GetYValuesFromSeries(LineSeries series)
-        {
-            if (series == null || series.Points.Count == 0)
-                return Array.Empty<double>();
-
-            return series.Points.Select(point => point.Y).ToArray();
-        }
-
-        private double[] CalculateFFT(double[] data)
-        {
-            if (data.Length == 0) return Array.Empty<double>();
-
-            // Math.NET Numerics kullanarak FFT hesapla
-            var complexData = data.Select(value => new System.Numerics.Complex(value, 0)).ToArray();
-            MathNet.Numerics.IntegralTransforms.Fourier.Forward(complexData, MathNet.Numerics.IntegralTransforms.FourierOptions.Matlab);
-
-            // FFT sonuçlarının genliklerini al
-            return complexData.Select(c => c.Magnitude).ToArray();
-        }
-        private void UpdateFFTSeries(LineSeries series, double[] fftValues)
-        {
-            if (series == null) return;
-
-            series.Points.Clear();
-            for (int i = 0; i < fftValues.Length; i++)
-            {
-                series.Points.Add(new DataPoint(i, fftValues[i]));
-            }
-        }
         #endregion
 
+        #region FFT Calculation
+
+
+        /// <summary>
+        /// Belirli bir örnek kümesi (time-domain) üzerinde FFT uygular,
+        /// tek taraflı spektrum (0..Nyquist) frekanslarını ve amplitüdlerini döndürür.
+        /// </summary>
+        /// <param name="buffer">Örnek (time-domain) değerler listesi</param>
+        /// <param name="sampleRate">Örnekleme hızı (Hz)</param>
+        /// <returns>(frekans[], genlik[])</returns>
+        private (double[] frequencies, double[] amplitudes) ComputeFFT(List<double> buffer, double sampleRate)
+        {
+            if (buffer == null || buffer.Count < 2)
+                return (Array.Empty<double>(), Array.Empty<double>());
+
+            // 1) Kaç örnek var?
+            int originalCount = buffer.Count;
+
+            // 2) 2'nin kuvvetine yuvarlama (zero-padding için)
+            int N = FindNextPowerOfTwo(originalCount);
+
+            // 3) Sıfır doldurma (zero-padding) yapılmış dizi
+            double[] paddedData = new double[N];
+            for (int i = 0; i < originalCount; i++)
+            {
+                paddedData[i] = buffer[i];
+            }
+            // Kalanlar otomatik olarak 0.0
+
+            // 4) FFT için Complex32 dizi hazırla
+            Complex32[] samples = new Complex32[N];
+            for (int i = 0; i < N; i++)
+            {
+                samples[i] = new Complex32((float)paddedData[i], 0.0f);
+            }
+
+            // 5) FFT (in-place) - MathNet
+            Fourier.Forward(samples, FourierOptions.Matlab);
+
+            // 6) Tek taraflı spektrum boyutu
+            //    (DC=0 bininden Nyquist=N/2 binine kadar) => halfSize = N/2 + 1 (ama genelde N/2 kadar işleyip son binin logic'ine bakabilirsiniz)
+            int halfSize = N / 2;  // Tam sayı bölünüyorsa DC..(N/2 - 1) + Nyquist
+                                   // Dilerseniz halfSize = (N / 2) + 1 yapabilirsiniz; 
+                                   // ancak çoğu uygulamada N/2 binini Nyquist olarak dahil edip 0..N/2 arası incelenir.
+
+            double[] freqs = new double[halfSize];
+            double[] amps = new double[halfSize];
+
+            // 7) Tek taraflı spektrumun (pik) genlik hesabı
+            //
+            //    - i = 0 (DC) veya (i = N/2) (Nyquist, eğer N çift ise) => amplitüd = mag / N
+            //    - Diğer i'ler => amplitüd = (2 * mag) / N
+            //
+            //    Burada 'mag' = sqrt(Re^2 + Im^2), 
+            //    Re = samples[i].Real, Im = samples[i].Imaginary
+            //
+            //    Bu sayede ideal durumda (integer cycle) saf sinüsün frekans binine denk geldiğinde 
+            //    amplitüd değeri, sinüs dalgasının tepe (peak) genliğini yansıtır.
+            //
+            for (int i = 0; i < halfSize; i++)
+            {
+                float re = samples[i].Real;
+                float im = samples[i].Imaginary;
+                double mag = Math.Sqrt(re * re + im * im);
+
+                // DC veya Nyquist bin ise 1/N, diğer binler için 2/N
+                if (i == 0 || (i == halfSize && (N % 2 == 0)))
+                {
+                    // Not: i == halfSize bu örnekte genelde devreye girmez, 
+                    // çünkü halfSize = N/2 ve for(i < N/2). 
+                    // Ama mantık olarak gösteriyoruz.
+                    amps[i] = mag / N;
+                }
+                else
+                {
+                    amps[i] = (2.0 * mag) / N;
+                }
+
+                // Frekans ekseni
+                freqs[i] = (i * sampleRate) / N;
+            }
+
+            return (freqs, amps);
+        }
+
+        /// <summary>
+        /// Verilen tamsayının kendisinden büyük veya eşit en yakın 2^k değerini döndürür.
+        /// Örnek: 513 => 1024, 1025 => 2048
+        /// </summary>
+        private int FindNextPowerOfTwo(int x)
+        {
+            // x zaten 2^k ise doğrudan dön
+            if ((x & (x - 1)) == 0)
+                return x;
+
+            int p = 1;
+            while (p < x) p <<= 1;
+            return p;
+        }
+        #endregion
     }
 }

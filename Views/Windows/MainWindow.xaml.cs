@@ -49,12 +49,21 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Views.Windows
         {
             InitializeComponent();
 
+
             #region Cihaz Oluşturma
             // Dynotis cihazını oluştur
             dynotis = new Dynotis();
 
             dynotis.Interface.PropertyChanged += Interface_PropertyChanged;
             DataContext = this;
+            #endregion
+
+            #region Plot için tüm varsayılan fare eylemlerini kaldır
+                var customController = new PlotController();
+                customController.UnbindAll();
+                customController.BindMouseDown(OxyMouseButton.Left, PlotCommands.Track);
+                FFTPlot_Area.Controller = customController;
+                Plot_Area.Controller = customController;
             #endregion
 
             #region Tablo Başlıkları İlk Değer Ataması
