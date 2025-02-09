@@ -826,7 +826,7 @@
                             
                             <StackPanel Orientation="Horizontal" Grid.Column="1">
                                 <Label Content="Value/Dividing: " Width="120" Height="40" FontSize="16" HorizontalAlignment="Left" Margin="0 0 0 0"/>
-                                <Slider Value="{Binding dynotis.Interface.ValueDividing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="1" Maximum="10000" TickFrequency="10" IsSnapToTickEnabled="True" Height="20" Width="200" Margin="-5 5 0 0"/>
+                                <Slider Value="{Binding dynotis.Interface.ValueDividing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0.1" Maximum="100" TickFrequency="0.1" IsSnapToTickEnabled="True" Height="20" Width="200" Margin="-5 5 0 0"/>
                                 <TextBlock FontSize="16" HorizontalAlignment="Left" Margin="10 0 0 0">
                                     <Run Text="{Binding dynotis.Interface.ValueDividing, StringFormat={}{0:0.0}}" />
                                     <Run Text=" *" />

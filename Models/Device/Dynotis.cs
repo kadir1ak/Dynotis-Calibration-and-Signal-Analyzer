@@ -2612,7 +2612,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         public void InitializeInterface()
         {
             Interface.TimeDividing = 1000.0;
-            Interface.ValueDividing = 100.0;
+            Interface.ValueDividing = 1.0;
 
             thrust.calibration.AddingOn = true;
             torque.calibration.AddingOn = true;
@@ -2757,8 +2757,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     // Y eksenini dinamik olarak ayarla (örneğin, min ve max değerler arasında bir tampon bırakabilirsiniz)
                     double minValue = series.Points.Min(p => p.Y);
                     double maxValue = series.Points.Max(p => p.Y);
-                    yAxis.Minimum = minValue - Interface.ValueDividing; // Alt sınır
-                    yAxis.Maximum = maxValue + Interface.ValueDividing; // Üst sınır
+                    yAxis.Minimum = minValue * Interface.ValueDividing; // Alt sınır
+                    yAxis.Maximum = maxValue * Interface.ValueDividing; // Üst sınır
                 }
             }
             catch (Exception ex)
