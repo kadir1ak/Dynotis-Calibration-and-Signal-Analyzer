@@ -2410,83 +2410,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         #endregion
 
-        #region Plot
-
-        private PlotModel _plotModel;
-        public PlotModel PlotModel
-        {
-            get => _plotModel;
-            set
-            {
-                if (_plotModel != value)
-                {
-                    _plotModel = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        private void InitializePlotModel()
-        {
-            PlotModel = new PlotModel {};
-            AddSeries("Thrust", OxyColors.Orange);
-            AddSeries("Torque", OxyColors.DarkSeaGreen);
-            AddSeries("Current", OxyColor.Parse("#FF3D67B9"));
-            AddSeries("Voltage", OxyColors.Purple);
-
-            PlotModel.Legends.Add(new OxyPlot.Legends.Legend
-            {
-                LegendTitle = "Legend",
-                LegendPosition = LegendPosition.LeftTop,
-                LegendTextColor = OxyColors.Black
-            });
-
-            UpdatePlotVisibility(Interface.Mode);
-        }
-
-        private void AddSeries(string title, OxyColor color)
-        {
-            PlotModel.Series.Add(new LineSeries
-            {
-                Title = title,
-                TrackerFormatString = "{0}\nTime: {2:0.000}\nValue: {4:0.000}",
-                Color = color
-            });
-        }
-        private void UpdatePlotVisibility(Mode mode)
-        {
-            if (PlotModel == null || PlotModel.Series.Count == 0) return;
-
-            foreach (var series in PlotModel.Series.OfType<LineSeries>())
-            {
-                series.IsVisible = false; // Varsayılan olarak tüm serileri gizle
-            }
-
-            switch (mode)
-            {
-                case Mode.Thrust:
-                    PlotModel.Series[0].IsVisible = true; // Sadece Thrust serisini görünür yap
-                    break;
-                case Mode.Torque:
-                    PlotModel.Series[1].IsVisible = true; // Sadece Torque serisini görünür yap
-                    break;
-                case Mode.LoadCellTest:
-                    PlotModel.Series[0].IsVisible = true; // Thrust serisini görünür yap
-                    PlotModel.Series[1].IsVisible = true; // Torque serisini görünür yap
-                    break;
-                case Mode.Current:
-                    PlotModel.Series[2].IsVisible = true; // Sadece Current serisini görünür yap
-                    break;
-                case Mode.Voltage:
-                    PlotModel.Series[3].IsVisible = true; // Sadece Voltage serisini görünür yap
-                    break;
-                default:
-                    break;
-            }
-
-            PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
-        }
-        #endregion
-
         #region Update Interface Data
 
         private InterfaceData _interface;
@@ -2700,10 +2623,87 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         }
         #endregion
 
+        #region Plot
+
+        private PlotModel _plotModel;
+        public PlotModel PlotModel
+        {
+            get => _plotModel;
+            set
+            {
+                if (_plotModel != value)
+                {
+                    _plotModel = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        private void InitializePlotModel()
+        {
+            PlotModel = new PlotModel { };
+            AddSeries("Thrust", OxyColors.Orange);
+            AddSeries("Torque", OxyColors.DarkSeaGreen);
+            AddSeries("Current", OxyColor.Parse("#FF3D67B9"));
+            AddSeries("Voltage", OxyColors.Purple);
+
+            PlotModel.Legends.Add(new OxyPlot.Legends.Legend
+            {
+                LegendTitle = "Legend",
+                LegendPosition = LegendPosition.LeftTop,
+                LegendTextColor = OxyColors.Black
+            });
+
+            UpdatePlotVisibility(Interface.Mode);
+        }
+
+        private void AddSeries(string title, OxyColor color)
+        {
+            PlotModel.Series.Add(new LineSeries
+            {
+                Title = title,
+                TrackerFormatString = "{0}\nTime: {2:0.000}\nValue: {4:0.000}",
+                Color = color
+            });
+        }
+        private void UpdatePlotVisibility(Mode mode)
+        {
+            if (PlotModel == null || PlotModel.Series.Count == 0) return;
+
+            foreach (var series in PlotModel.Series.OfType<LineSeries>())
+            {
+                series.IsVisible = false; // Varsayılan olarak tüm serileri gizle
+            }
+
+            switch (mode)
+            {
+                case Mode.Thrust:
+                    PlotModel.Series[0].IsVisible = true; // Sadece Thrust serisini görünür yap
+                    break;
+                case Mode.Torque:
+                    PlotModel.Series[1].IsVisible = true; // Sadece Torque serisini görünür yap
+                    break;
+                case Mode.LoadCellTest:
+                    PlotModel.Series[0].IsVisible = true; // Thrust serisini görünür yap
+                    PlotModel.Series[1].IsVisible = true; // Torque serisini görünür yap
+                    break;
+                case Mode.Current:
+                    PlotModel.Series[2].IsVisible = true; // Sadece Current serisini görünür yap
+                    break;
+                case Mode.Voltage:
+                    PlotModel.Series[3].IsVisible = true; // Sadece Voltage serisini görünür yap
+                    break;
+                default:
+                    break;
+            }
+
+            PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
+        }
+        #endregion
+
         #region Update Plot Data
         private CancellationTokenSource _updatePlotDataLoopCancellationTokenSource;
 
-        private int PlotUpdateTimeMillisecond = 10; // 100 Hz (10ms)
+        private int PlotUpdateTimeMillisecond = 2; // 500 Hz (2ms)
 
         private readonly object _PlotDataLock = new();
         private async Task UpdatePlotDataLoop(CancellationToken token)
@@ -2754,6 +2754,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                             voltage.raw.NoiseValue = CalculateSeriesStatistics(voltageSeries);
                         }
 
+                        UpdateYAxisByMode(Interface.Mode);
                         PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
                     });
                 }
@@ -2780,6 +2781,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     xAxis.Maximum = latestTime;
                 }
 
+                
+                /*
+                 * TODO: Güncellenecek
                 // Değer eksenini (Y ekseni) yeniden ölçekle
                 if (series.PlotModel?.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) is LinearAxis yAxis)
                 {
@@ -2789,11 +2793,92 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     yAxis.Minimum = minValue * Interface.ValueDividing; // Alt sınır
                     yAxis.Maximum = maxValue * Interface.ValueDividing; // Üst sınır
                 }
+                */
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void UpdateYAxisByMode(Mode mode)
+        {
+            if (PlotModel == null) return;
+
+            var yAxis = PlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) as LinearAxis;
+            if (yAxis == null) return;
+
+            // Başlangıç değerleri (veri yoksa belli olsun diye)
+            double minValue = double.MaxValue;
+            double maxValue = double.MinValue;
+
+            // Hangi serilerde min–max alacağımızı seçelim
+            List<int> seriesIndices = new List<int>();
+            switch (mode)
+            {
+                case Mode.Thrust:
+                    seriesIndices.Add(0); // Thrust serisi
+                    break;
+                case Mode.Torque:
+                    seriesIndices.Add(1); // Torque serisi
+                    break;
+                case Mode.Current:
+                    seriesIndices.Add(2); // Current serisi
+                    break;
+                case Mode.Voltage:
+                    seriesIndices.Add(3); // Voltage serisi
+                    break;
+                case Mode.LoadCellTest:
+                    seriesIndices.Add(0); // Thrust
+                    seriesIndices.Add(1); // Torque
+                    break;
+                default:
+                    // İsteğe bağlı diğer modlar
+                    break;
+            }
+
+            // Seçilen seriler için min–max bulma
+            foreach (int idx in seriesIndices)
+            {
+                if (idx < 0 || idx >= PlotModel.Series.Count)
+                    continue;
+
+                if (PlotModel.Series[idx] is LineSeries ls && ls.IsVisible && ls.Points.Count > 0)
+                {
+                    double localMin = ls.Points.Min(p => p.Y);
+                    double localMax = ls.Points.Max(p => p.Y);
+                    if (localMin < minValue) minValue = localMin;
+                    if (localMax > maxValue) maxValue = localMax;
+                }
+            }
+
+            // Herhangi bir veri yoksa eksen güncellenmesin
+            if (minValue == double.MaxValue || maxValue == double.MinValue)
+                return;
+
+            // Tüm değerler aynı olabilir (ör: hepsi 10.0)
+            if (Math.Abs(maxValue - minValue) < 1e-12)
+            {
+                // +/− 1 birimlik ufak bir aralık
+                yAxis.Minimum = minValue - 1.0;
+                yAxis.Maximum = maxValue + 1.0;
+            }
+            else
+            {
+                // Aralık (range) ve marjin hesabı
+                double range = maxValue - minValue;
+
+                // ValueDividing, slider’dan gelen çarpan veya bölme faktörü
+                // Örnek kullanım: eğer 1 ise normal %10 pay, 2 ise %20 pay vb.
+                double marginFactor = 1.0 * Interface.ValueDividing;
+                double margin = range * marginFactor;
+
+                yAxis.Minimum = minValue - margin;
+                yAxis.Maximum = maxValue + margin;
+            }
+
+            // Grafiği güncelle
+            PlotModel.InvalidatePlot(false);
         }
 
         public void StartUpdatePlotDataLoop()
@@ -2904,7 +2989,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             try
             {
                 double sampleRate = SampleCount;        // Örnekleme hızınız (Hz) - projenizdeki gerçek değere uyarlayın
-                int updateIntervalMs = 500;             // 0.5 sn'de bir FFT grafiğini güncelle
+                int updateIntervalMs = 1000;             // 1.0 sn'de bir FFT grafiğini güncelle
 
                 while (!token.IsCancellationRequested)
                 {
