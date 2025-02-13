@@ -334,8 +334,8 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 // Grafik güncelleme döngüsünü başlat
                 StartUpdatePlotDataLoop();
                 // FFT plot döngüsü
-                await Task.Delay(5000);
-                StartUpdateFFTPlotDataLoop();
+                // await Task.Delay(5000);
+                // StartUpdateFFTPlotDataLoop();
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -423,10 +423,14 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             current.raw.Value = akım;
             voltage.raw.Value = voltaj;
 
+            /*
+             * TODO: FFT için veri toplama
+             * 
             UpdateRawBuffer(thrust.raw.Buffer, itki);
             UpdateRawBuffer(torque.raw.Buffer, tork);
             UpdateRawBuffer(current.raw.Buffer, akım);
             UpdateRawBuffer(voltage.raw.Buffer, voltaj);
+            */
 
         }
 
@@ -2703,7 +2707,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         #region Update Plot Data
         private CancellationTokenSource _updatePlotDataLoopCancellationTokenSource;
 
-        private int PlotUpdateTimeMillisecond = 2; // 500 Hz (2ms)
+        private int PlotUpdateTimeMillisecond = 20; // 50 Hz (20ms)
 
         private readonly object _PlotDataLock = new();
         private async Task UpdatePlotDataLoop(CancellationToken token)
@@ -2780,20 +2784,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     xAxis.Minimum = latestTime - Interface.TimeDividing / 1000.0;
                     xAxis.Maximum = latestTime;
                 }
-
-                
-                /*
-                 * TODO: Güncellenecek
-                // Değer eksenini (Y ekseni) yeniden ölçekle
-                if (series.PlotModel?.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) is LinearAxis yAxis)
-                {
-                    // Y eksenini dinamik olarak ayarla (örneğin, min ve max değerler arasında bir tampon bırakabilirsiniz)
-                    double minValue = series.Points.Min(p => p.Y);
-                    double maxValue = series.Points.Max(p => p.Y);
-                    yAxis.Minimum = minValue * Interface.ValueDividing; // Alt sınır
-                    yAxis.Maximum = maxValue * Interface.ValueDividing; // Üst sınır
-                }
-                */
             }
             catch (Exception ex)
             {
