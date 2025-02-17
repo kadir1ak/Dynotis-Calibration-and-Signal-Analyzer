@@ -7,10 +7,13 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using System.Threading;
 using System.Windows;
 using OxyPlot;
 using OxyPlot.Series;
 using MathNet.Numerics;
+using MathNet.Numerics.Distributions;
 using System.Windows.Threading;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Interface;
 using Dynotis_Calibration_and_Signal_Analyzer.Models.Sensors;
@@ -23,8 +26,6 @@ using Microsoft.VisualBasic;
 using System.Windows.Controls;
 using MathNet.Numerics.IntegralTransforms;
 using OxyPlot.Axes;
-using MathNet.Numerics.IntegralTransforms;
-using MathNet.Numerics.Distributions;
 
 namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 {
@@ -301,6 +302,10 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 }
             }
         }
+        private BlockingCollection<string> dataQueue = new BlockingCollection<string>();
+        private CancellationTokenSource cancellationTokenSource;
+        private Task processingTask;
+
         public async Task SerialPortConnect(string portName)
         {
             try
@@ -326,16 +331,20 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                 // Veri alımı için olay işleyicisini bağla
                 serialPort.DataReceived += SerialPort_DataReceived;
+
                 // Seri portu aç
                 serialPort.Open();
                 ConnectStatus = "Bağlı";
-                // Seri port başarıyla açıldıysa ara yüz verilerini güncelleme döngüsünü başlat
+
+                // Veri işleme kuyruğu başlat
+                cancellationTokenSource = new CancellationTokenSource();
+                processingTask = Task.Run(() => ProcessDataQueue(cancellationTokenSource.Token));
+
+                // Seri port başarıyla açıldıysa diğer döngüleri başlat
                 StartUpdateInterfaceDataLoop();
-                // Grafik güncelleme döngüsünü başlat
                 StartUpdatePlotDataLoop();
-                // FFT plot döngüsü
-                // await Task.Delay(5000);
-                // StartUpdateFFTPlotDataLoop();
+                await Task.Delay(5000);
+                StartUpdateFFTPlotDataLoop();
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -349,19 +358,18 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             {
                 MessageBox.Show($"Error connecting to port: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-      
-        }
+        }      
+
         public void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             try
             {
                 if (serialPort == null || !serialPort.IsOpen) return;
 
-                //string indata = serialPort.ReadExisting();
-                string indata = serialPort.ReadLine();
+                // Gelen veriyi oku
+                string indata = serialPort.ReadExisting();
+                //string indata = serialPort.ReadLine();
                 if (string.IsNullOrEmpty(indata)) return;
-
-                // Cihaz tanımlama mesajını kontrol et
                 if (indata.StartsWith("Semai Aviation Ltd.;Dynotis;"))
                 {
                     ParseDeviceInfo(indata); // Cihaz bilgilerini ayrıştır
@@ -371,41 +379,21 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     }
                     else
                     {
-                        StopSendMessageLoop();
+                        StopSendMessageLoop(); // Durum mesajlarını durdur
                     }
                     return;
                 }
 
-                string[] dataParts = indata.Split(',');
-                if (dataParts.Length == 5 &&
-                    double.TryParse(dataParts[0].Replace('.', ','), out double time) &&
-                    double.TryParse(dataParts[1].Replace('.', ','), out double itki) &&
-                    double.TryParse(dataParts[2].Replace('.', ','), out double tork) &&
-                    double.TryParse(dataParts[3].Replace('.', ','), out double akım) &&
-                    double.TryParse(dataParts[4].Replace('.', ','), out double voltaj))
+                if (!string.IsNullOrEmpty(indata))
                 {
-
-                    if (Application.Current?.Dispatcher.CheckAccess() == true)
-                    {
-                        // UI iş parçacığında isek doğrudan çalıştır
-                        UpdateSensorData(indata, time, itki, tork, akım, voltaj);
-                        CalculateSampleRate();
-                    }
-                    else
-                    {
-                        // UI iş parçacığında değilsek Dispatcher kullan
-                        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
-                        {
-                            UpdateSensorData(indata, time, itki, tork, akım, voltaj);
-                            CalculateSampleRate();
-                        }));
-                    }
+                    // Veriyi kuyruğa ekle
+                    dataQueue.Add(indata);
                 }
             }
             catch (IOException ex)
             {
                 StopSerialPort();
-                MessageBox.Show($"I/O Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);              
+                MessageBox.Show($"I/O Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
@@ -413,6 +401,49 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Unexpected Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        private void ProcessDataQueue(CancellationToken cancellationToken)
+        {
+            try
+            {
+                foreach (var data in dataQueue.GetConsumingEnumerable(cancellationToken))
+                {
+                    // Veriyi ayrıştır ve UI güncellemesini yap
+                    string[] dataParts = data.Split(',');
+                    if (dataParts.Length == 5 &&
+                        double.TryParse(dataParts[0].Replace('.', ','), out double time) &&
+                        double.TryParse(dataParts[1].Replace('.', ','), out double itki) &&
+                        double.TryParse(dataParts[2].Replace('.', ','), out double tork) &&
+                        double.TryParse(dataParts[3].Replace('.', ','), out double akım) &&
+                        double.TryParse(dataParts[4].Replace('.', ','), out double voltaj))
+                    {
+                        if (Application.Current?.Dispatcher.CheckAccess() == true)
+                        {
+                            // UI iş parçacığında isek doğrudan çalıştır
+                            UpdateSensorData(data, time, itki, tork, akım, voltaj);
+                            CalculateSampleRate();
+                        }
+                        else
+                        {
+                            // UI iş parçacığında değilsek Dispatcher kullan
+                            Application.Current?.Dispatcher.Invoke(() =>
+                            {
+                                UpdateSensorData(data, time, itki, tork, akım, voltaj);
+                                CalculateSampleRate();
+                            });
+                        }
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // İşlem iptal edildiğinde hata fırlatmayı önle
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unexpected Error in Data Processing: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void UpdateSensorData(string indata, double time, double itki, double tork, double akım, double voltaj)
         {
             portReadData = indata;
@@ -423,15 +454,10 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             current.raw.Value = akım;
             voltage.raw.Value = voltaj;
 
-            /*
-             * TODO: FFT için veri toplama
-             * 
             UpdateRawBuffer(thrust.raw.Buffer, itki);
             UpdateRawBuffer(torque.raw.Buffer, tork);
             UpdateRawBuffer(current.raw.Buffer, akım);
             UpdateRawBuffer(voltage.raw.Buffer, voltaj);
-            */
-
         }
 
         private void CalculateSampleRate()
@@ -456,11 +482,18 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 serialPort.Close();
                 serialPort.DataReceived -= SerialPort_DataReceived;
                 ConnectStatus = "Bağlı Değil";
-                // InterfaceData loop durdurma
+
+                // Veri işleme kuyruğunu durdur
+                cancellationTokenSource?.Cancel();
+                dataQueue?.CompleteAdding();
+
+                // İşleme görevini bekle ve temizle
+                processingTask?.Wait();
+                processingTask = null;
+
+                // Diğer döngüleri durdur
                 StopUpdateInterfaceDataLoop();
-                // Zaman domain loop durdurma
                 StopUpdatePlotDataLoop();
-                // FFT loop durdurma
                 StopUpdateFFTPlotDataLoop();
             }
         }
@@ -2567,7 +2600,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         public void InitializeInterface()
         {
             Interface.TimeDividing = 1000.0;
-            Interface.ValueDividing = 10.0;
+            Interface.ValueDividing = 1.0;
 
             thrust.calibration.AddingOn = true;
             torque.calibration.AddingOn = true;
@@ -2790,7 +2823,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 MessageBox.Show($"Plot update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         private void UpdateYAxisByMode(Mode mode)
         {
             if (PlotModel == null) return;
@@ -2798,77 +2830,62 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             var yAxis = PlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) as LinearAxis;
             if (yAxis == null) return;
 
-            // Başlangıç değerleri (veri yoksa belli olsun diye)
             double minValue = double.MaxValue;
             double maxValue = double.MinValue;
 
-            // Hangi serilerde min–max alacağımızı seçelim
             List<int> seriesIndices = new List<int>();
             switch (mode)
             {
                 case Mode.Thrust:
-                    seriesIndices.Add(0); // Thrust serisi
+                    seriesIndices.Add(0);
                     break;
                 case Mode.Torque:
-                    seriesIndices.Add(1); // Torque serisi
+                    seriesIndices.Add(1);
                     break;
                 case Mode.Current:
-                    seriesIndices.Add(2); // Current serisi
+                    seriesIndices.Add(2);
                     break;
                 case Mode.Voltage:
-                    seriesIndices.Add(3); // Voltage serisi
+                    seriesIndices.Add(3);
                     break;
                 case Mode.LoadCellTest:
-                    seriesIndices.Add(0); // Thrust
-                    seriesIndices.Add(1); // Torque
+                    seriesIndices.Add(0);
+                    seriesIndices.Add(1);
                     break;
                 default:
-                    // İsteğe bağlı diğer modlar
                     break;
             }
 
-            // Seçilen seriler için min–max bulma
             foreach (int idx in seriesIndices)
             {
-                if (idx < 0 || idx >= PlotModel.Series.Count)
-                    continue;
+                if (idx < 0 || idx >= PlotModel.Series.Count) continue;
 
                 if (PlotModel.Series[idx] is LineSeries ls && ls.IsVisible && ls.Points.Count > 0)
                 {
                     double localMin = ls.Points.Min(p => p.Y);
                     double localMax = ls.Points.Max(p => p.Y);
-                    if (localMin < minValue) minValue = localMin;
-                    if (localMax > maxValue) maxValue = localMax;
+                    minValue = Math.Min(minValue, localMin);
+                    maxValue = Math.Max(maxValue, localMax);
                 }
             }
 
-            // Herhangi bir veri yoksa eksen güncellenmesin
-            if (minValue == double.MaxValue || maxValue == double.MinValue)
-                return;
+            if (minValue == double.MaxValue || maxValue == double.MinValue) return;
 
-            // Tüm değerler aynı olabilir (ör: hepsi 10.0)
             if (Math.Abs(maxValue - minValue) < 1e-12)
             {
-                // +/− 1 birimlik ufak bir aralık
                 yAxis.Minimum = minValue - 1.0;
                 yAxis.Maximum = maxValue + 1.0;
             }
             else
             {
-                // Aralık (range) ve marjin hesabı
-                double range = maxValue - minValue;
+                double range = maxValue - minValue; // Veri aralığı
+                double center = (maxValue + minValue) / 2.0; // Orta nokta
+                double margin = range * Interface.ValueDividing; // marj
 
-                // ValueDividing, slider’dan gelen çarpan veya bölme faktörü
-                // Örnek kullanım: eğer 1 ise normal %10 pay, 2 ise %20 pay vb.
-                double marginFactor = 1.0 * Interface.ValueDividing;
-                double margin = range * marginFactor;
-
-                yAxis.Minimum = minValue - margin;
-                yAxis.Maximum = maxValue + margin;
+                // Orta noktayı koruyarak ekseni genişlet
+                yAxis.Minimum = center - (range / 2.0) - margin;
+                yAxis.Maximum = center + (range / 2.0) + margin;
             }
-
-            // Grafiği güncelle
-            PlotModel.InvalidatePlot(false);
         }
 
         public void StartUpdatePlotDataLoop()
@@ -2979,7 +2996,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
             try
             {
                 double sampleRate = SampleCount;        // Örnekleme hızınız (Hz) - projenizdeki gerçek değere uyarlayın
-                int updateIntervalMs = 1000;             // 1.0 sn'de bir FFT grafiğini güncelle
+                int updateIntervalMs = 10000;           // 10.0 sn'de bir FFT grafiğini güncelle
 
                 while (!token.IsCancellationRequested)
                 {
@@ -3088,7 +3105,6 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
         public void StartUpdateFFTPlotDataLoop()
         {
             StopUpdateFFTPlotDataLoop(); // Varsa eski döngüyü durdur
-
             _updateFFTPlotDataLoopCancellationTokenSource = new CancellationTokenSource();
             var token = _updateFFTPlotDataLoopCancellationTokenSource.Token;
             _ = UpdateFFTPlotDataLoop(token);

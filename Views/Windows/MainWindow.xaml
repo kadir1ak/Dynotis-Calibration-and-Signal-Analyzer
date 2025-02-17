@@ -836,19 +836,19 @@
 
                             <StackPanel Orientation="Horizontal" Grid.Column="0">
                                 <Label Content="Time/Dividing: " Width="120" Height="40" FontSize="16" HorizontalAlignment="Left" Margin="0 0 0 0"/>
-                                <Slider Value="{Binding dynotis.Interface.TimeDividing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="10" Maximum="10000" TickFrequency="10" IsSnapToTickEnabled="True" Height="20" Width="200" Margin="-10 5 0 0"/>
-                                <TextBlock FontSize="16" HorizontalAlignment="Left" Margin="10 0 0 0">
-                                    <Run Text="{Binding dynotis.Interface.TimeDividing, StringFormat={}{0:0.0}}" />
+                                <Slider Value="{Binding dynotis.Interface.TimeDividing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="1000" Maximum="10000" TickFrequency="10" IsSnapToTickEnabled="True" Height="20" Width="200" Margin="-10 5 0 0"/>
+                                <TextBlock FontSize="16" HorizontalAlignment="Left" Margin="10 5 0 0">
+                                    <Run Text="{Binding dynotis.Interface.TimeDividing, StringFormat={}{0:0}}" />
                                     <Run Text=" ms" />
                                 </TextBlock>
                             </StackPanel>
                             
                             <StackPanel Orientation="Horizontal" Grid.Column="1">
                                 <Label Content="Value/Dividing: " Width="120" Height="40" FontSize="16" HorizontalAlignment="Left" Margin="0 0 0 0"/>
-                                <Slider Value="{Binding dynotis.Interface.ValueDividing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0.1" Maximum="100" TickFrequency="0.1" IsSnapToTickEnabled="True" Height="20" Width="200" Margin="-5 5 0 0"/>
-                                <TextBlock FontSize="16" HorizontalAlignment="Left" Margin="10 0 0 0">
-                                    <Run Text="{Binding dynotis.Interface.ValueDividing, StringFormat={}{0:0.0}}" />
-                                    <Run Text=" *" />
+                                <Slider Value="{Binding dynotis.Interface.ValueDividing, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0.01" Maximum="10" TickFrequency="0.01" IsSnapToTickEnabled="True" Height="20" Width="200" Margin="-5 5 0 0"/>
+                                <TextBlock FontSize="16" HorizontalAlignment="Left" Margin="10 5 0 0">
+                                    <Run Text="{Binding dynotis.Interface.ValueDividing, StringFormat={}{0:0.00}}" />
+                                    <Run Text=" " />
                                 </TextBlock>
                             </StackPanel>
                         </Grid>
