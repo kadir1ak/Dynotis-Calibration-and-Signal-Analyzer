@@ -80,6 +80,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                         }
                         catch (Exception ex)
                         {
+                            StopSerialPort();
                             MessageBox.Show($"Error sending message: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     }
@@ -492,6 +493,7 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 processingTask = null;
 
                 // Diğer döngüleri durdur
+                StopSendMessageLoop();
                 StopUpdateInterfaceDataLoop();
                 StopUpdatePlotDataLoop();
                 StopUpdateFFTPlotDataLoop();
