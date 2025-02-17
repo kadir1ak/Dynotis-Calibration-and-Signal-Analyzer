@@ -337,6 +337,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 serialPort.Open();
                 ConnectStatus = "Bağlı";
 
+                // Plotları temizle
+                ClearPlots();
+
                 // Veri işleme kuyruğu başlat
                 cancellationTokenSource = new CancellationTokenSource();
                 processingTask = Task.Run(() => ProcessDataQueue(cancellationTokenSource.Token));
@@ -491,6 +494,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                 // İşleme görevini bekle ve temizle
                 processingTask?.Wait();
                 processingTask = null;
+
+                // Plotları temizle
+                ClearPlots();
 
                 // Diğer döngüleri durdur
                 StopSendMessageLoop();
@@ -2737,6 +2743,34 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
             PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
         }
+        private void ClearPlots()
+        {
+            // Zaman domeni grafiği (PlotModel) için
+            if (PlotModel != null)
+            {
+                PlotModel.Legends.Clear();
+                PlotModel.Axes.Clear();
+                PlotModel.Series.Clear();
+                InitializePlotModel();
+                PlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
+            }
+
+            // Frekans domeni grafiği (FFTPlotModel) için
+            if (FFTPlotModel != null)
+            {
+                FFTPlotModel.Legends.Clear();
+                FFTPlotModel.Axes.Clear();
+                FFTPlotModel.Series.Clear();
+                InitializeFFTPlotModel();
+                FFTPlotModel.InvalidatePlot(true); // Grafiği yeniden çiz
+            }
+
+            // Sensör buffer'larını temizle
+            thrust.raw.Buffer.Clear();
+            torque.raw.Buffer.Clear();
+            current.raw.Buffer.Clear();
+            voltage.raw.Buffer.Clear();
+        }
         #endregion
 
         #region Update Plot Data
@@ -3094,13 +3128,12 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
                     catch (Exception ex)
                     {
                         // Yakalanamayan iptal hariç hataları yönetebilirsiniz
-                        MessageBox.Show($"FFT update error: {ex.Message}","Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"FFT update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                //MessageBox.Show($"FFT update loop error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }         
         }
 
