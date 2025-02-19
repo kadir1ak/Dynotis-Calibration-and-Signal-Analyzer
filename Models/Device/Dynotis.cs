@@ -1515,9 +1515,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                 // Katsayıları göster - Denklemleri oluştur
                 string errorEquation = error.Coefficient.ErrorA.ToString() + "x³ +" +
-                                       error.Coefficient.ErrorA.ToString() + "x² +" +
-                                       error.Coefficient.ErrorA.ToString() + "x +" +
-                                       error.Coefficient.ErrorA.ToString();
+                                       error.Coefficient.ErrorB.ToString() + "x² +" +
+                                       error.Coefficient.ErrorC.ToString() + "x +" +
+                                       error.Coefficient.ErrorD.ToString();
 
                 calibration.Coefficient.Equation = equation;
                 error.Coefficient.ErrorEquation = errorEquation;
@@ -1585,9 +1585,9 @@ namespace Dynotis_Calibration_and_Signal_Analyzer.Models.Device
 
                 // Katsayıları göster - Denklemleri oluştur
                 string errorEquation = error.Coefficient.ErrorA.ToString() + "x³ +" +
-                                       error.Coefficient.ErrorA.ToString() + "x² +" +
-                                       error.Coefficient.ErrorA.ToString() + "x +" +
-                                       error.Coefficient.ErrorA.ToString();
+                                       error.Coefficient.ErrorB.ToString() + "x² +" +
+                                       error.Coefficient.ErrorC.ToString() + "x +" +
+                                       error.Coefficient.ErrorD.ToString();
 
                 calibration.Coefficient.Equation = equation;
                 error.Coefficient.ErrorEquation = errorEquation;
